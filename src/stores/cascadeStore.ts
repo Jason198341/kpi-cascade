@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { supabase, isDemoMode } from '@/lib/supabase'
 import { buildMaps, getEffectiveProgress, getContributionTrace } from '@/lib/cascade'
 import { SEED_NODES } from '@/data/seed'
-import type { KpiNode, NodeMap, ChildrenMap, TraceStep, Depth } from '@/types'
+import type { KpiNode, Milestone, NodeMap, ChildrenMap, TraceStep, Depth } from '@/types'
 
 interface CascadeState {
   nodes: KpiNode[]
@@ -18,6 +18,11 @@ interface CascadeState {
   updateNode: (id: string, updates: Partial<KpiNode>) => Promise<void>
   deleteNode: (id: string) => Promise<void>
   updateProgress: (id: string, newValue: number, note?: string) => Promise<void>
+
+  // Milestone actions
+  toggleMilestone: (nodeId: string, milestoneId: string) => Promise<void>
+  addMilestone: (nodeId: string, label: string) => Promise<void>
+  removeMilestone: (nodeId: string, milestoneId: string) => Promise<void>
 
   // Derived
   selectNode: (id: string | null) => void
@@ -59,6 +64,7 @@ export const useCascadeStore = create<CascadeState>((set, get) => ({
   },
 
   addNode: async (partial) => {
+    const milestones = (partial as { milestones?: KpiNode['milestones'] }).milestones ?? null
     const newNode: KpiNode = {
       id: crypto.randomUUID(),
       org_id: partial.org_id,
@@ -72,6 +78,7 @@ export const useCascadeStore = create<CascadeState>((set, get) => ({
       current_value: partial.current_value ?? 0,
       unit: partial.unit ?? '%',
       weight: partial.weight ?? 1.0,
+      milestones,
       status: partial.status ?? 'active',
       priority: partial.priority ?? 'medium',
       start_date: partial.start_date ?? null,
@@ -134,6 +141,64 @@ export const useCascadeStore = create<CascadeState>((set, get) => ({
 
     const nodes = get().nodes.map((n) =>
       n.id === id ? { ...n, current_value: newValue, updated_at: new Date().toISOString() } : n,
+    )
+    set({ nodes, ...rebuildMaps(nodes) })
+  },
+
+  toggleMilestone: async (nodeId, milestoneId) => {
+    const node = get().nodeMap[nodeId]
+    if (!node || !node.milestones) return
+    const milestones = node.milestones.map((m) =>
+      m.id === milestoneId ? { ...m, done: !m.done } : m,
+    )
+    const doneCount = milestones.filter((m) => m.done).length
+    const updates = { milestones, current_value: doneCount, target_value: milestones.length }
+
+    if (!isDemoMode) {
+      const { error } = await supabase.from('kpi_nodes').update(updates).eq('id', nodeId)
+      if (error) throw error
+    }
+    const nodes = get().nodes.map((n) =>
+      n.id === nodeId ? { ...n, ...updates, updated_at: new Date().toISOString() } : n,
+    )
+    set({ nodes, ...rebuildMaps(nodes) })
+  },
+
+  addMilestone: async (nodeId, label) => {
+    const node = get().nodeMap[nodeId]
+    if (!node) return
+    const newMilestone: Milestone = { id: crypto.randomUUID(), label, done: false }
+    const milestones = [...(node.milestones || []), newMilestone]
+    const doneCount = milestones.filter((m) => m.done).length
+    const updates = { milestones, current_value: doneCount, target_value: milestones.length }
+
+    if (!isDemoMode) {
+      const { error } = await supabase.from('kpi_nodes').update(updates).eq('id', nodeId)
+      if (error) throw error
+    }
+    const nodes = get().nodes.map((n) =>
+      n.id === nodeId ? { ...n, ...updates, updated_at: new Date().toISOString() } : n,
+    )
+    set({ nodes, ...rebuildMaps(nodes) })
+  },
+
+  removeMilestone: async (nodeId, milestoneId) => {
+    const node = get().nodeMap[nodeId]
+    if (!node || !node.milestones) return
+    const milestones = node.milestones.filter((m) => m.id !== milestoneId)
+    const doneCount = milestones.filter((m) => m.done).length
+    const updates = {
+      milestones: milestones.length > 0 ? milestones : null,
+      current_value: doneCount,
+      target_value: milestones.length || node.target_value,
+    }
+
+    if (!isDemoMode) {
+      const { error } = await supabase.from('kpi_nodes').update(updates).eq('id', nodeId)
+      if (error) throw error
+    }
+    const nodes = get().nodes.map((n) =>
+      n.id === nodeId ? { ...n, ...updates, updated_at: new Date().toISOString() } : n,
     )
     set({ nodes, ...rebuildMaps(nodes) })
   },

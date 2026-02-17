@@ -86,7 +86,13 @@ export function NodeCard({ node, onClick, showTrace }: Props) {
 
       {/* Metrics */}
       <div className="flex items-center justify-between text-xs text-text-muted">
-        <span className="font-mono">{node.current_value}/{node.target_value} {node.unit}</span>
+        {node.milestones && node.milestones.length > 0 ? (
+          <span className="font-mono">
+            ✓ {node.milestones.filter((m) => m.done).length}/{node.milestones.length}
+          </span>
+        ) : (
+          <span className="font-mono">{node.current_value}/{node.target_value} {node.unit}</span>
+        )}
         <span className="font-mono font-semibold" style={{ color: `var(--color-depth-${node.depth})` }}>
           {Math.round(progress)}%
         </span>

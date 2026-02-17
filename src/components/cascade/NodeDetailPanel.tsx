@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCascadeStore } from '@/stores/cascadeStore'
+import { useOrgStore } from '@/stores/orgStore'
 import { useUIStore } from '@/stores/uiStore'
 import { ProgressRing } from '@/components/common/ProgressRing'
 import { StatusBadge } from '@/components/common/StatusBadge'
@@ -20,6 +21,8 @@ export function NodeDetailPanel() {
   const getChildren = useCascadeStore((s) => s.getChildren)
   const selectNode = useCascadeStore((s) => s.selectNode)
   const deleteNode = useCascadeStore((s) => s.deleteNode)
+  const toggleMilestone = useCascadeStore((s) => s.toggleMilestone)
+  const members = useOrgStore((s) => s.members)
   const toast = useUIStore((s) => s.toast)
   const t = useUIStore((s) => s.t)
 
@@ -33,6 +36,8 @@ export function NodeDetailPanel() {
   const children = getChildren(node.id)
   const days = daysUntil(node.due_date)
   const childDepth = Math.min(node.depth + 1, 2) as Depth
+  const owner = node.owner_id ? members.find((m) => m.id === node.owner_id) : null
+  const hasMilestones = node.milestones && node.milestones.length > 0
 
   const handleDelete = async () => {
     if (!confirm('이 항목과 하위 항목을 삭제하시겠습니까?')) return
@@ -71,11 +76,54 @@ export function NodeDetailPanel() {
             <div className="text-2xl font-bold font-mono" style={{ color: `var(--color-depth-${node.depth})` }}>
               {Math.round(progress)}%
             </div>
-            <div className="text-xs text-text-muted">
-              {node.current_value}/{node.target_value} {node.unit}
-            </div>
+            {hasMilestones ? (
+              <div className="text-xs text-text-muted">
+                ✓ {node.milestones!.filter((m) => m.done).length}/{node.milestones!.length} {t('milestone.progress')}
+              </div>
+            ) : (
+              <div className="text-xs text-text-muted">
+                {node.current_value}/{node.target_value} {node.unit}
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Owner */}
+        {owner && (
+          <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-surface-light">
+            <div className="w-6 h-6 rounded-full bg-depth-2/20 text-depth-2 flex items-center justify-center text-xs font-bold shrink-0">
+              {owner.display_name[0]}
+            </div>
+            <span className="text-sm">{owner.display_name}</span>
+            <span className="text-xs text-text-muted ml-auto">{t('people.owner') || '담당자'}</span>
+          </div>
+        )}
+
+        {/* Milestones checklist */}
+        {hasMilestones && (
+          <div className="mb-5">
+            <div className="text-xs text-text-muted font-medium mb-2">{t('milestone.progress')}</div>
+            <div className="flex flex-col gap-1">
+              {node.milestones!.map((m) => (
+                <label
+                  key={m.id}
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer transition-colors
+                    ${m.done ? 'bg-depth-2/10' : 'bg-surface-light hover:bg-surface-light/80'}`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={m.done}
+                    onChange={() => toggleMilestone(node.id, m.id)}
+                    className="accent-depth-2 w-4 h-4 shrink-0 cursor-pointer"
+                  />
+                  <span className={`text-sm ${m.done ? 'line-through text-text-muted' : ''}`}>
+                    {m.label}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Description */}
         {node.description && (
@@ -84,12 +132,14 @@ export function NodeDetailPanel() {
 
         {/* Meta */}
         <div className="grid grid-cols-2 gap-3 mb-5 text-sm">
+          {node.depth < 2 && (
+            <div>
+              <span className="text-text-muted">{t('node.weight')}</span>
+              <div className="font-mono font-semibold">×{node.weight}</div>
+            </div>
+          )}
           <div>
-            <span className="text-text-muted">가중치</span>
-            <div className="font-mono font-semibold">×{node.weight}</div>
-          </div>
-          <div>
-            <span className="text-text-muted">마감일</span>
+            <span className="text-text-muted">{t('node.dueDate')}</span>
             <div className={days !== null && days < 7 ? 'text-warning' : ''}>
               {formatDate(node.due_date)}
               {days !== null && <span className="text-xs ml-1">({days}일)</span>}

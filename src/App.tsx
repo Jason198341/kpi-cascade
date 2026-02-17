@@ -7,6 +7,7 @@ import { AuthPage } from '@/pages/AuthPage'
 const CascadePage = lazy(() => import('@/pages/CascadePage'))
 const MyActionsPage = lazy(() => import('@/pages/MyActionsPage'))
 const DashboardPage = lazy(() => import('@/pages/DashboardPage'))
+const PeoplePage = lazy(() => import('@/pages/PeoplePage'))
 const TracePage = lazy(() => import('@/pages/TracePage'))
 const CoachPage = lazy(() => import('@/pages/CoachPage'))
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'))
@@ -38,6 +39,8 @@ function AppRoutes() {
           <Route path="/cascade/:nodeId" element={<CascadePage />} />
           <Route path="/my-actions" element={<MyActionsPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/people" element={<PeoplePage />} />
+          <Route path="/people/:userId" element={<PeoplePage />} />
           <Route path="/trace/:nodeId" element={<TracePage />} />
           <Route path="/coach" element={<CoachPage />} />
           <Route path="/settings" element={<SettingsPage />} />

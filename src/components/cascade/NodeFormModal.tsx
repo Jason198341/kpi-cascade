@@ -4,8 +4,9 @@ import { Button } from '@/components/common/Button'
 import { Input, Textarea } from '@/components/common/Input'
 import { useCascadeStore } from '@/stores/cascadeStore'
 import { useAuthStore } from '@/stores/authStore'
+import { useOrgStore } from '@/stores/orgStore'
 import { useUIStore } from '@/stores/uiStore'
-import type { KpiNode, Depth } from '@/types'
+import type { KpiNode, Depth, Milestone } from '@/types'
 
 interface Props {
   open: boolean
@@ -21,6 +22,7 @@ export function NodeFormModal({ open, onClose, editNode, parentId, depth = 0 }: 
   const addNode = useCascadeStore((s) => s.addNode)
   const updateNode = useCascadeStore((s) => s.updateNode)
   const profile = useAuthStore((s) => s.profile)
+  const members = useOrgStore((s) => s.members)
   const toast = useUIStore((s) => s.toast)
   const t = useUIStore((s) => s.t)
 
@@ -31,6 +33,11 @@ export function NodeFormModal({ open, onClose, editNode, parentId, depth = 0 }: 
   const [unit, setUnit] = useState('%')
   const [weight, setWeight] = useState(1.0)
   const [dueDate, setDueDate] = useState('')
+  const [ownerId, setOwnerId] = useState<string | null>(null)
+  const [milestones, setMilestones] = useState<Milestone[]>([])
+  const [newMilestone, setNewMilestone] = useState('')
+
+  const isActionPlan = depth === 2
 
   useEffect(() => {
     if (editNode) {
@@ -41,16 +48,32 @@ export function NodeFormModal({ open, onClose, editNode, parentId, depth = 0 }: 
       setUnit(editNode.unit)
       setWeight(editNode.weight)
       setDueDate(editNode.due_date || '')
+      setOwnerId(editNode.owner_id)
+      setMilestones(editNode.milestones || [])
     } else {
       setTitle('')
       setDescription('')
       setEmoji('🎯')
       setTargetValue(100)
       setUnit('%')
-      setWeight(1.0)
+      setWeight(isActionPlan ? 1.0 : 1.0)
       setDueDate('')
+      setOwnerId(profile?.id || null)
+      setMilestones([])
     }
-  }, [editNode, open])
+    setNewMilestone('')
+  }, [editNode, open, isActionPlan, profile?.id])
+
+  const handleAddMilestone = () => {
+    const label = newMilestone.trim()
+    if (!label) return
+    setMilestones((prev) => [...prev, { id: crypto.randomUUID(), label, done: false }])
+    setNewMilestone('')
+  }
+
+  const handleRemoveMilestone = (id: string) => {
+    setMilestones((prev) => prev.filter((m) => m.id !== id))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -59,8 +82,22 @@ export function NodeFormModal({ open, onClose, editNode, parentId, depth = 0 }: 
       return
     }
     try {
+      const milestonesData = isActionPlan && milestones.length > 0 ? milestones : null
+      const effectiveTarget = milestonesData ? milestones.length : targetValue
+      const effectiveCurrent = milestonesData ? milestones.filter((m) => m.done).length : 0
+
       if (editNode) {
-        await updateNode(editNode.id, { title, description: description || null, emoji, target_value: targetValue, unit, weight, due_date: dueDate || null })
+        await updateNode(editNode.id, {
+          title,
+          description: description || null,
+          emoji,
+          target_value: effectiveTarget,
+          unit: milestonesData ? '건' : unit,
+          weight: isActionPlan ? 1.0 : weight,
+          due_date: dueDate || null,
+          owner_id: ownerId,
+          milestones: milestonesData,
+        })
       } else {
         await addNode({
           org_id: profile.org_id,
@@ -69,12 +106,14 @@ export function NodeFormModal({ open, onClose, editNode, parentId, depth = 0 }: 
           title,
           description: description || null,
           emoji,
-          target_value: targetValue,
-          unit,
-          weight,
+          target_value: effectiveTarget,
+          current_value: effectiveCurrent,
+          unit: milestonesData ? '건' : unit,
+          weight: isActionPlan ? 1.0 : weight,
           due_date: dueDate || null,
-          owner_id: profile?.id || null,
-        })
+          owner_id: ownerId,
+          milestones: milestonesData,
+        } as Parameters<typeof addNode>[0])
       }
       toast(editNode ? '수정되었습니다' : '생성되었습니다', 'success')
       onClose()
@@ -107,11 +146,70 @@ export function NodeFormModal({ open, onClose, editNode, parentId, depth = 0 }: 
         <Input label={t('node.title')} value={title} onChange={(e) => setTitle(e.target.value)} required />
         <Textarea label={t('node.description')} value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
 
-        <div className="grid grid-cols-3 gap-3">
-          <Input label={t('node.target')} type="number" value={targetValue} onChange={(e) => setTargetValue(+e.target.value)} min={0} />
-          <Input label="단위" value={unit} onChange={(e) => setUnit(e.target.value)} />
-          <Input label={t('node.weight')} type="number" value={weight} onChange={(e) => setWeight(+e.target.value)} min={0} max={10} step={0.1} />
-        </div>
+        {/* Target/Unit/Weight — hide weight for action plans */}
+        {!isActionPlan ? (
+          <div className="grid grid-cols-3 gap-3">
+            <Input label={t('node.target')} type="number" value={targetValue} onChange={(e) => setTargetValue(+e.target.value)} min={0} />
+            <Input label="단위" value={unit} onChange={(e) => setUnit(e.target.value)} />
+            <Input label={t('node.weight')} type="number" value={weight} onChange={(e) => setWeight(+e.target.value)} min={0} max={10} step={0.1} />
+          </div>
+        ) : (
+          <div className="text-xs text-text-muted bg-surface-light rounded-lg p-2">
+            액션 플랜의 진행률은 마일스톤 체크로 자동 계산됩니다
+          </div>
+        )}
+
+        {/* Owner selector for action plans */}
+        {isActionPlan && members.length > 0 && (
+          <div>
+            <label className="text-sm text-text-muted mb-1.5 block">{t('people.owner') || '담당자'}</label>
+            <select
+              value={ownerId || ''}
+              onChange={(e) => setOwnerId(e.target.value || null)}
+              className="w-full rounded-lg border border-surface-border bg-bg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+            >
+              <option value="">미지정</option>
+              {members.map((m) => (
+                <option key={m.id} value={m.id}>{m.display_name}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* Milestone editor for action plans */}
+        {isActionPlan && (
+          <div>
+            <label className="text-sm text-text-muted mb-1.5 block">{t('milestone.add')}</label>
+            <div className="flex gap-2 mb-2">
+              <input
+                type="text"
+                value={newMilestone}
+                onChange={(e) => setNewMilestone(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddMilestone() } }}
+                placeholder="마일스톤 입력 후 Enter..."
+                className="flex-1 rounded-lg border border-surface-border bg-bg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-depth-2"
+              />
+              <Button type="button" size="sm" onClick={handleAddMilestone}>+</Button>
+            </div>
+            {milestones.length > 0 && (
+              <div className="flex flex-col gap-1.5 max-h-48 overflow-y-auto">
+                {milestones.map((m, i) => (
+                  <div key={m.id} className="flex items-center gap-2 text-sm bg-surface-light rounded-lg px-3 py-1.5">
+                    <span className="text-text-muted text-xs">{i + 1}</span>
+                    <span className="flex-1 truncate">{m.label}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveMilestone(m.id)}
+                      className="text-text-muted hover:text-danger cursor-pointer text-xs"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         <Input label={t('node.dueDate')} type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
 

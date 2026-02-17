@@ -52,5 +52,13 @@
   "common.empty": "항목이 없습니다",
   "org.create": "조직 만들기",
   "org.name": "조직명",
-  "org.members": "멤버"
+  "org.members": "멤버",
+  "nav.people": "팀원",
+  "people.title": "팀 기여도",
+  "people.rank": "순위",
+  "people.contribution": "기여도",
+  "people.actions": "액션 수",
+  "people.owner": "담당자",
+  "milestone.add": "마일스톤 추가",
+  "milestone.progress": "진행 상황"
 }

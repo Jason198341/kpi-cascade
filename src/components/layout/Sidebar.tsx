@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { path: '/cascade', icon: '🔗', labelKey: 'nav.cascade' },
   { path: '/my-actions', icon: '⚡', labelKey: 'nav.myActions' },
   { path: '/dashboard', icon: '📊', labelKey: 'nav.dashboard' },
+  { path: '/people', icon: '👥', labelKey: 'nav.people' },
   { path: '/coach', icon: '🤖', labelKey: 'nav.coach' },
   { path: '/settings', icon: '⚙️', labelKey: 'nav.settings' },
 ]

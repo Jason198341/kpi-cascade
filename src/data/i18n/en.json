@@ -52,5 +52,13 @@
   "common.empty": "No items",
   "org.create": "Create Organization",
   "org.name": "Organization Name",
-  "org.members": "Members"
+  "org.members": "Members",
+  "nav.people": "Team",
+  "people.title": "Team Contributions",
+  "people.rank": "Rank",
+  "people.contribution": "Contribution",
+  "people.actions": "Actions",
+  "people.owner": "Owner",
+  "milestone.add": "Add Milestone",
+  "milestone.progress": "Progress"
 }

@@ -3,6 +3,12 @@ export type Depth = 0 | 1 | 2
 export type NodeStatus = 'active' | 'at_risk' | 'completed' | 'paused'
 export type Priority = 'low' | 'medium' | 'high' | 'critical'
 
+export interface Milestone {
+  id: string
+  label: string
+  done: boolean
+}
+
 export interface KpiNode {
   id: string
   org_id: string
@@ -20,6 +26,7 @@ export interface KpiNode {
   priority: Priority
   start_date: string | null
   due_date: string | null
+  milestones: Milestone[] | null
   sort_order: number
   created_at: string
   updated_at: string

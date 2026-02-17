@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { supabase, isDemoMode } from '@/lib/supabase'
+import { DEMO_MEMBERS } from '@/data/seed'
 import type { Organization, Profile } from '@/types'
 
 interface OrgState {
@@ -53,7 +54,7 @@ export const useOrgStore = create<OrgState>((set, get) => ({
   fetchMembers: async () => {
     const org = get().org
     if (!org) return
-    if (isDemoMode) { set({ members: [] }); return }
+    if (isDemoMode) { set({ members: DEMO_MEMBERS }); return }
     const { data } = await supabase
       .from('profiles')
       .select('*')
