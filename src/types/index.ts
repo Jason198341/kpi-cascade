@@ -48,6 +48,7 @@ export interface Profile {
   role: 'executive' | 'manager' | 'member'
   org_id: string | null
   department: string | null
+  hire_year: number | null
   created_at: string
 }
 

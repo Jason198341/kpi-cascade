@@ -23,11 +23,11 @@ function node(
 
 // Demo team members
 export const DEMO_MEMBERS: Profile[] = [
-  { id: 'demo-user', email: 'jason@cascade.io', display_name: '문정호', avatar_url: null, role: 'executive', org_id: ORG, department: '경영', created_at: NOW },
-  { id: 'demo-kim', email: 'kim@cascade.io', display_name: '김영수', avatar_url: null, role: 'manager', org_id: ORG, department: '영업팀', created_at: NOW },
-  { id: 'demo-lee', email: 'lee@cascade.io', display_name: '이수진', avatar_url: null, role: 'manager', org_id: ORG, department: '마케팅팀', created_at: NOW },
-  { id: 'demo-park', email: 'park@cascade.io', display_name: '박지민', avatar_url: null, role: 'member', org_id: ORG, department: 'R&D팀', created_at: NOW },
-  { id: 'demo-choi', email: 'choi@cascade.io', display_name: '최하늘', avatar_url: null, role: 'member', org_id: ORG, department: 'CS팀', created_at: NOW },
+  { id: 'demo-user', email: 'jason@cascade.io', display_name: '문정호', avatar_url: null, role: 'executive', org_id: ORG, department: '경영', hire_year: 2010, created_at: NOW },
+  { id: 'demo-kim', email: 'kim@cascade.io', display_name: '김영수', avatar_url: null, role: 'manager', org_id: ORG, department: '영업팀', hire_year: 2015, created_at: NOW },
+  { id: 'demo-lee', email: 'lee@cascade.io', display_name: '이수진', avatar_url: null, role: 'manager', org_id: ORG, department: '마케팅팀', hire_year: 2017, created_at: NOW },
+  { id: 'demo-park', email: 'park@cascade.io', display_name: '박지민', avatar_url: null, role: 'member', org_id: ORG, department: 'R&D팀', hire_year: 2021, created_at: NOW },
+  { id: 'demo-choi', email: 'choi@cascade.io', display_name: '최하늘', avatar_url: null, role: 'member', org_id: ORG, department: 'CS팀', hire_year: 2023, created_at: NOW },
 ]
 
 // Depth 0: Strategic Goals (weights sum to 1.0)

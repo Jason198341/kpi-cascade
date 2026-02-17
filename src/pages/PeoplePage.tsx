@@ -8,8 +8,10 @@ import { MiniTrace } from '@/components/cascade/MiniTrace'
 import { useCascadeStore } from '@/stores/cascadeStore'
 import { useOrgStore } from '@/stores/orgStore'
 import { useUIStore } from '@/stores/uiStore'
-import { getTeamRanking, getPersonContribution } from '@/lib/cascade'
+import { getTeamRankingWithExpectation, getPersonContribution } from '@/lib/cascade'
 import type { Profile } from '@/types'
+
+type SortMode = 'contribution' | 'performance'
 
 function PersonDetail({ profile }: { profile: Profile }) {
   const { nodes, nodeMap, childrenMap } = useCascadeStore()
@@ -36,6 +38,7 @@ function PersonDetail({ profile }: { profile: Profile }) {
           <h3 className="text-lg font-bold">{profile.display_name}</h3>
           <div className="text-sm text-text-muted">
             {profile.department && <span>{profile.department} &middot; </span>}
+            {profile.hire_year && <span>{new Date().getFullYear() - profile.hire_year}년차 &middot; </span>}
             {profile.email}
           </div>
         </div>
@@ -96,35 +99,81 @@ export default function PeoplePage() {
   const t = useUIStore((s) => s.t)
 
   const [selectedId, setSelectedId] = useState<string | null>(userId || null)
+  const [sortMode, setSortMode] = useState<SortMode>('contribution')
 
   const ranking = useMemo(
-    () => getTeamRanking(nodes, nodeMap, childrenMap, members),
+    () => getTeamRankingWithExpectation(nodes, nodeMap, childrenMap, members),
     [nodes, nodeMap, childrenMap, members],
   )
 
+  // Sort by selected mode
+  const sorted = useMemo(() => {
+    if (sortMode === 'performance') {
+      return [...ranking].sort((a, b) => b.performanceRatio - a.performanceRatio)
+    }
+    return ranking // already sorted by contribution
+  }, [ranking, sortMode])
+
   const selectedProfile = selectedId ? members.find((m) => m.id === selectedId) : null
+
+  // Max values for bar scaling
+  const maxContrib = Math.max(...ranking.map((r) => r.totalContribution), 1)
+  const maxExpected = Math.max(...ranking.map((r) => r.expectedContrib), 1)
+  const maxBar = Math.max(maxContrib, maxExpected)
 
   return (
     <>
       <Header title={t('people.title')} />
       <div className="flex-1 overflow-auto p-6">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           {members.length === 0 ? (
             <EmptyState emoji="👥" title="팀원이 없습니다" description="조직에 멤버를 초대하세요" />
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-6">
               {/* Ranking list */}
               <div className="flex flex-col gap-2">
-                <div className="text-sm text-text-muted mb-1">{t('people.rank')}</div>
-                {ranking.map((entry, i) => {
+                {/* Sort toggle + legend */}
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex gap-1.5">
+                    <button
+                      onClick={() => setSortMode('contribution')}
+                      className={`text-xs px-2.5 py-1 rounded-md cursor-pointer transition-colors
+                        ${sortMode === 'contribution' ? 'bg-trace/15 text-trace' : 'text-text-muted hover:text-text'}`}
+                    >
+                      기여도 순
+                    </button>
+                    <button
+                      onClick={() => setSortMode('performance')}
+                      className={`text-xs px-2.5 py-1 rounded-md cursor-pointer transition-colors
+                        ${sortMode === 'performance' ? 'bg-depth-0/15 text-depth-0' : 'text-text-muted hover:text-text'}`}
+                    >
+                      기대 대비 순
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-3 text-[10px] text-text-muted">
+                    <span className="flex items-center gap-1">
+                      <span className="w-3 h-1.5 rounded-full bg-trace inline-block" /> 실제 기여
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-3 h-1.5 rounded-full bg-depth-0/50 inline-block" /> 기대치
+                    </span>
+                  </div>
+                </div>
+
+                {sorted.map((entry, i) => {
                   const isTop = i === 0 && entry.totalContribution > 0
                   const isActive = selectedId === entry.profile.id
+                  const actualBarW = maxBar > 0 ? (entry.totalContribution / maxBar) * 100 : 0
+                  const expectedBarW = maxBar > 0 ? (entry.expectedContrib / maxBar) * 100 : 0
+                  const ratio = entry.performanceRatio
+                  const ratioColor = ratio >= 1.2 ? 'text-success' : ratio >= 0.8 ? 'text-trace' : ratio >= 0.5 ? 'text-warning' : 'text-danger'
+
                   return (
                     <motion.button
                       key={entry.profile.id}
                       layout
                       onClick={() => setSelectedId(isActive ? null : entry.profile.id)}
-                      className={`flex items-center gap-3 p-3 rounded-xl border text-left cursor-pointer transition-colors
+                      className={`flex items-start gap-3 p-3 rounded-xl border text-left cursor-pointer transition-colors
                         ${isActive
                           ? 'border-trace/50 bg-trace/5'
                           : isTop
@@ -133,37 +182,74 @@ export default function PeoplePage() {
                         }`}
                     >
                       {/* Rank badge */}
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5
                         ${isTop ? 'bg-trace/20 text-trace' : 'bg-surface-light text-text-muted'}`}
                       >
                         {i + 1}
                       </div>
 
-                      {/* Avatar + name */}
-                      <div className="w-9 h-9 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-sm shrink-0">
+                      {/* Avatar */}
+                      <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-sm shrink-0">
                         {entry.profile.display_name[0]}
                       </div>
+
+                      {/* Content */}
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-semibold truncate">
-                          {entry.profile.display_name}
-                          {isTop && <span className="ml-1">🏆</span>}
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-sm font-semibold truncate">
+                            {entry.profile.display_name}
+                            {isTop && sortMode === 'contribution' && <span className="ml-1">🏆</span>}
+                          </span>
+                          <span className="text-[10px] text-text-muted shrink-0">
+                            {entry.seniority}년차
+                          </span>
                         </div>
-                        <div className="text-xs text-text-muted">
-                          {entry.profile.department && <span>{entry.profile.department} &middot; </span>}
+                        <div className="text-[10px] text-text-muted">
+                          {entry.profile.department && <span>{entry.profile.department} · </span>}
                           {entry.actionCount}개 액션
                         </div>
-                      </div>
 
-                      {/* Contribution */}
-                      <div className="text-right shrink-0">
-                        <div className={`text-sm font-bold font-mono ${isTop ? 'text-trace' : 'text-depth-2'}`}>
-                          {entry.totalContribution.toFixed(1)}%
+                        {/* Dual bars */}
+                        <div className="mt-2 space-y-1">
+                          {/* Actual contribution bar */}
+                          <div className="flex items-center gap-1.5">
+                            <div className="flex-1 h-2 bg-surface-light/50 rounded-full overflow-hidden">
+                              <motion.div
+                                className="h-full rounded-full bg-trace"
+                                initial={{ width: 0 }}
+                                animate={{ width: `${actualBarW}%` }}
+                                transition={{ duration: 0.6, ease: 'easeOut', delay: i * 0.03 }}
+                              />
+                            </div>
+                            <span className="text-[10px] font-mono font-bold text-trace w-10 text-right">
+                              {entry.totalContribution.toFixed(1)}%
+                            </span>
+                          </div>
+                          {/* Expected contribution bar (ghost/dimmed) */}
+                          <div className="flex items-center gap-1.5">
+                            <div className="flex-1 h-1.5 bg-surface-light/30 rounded-full overflow-hidden">
+                              <motion.div
+                                className="h-full rounded-full"
+                                style={{ background: 'rgba(167, 139, 250, 0.35)' }}
+                                initial={{ width: 0 }}
+                                animate={{ width: `${expectedBarW}%` }}
+                                transition={{ duration: 0.6, ease: 'easeOut', delay: i * 0.03 + 0.1 }}
+                              />
+                            </div>
+                            <span className="text-[10px] font-mono text-depth-0/60 w-10 text-right">
+                              {entry.expectedContrib.toFixed(1)}%
+                            </span>
+                          </div>
                         </div>
-                        <div className="w-16 h-1.5 rounded-full bg-surface-light overflow-hidden mt-1">
-                          <div
-                            className={`h-full rounded-full ${isTop ? 'bg-trace' : 'bg-depth-2'}`}
-                            style={{ width: `${Math.min(100, entry.totalContribution * 2)}%` }}
-                          />
+
+                        {/* Performance ratio badge */}
+                        <div className="flex items-center gap-1.5 mt-1.5">
+                          <span className="text-[9px] text-text-muted">기대 대비</span>
+                          <span className={`text-xs font-bold font-mono ${ratioColor}`}>
+                            {ratio > 0 ? `${(ratio * 100).toFixed(0)}%` : '—'}
+                          </span>
+                          {ratio >= 1.2 && <span className="text-[9px]">🔥</span>}
+                          {ratio > 0 && ratio < 0.5 && <span className="text-[9px]">⚠️</span>}
                         </div>
                       </div>
                     </motion.button>

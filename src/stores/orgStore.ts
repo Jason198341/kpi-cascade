@@ -84,6 +84,7 @@ export const useOrgStore = create<OrgState>((set, get) => ({
         role: member.role,
         org_id: org.id,
         department: member.department,
+        hire_year: member.hire_year,
       })
       .select()
       .single()

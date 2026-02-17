@@ -31,6 +31,7 @@ export default function SettingsPage() {
   const [newEmail, setNewEmail] = useState('')
   const [newRole, setNewRole] = useState<Profile['role']>('member')
   const [newDept, setNewDept] = useState('')
+  const [newHireYear, setNewHireYear] = useState('')
 
   // Edit department inline
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -51,9 +52,10 @@ export default function SettingsPage() {
         role: newRole,
         org_id: org?.id || null,
         department: newDept.trim() || null,
+        hire_year: newHireYear ? parseInt(newHireYear, 10) : null,
       })
       toast(`${newName.trim()} 추가됨`, 'success')
-      setNewName(''); setNewEmail(''); setNewDept(''); setNewRole('member')
+      setNewName(''); setNewEmail(''); setNewDept(''); setNewRole('member'); setNewHireYear('')
       setShowAddForm(false)
     } catch (err) {
       toast(`오류: ${err}`, 'error')
@@ -128,7 +130,7 @@ export default function SettingsPage() {
                     <Input label="이름 *" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="홍길동" />
                     <Input label="이메일" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="hong@company.com" />
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-3 gap-3">
                     <div>
                       <label className="text-sm text-text-muted mb-1.5 block">역할</label>
                       <select
@@ -140,6 +142,7 @@ export default function SettingsPage() {
                       </select>
                     </div>
                     <Input label="파트/부서" value={newDept} onChange={(e) => setNewDept(e.target.value)} placeholder="영업팀" />
+                    <Input label="입사년도" value={newHireYear} onChange={(e) => setNewHireYear(e.target.value)} placeholder="2020" />
                   </div>
                   <Button size="sm" onClick={handleAddMember} className="w-full">추가</Button>
                 </div>
@@ -178,6 +181,11 @@ export default function SettingsPage() {
                           <span className="text-xs text-text-muted">
                             {m.department || '파트 미지정'}
                           </span>
+                          {m.hire_year && (
+                            <span className="text-xs text-text-muted">
+                              · {new Date().getFullYear() - m.hire_year}년차
+                            </span>
+                          )}
                           <button
                             onClick={() => { setEditingId(m.id); setEditDept(m.department || '') }}
                             className="text-xs text-primary/60 hover:text-primary cursor-pointer"

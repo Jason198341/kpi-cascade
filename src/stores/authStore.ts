@@ -34,6 +34,7 @@ const DEMO_PROFILE: Profile = {
   role: 'executive',
   org_id: 'demo-org-id',
   department: '경영',
+  hire_year: 2010,
   created_at: new Date().toISOString(),
 }
 
