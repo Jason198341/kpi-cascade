@@ -65,5 +65,14 @@
   "node.weightError": "합이 1.0이 아닙니다",
   "node.autoBalance": "나머지 자동 배분",
   "node.currentItem": "현재 항목",
-  "node.department": "파트"
+  "node.department": "파트",
+  "exec.reports": "보고",
+  "exec.planReport": "계획",
+  "exec.midReport": "중간",
+  "exec.resultReport": "결과",
+  "exec.feedback": "피드백",
+  "exec.feedback1": "1차",
+  "exec.feedback2": "2차",
+  "exec.feedback3": "3차",
+  "exec.memoPlaceholder": "피드백 내용..."
 }

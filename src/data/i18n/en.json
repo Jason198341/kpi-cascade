@@ -65,5 +65,14 @@
   "node.weightError": "Weights do not sum to 1.0",
   "node.autoBalance": "Auto-balance others",
   "node.currentItem": "Current item",
-  "node.department": "Department"
+  "node.department": "Department",
+  "exec.reports": "Reports",
+  "exec.planReport": "Plan",
+  "exec.midReport": "Mid",
+  "exec.resultReport": "Result",
+  "exec.feedback": "Feedback",
+  "exec.feedback1": "1st",
+  "exec.feedback2": "2nd",
+  "exec.feedback3": "3rd",
+  "exec.memoPlaceholder": "Feedback notes..."
 }

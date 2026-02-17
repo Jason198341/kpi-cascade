@@ -6,15 +6,62 @@ import { ProgressRing } from '@/components/common/ProgressRing'
 import { StatusBadge } from '@/components/common/StatusBadge'
 import { Button } from '@/components/common/Button'
 import { EmptyState } from '@/components/common/EmptyState'
+import { ExecLogPanel } from '@/components/cascade/ExecLogPanel'
 import { useCascadeStore } from '@/stores/cascadeStore'
+import { useAuthStore } from '@/stores/authStore'
 import { useOrgStore } from '@/stores/orgStore'
 import { useUIStore } from '@/stores/uiStore'
-import { formatDate, daysUntil, isOverdue } from '@/lib/date'
-import type { KpiNode } from '@/types'
+import { daysUntil, isOverdue } from '@/lib/date'
+import type { KpiNode, Depth } from '@/types'
+import { DEPTH_LABELS } from '@/types'
 
 const MAX_VISIBLE_MILESTONES = 5
 
-function ActionRow({ node }: { node: KpiNode }) {
+// ── Compact summary row for depth-0/1 nodes (exec view) ──────────────
+function ExecNodeRow({ node, depth }: { node: KpiNode; depth: Depth }) {
+  const getProgress = useCascadeStore((s) => s.getProgress)
+  const lang = useUIStore((s) => s.lang)
+  const progress = getProgress(node.id)
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="border border-surface-border rounded-lg bg-surface overflow-hidden"
+    >
+      {/* Header: emoji + title + progress */}
+      <div className="flex items-center gap-3 px-3 py-2.5">
+        <span className="text-base shrink-0">{node.emoji}</span>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-medium truncate">{node.title}</h3>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="w-16 h-1.5 rounded-full bg-surface-light overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-500"
+              style={{
+                width: `${Math.min(100, progress)}%`,
+                backgroundColor: depth === 0 ? 'var(--color-depth-0)' : 'var(--color-depth-1)',
+              }}
+            />
+          </div>
+          <span className="text-xs font-mono text-text-muted w-9 text-right">
+            {Math.round(progress)}%
+          </span>
+        </div>
+      </div>
+
+      {/* ExecLogPanel */}
+      <div className="px-3 pb-2.5">
+        <ExecLogPanel nodeId={node.id} />
+      </div>
+    </motion.div>
+  )
+}
+
+// ── Existing ActionRow for depth-2 nodes ──────────────────────────────
+function ActionRow({ node, isExec }: { node: KpiNode; isExec: boolean }) {
   const navigate = useNavigate()
   const updateProgress = useCascadeStore((s) => s.updateProgress)
   const toggleMilestone = useCascadeStore((s) => s.toggleMilestone)
@@ -51,34 +98,33 @@ function ActionRow({ node }: { node: KpiNode }) {
       layout
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-4 rounded-xl border border-surface-border bg-surface hover:border-depth-2/30 transition-colors"
+      className="border border-surface-border rounded-lg bg-surface overflow-hidden"
     >
-      <div className="flex items-center gap-4">
-        <ProgressRing progress={progress} depth={2} size={48} strokeWidth={4} />
+      <div className="flex items-center gap-3 p-3 sm:gap-4 sm:p-4">
+        <ProgressRing progress={progress} depth={2} size={42} strokeWidth={3.5} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-lg">{node.emoji}</span>
-            <h3 className="text-sm font-semibold truncate">{node.title}</h3>
+            <span className="text-base">{node.emoji}</span>
+            <h3 className="text-sm font-medium truncate">{node.title}</h3>
             <StatusBadge status={node.status} />
           </div>
 
-          {/* Owner */}
           {owner && (
-            <div className="flex items-center gap-1.5 mb-2">
-              <div className="w-5 h-5 rounded-full bg-depth-2/20 text-depth-2 flex items-center justify-center text-[10px] font-bold">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <div className="w-4 h-4 rounded-full bg-depth-2/20 text-depth-2 flex items-center justify-center text-[9px] font-bold">
                 {owner.display_name[0]}
               </div>
-              <span className="text-xs text-text-muted">
+              <span className="text-[11px] text-text-muted">
                 {owner.display_name}
                 {owner.department && <span> &middot; {owner.department}</span>}
               </span>
             </div>
           )}
 
-          {/* Milestones inline checkboxes */}
+          {/* Milestones */}
           {hasMilestones ? (
-            <div className="mt-2">
-              <div className="flex flex-col gap-1">
+            <div className="mt-1.5">
+              <div className="flex flex-col gap-0.5">
                 {visibleMilestones.map((m) => (
                   <label key={m.id} className="flex items-center gap-2 cursor-pointer group">
                     <input
@@ -111,8 +157,7 @@ function ActionRow({ node }: { node: KpiNode }) {
               )}
             </div>
           ) : (
-            /* Fallback: slider-based progress */
-            <div className="flex items-center gap-3 mt-2">
+            <div className="flex items-center gap-3 mt-1.5">
               {editing ? (
                 <div className="flex items-center gap-2 flex-1">
                   <input
@@ -152,7 +197,7 @@ function ActionRow({ node }: { node: KpiNode }) {
           )}
         </div>
 
-        {/* Right side: trace + due date */}
+        {/* Right: trace + due date */}
         <div className="text-right shrink-0">
           <button
             onClick={() => navigate(`/trace/${node.id}`)}
@@ -167,30 +212,99 @@ function ActionRow({ node }: { node: KpiNode }) {
           )}
         </div>
       </div>
+
+      {/* ExecLogPanel for executives */}
+      {isExec && (
+        <div className="px-3 pb-3 sm:px-4 sm:pb-4">
+          <ExecLogPanel nodeId={node.id} />
+        </div>
+      )}
     </motion.div>
   )
 }
 
+// ── Depth group header ────────────────────────────────────────────────
+function DepthHeader({ depth, count }: { depth: Depth; count: number }) {
+  const lang = useUIStore((s) => s.lang)
+  const label = DEPTH_LABELS[depth][lang]
+  const colors: Record<number, string> = { 0: 'text-depth-0', 1: 'text-depth-1', 2: 'text-depth-2' }
+
+  return (
+    <div className="flex items-center gap-2 pt-4 pb-1.5 first:pt-0">
+      <div className={`text-xs font-semibold ${colors[depth]}`}>{label}</div>
+      <div className="flex-1 h-px bg-surface-border" />
+      <span className="text-[10px] text-text-muted">{count}</span>
+    </div>
+  )
+}
+
+// ── Page ──────────────────────────────────────────────────────────────
 export default function MyActionsPage() {
   const nodes = useCascadeStore((s) => s.nodes)
+  const profile = useAuthStore((s) => s.profile)
   const t = useUIStore((s) => s.t)
 
-  const actions = useMemo(
-    () => nodes.filter((n) => n.depth === 2).sort((a, b) => a.sort_order - b.sort_order),
-    [nodes],
-  )
+  const isExec = profile?.role === 'executive'
+
+  // Executive: all nodes grouped by depth. Non-exec: depth-2 only.
+  const grouped = useMemo(() => {
+    if (isExec) {
+      const d0 = nodes.filter((n) => n.depth === 0).sort((a, b) => a.sort_order - b.sort_order)
+      const d1 = nodes.filter((n) => n.depth === 1).sort((a, b) => a.sort_order - b.sort_order)
+      const d2 = nodes.filter((n) => n.depth === 2).sort((a, b) => a.sort_order - b.sort_order)
+      return { d0, d1, d2 }
+    }
+    return {
+      d0: [] as KpiNode[],
+      d1: [] as KpiNode[],
+      d2: nodes.filter((n) => n.depth === 2).sort((a, b) => a.sort_order - b.sort_order),
+    }
+  }, [nodes, isExec])
+
+  const totalCount = grouped.d0.length + grouped.d1.length + grouped.d2.length
+  const subtitle = isExec
+    ? `${totalCount}개 KPI 관리중`
+    : grouped.d2.length > 0
+      ? `${grouped.d2.length}개 액션 진행중`
+      : undefined
 
   return (
     <>
-      <Header title={t('nav.myActions')} subtitle={actions.length > 0 ? `${actions.length}개 액션 진행중` : undefined} />
-      <div className="flex-1 overflow-auto p-6">
-        {actions.length === 0 ? (
+      <Header title={t('nav.myActions')} subtitle={subtitle} />
+      <div className="flex-1 overflow-auto p-4 sm:p-6">
+        {totalCount === 0 ? (
           <EmptyState emoji="⚡" title="액션 플랜이 없습니다" description="캐스케이드에서 팀 KPI 하위에 액션을 추가하세요" />
         ) : (
-          <div className="max-w-3xl mx-auto flex flex-col gap-3">
-            {actions.map((node) => (
-              <ActionRow key={node.id} node={node} />
-            ))}
+          <div className="max-w-3xl mx-auto flex flex-col gap-2">
+            {/* Depth 0: Strategic Goals (exec only) */}
+            {grouped.d0.length > 0 && (
+              <>
+                <DepthHeader depth={0} count={grouped.d0.length} />
+                {grouped.d0.map((node) => (
+                  <ExecNodeRow key={node.id} node={node} depth={0} />
+                ))}
+              </>
+            )}
+
+            {/* Depth 1: Team KPIs (exec only) */}
+            {grouped.d1.length > 0 && (
+              <>
+                <DepthHeader depth={1} count={grouped.d1.length} />
+                {grouped.d1.map((node) => (
+                  <ExecNodeRow key={node.id} node={node} depth={1} />
+                ))}
+              </>
+            )}
+
+            {/* Depth 2: Action Plans (all users) */}
+            {grouped.d2.length > 0 && (
+              <>
+                {isExec && <DepthHeader depth={2} count={grouped.d2.length} />}
+                {grouped.d2.map((node) => (
+                  <ActionRow key={node.id} node={node} isExec={isExec} />
+                ))}
+              </>
+            )}
           </div>
         )}
       </div>

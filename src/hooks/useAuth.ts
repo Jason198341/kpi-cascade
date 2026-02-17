@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useAuthStore } from '@/stores/authStore'
 import { useCascadeStore } from '@/stores/cascadeStore'
 import { useOrgStore } from '@/stores/orgStore'
+import { useExecutiveStore } from '@/stores/executiveStore'
 import { isDemoMode } from '@/lib/supabase'
 
 export function useInitialize() {
@@ -12,6 +13,7 @@ export function useInitialize() {
   const fetchNodes = useCascadeStore((s) => s.fetchNodes)
   const fetchOrg = useOrgStore((s) => s.fetchOrg)
   const fetchMembers = useOrgStore((s) => s.fetchMembers)
+  const fetchLogs = useExecutiveStore((s) => s.fetchLogs)
   const createOrg = useOrgStore((s) => s.createOrg)
   const creatingOrg = useRef(false)
 
@@ -32,7 +34,8 @@ export function useInitialize() {
     if (!profile?.org_id) return
     fetchOrg(profile.org_id).then(() => fetchMembers())
     fetchNodes(profile.org_id)
-  }, [profile?.org_id, fetchOrg, fetchMembers, fetchNodes])
+    fetchLogs(profile.id)
+  }, [profile?.org_id, profile?.id, fetchOrg, fetchMembers, fetchNodes, fetchLogs])
 
   return { initialized, isLoggedIn: !!profile }
 }

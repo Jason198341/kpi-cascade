@@ -70,6 +70,23 @@ export interface Comment {
   created_at: string
 }
 
+// Executive reporting/feedback
+export type ExecLogType =
+  | 'plan_report' | 'mid_report' | 'result_report'
+  | 'feedback_1' | 'feedback_2' | 'feedback_3'
+
+export interface ExecutiveLog {
+  id: string
+  node_id: string
+  user_id: string
+  log_type: ExecLogType
+  done: boolean
+  done_at: string | null
+  memo: string | null
+  created_at: string
+  updated_at: string
+}
+
 export interface TraceStep {
   node: KpiNode
   progress: number
