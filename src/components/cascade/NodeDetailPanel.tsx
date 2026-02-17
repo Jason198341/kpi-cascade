@@ -52,7 +52,7 @@ export function NodeDetailPanel() {
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: 20 }}
-        className="w-80 border-l border-surface-border bg-surface p-5 overflow-y-auto shrink-0"
+        className="w-80 border-l border-surface-border bg-surface p-5 overflow-y-auto shrink-0 card-gradient"
       >
         {/* Close */}
         <div className="flex items-center justify-between mb-4">
@@ -94,8 +94,13 @@ export function NodeDetailPanel() {
             <div className="w-6 h-6 rounded-full bg-depth-2/20 text-depth-2 flex items-center justify-center text-xs font-bold shrink-0">
               {owner.display_name[0]}
             </div>
-            <span className="text-sm">{owner.display_name}</span>
-            <span className="text-xs text-text-muted ml-auto">{t('people.owner') || '담당자'}</span>
+            <div className="flex-1 min-w-0">
+              <span className="text-sm">{owner.display_name}</span>
+              {owner.department && (
+                <span className="text-xs text-text-muted ml-1.5">&middot; {owner.department}</span>
+              )}
+            </div>
+            <span className="text-xs text-text-muted shrink-0">{t('people.owner') || '담당자'}</span>
           </div>
         )}
 
@@ -131,16 +136,14 @@ export function NodeDetailPanel() {
         )}
 
         {/* Meta */}
-        <div className="grid grid-cols-2 gap-3 mb-5 text-sm">
-          {node.depth < 2 && (
-            <div>
-              <span className="text-text-muted">{t('node.weight')}</span>
-              <div className="font-mono font-semibold">×{node.weight}</div>
-            </div>
-          )}
+        <div className="grid grid-cols-2 gap-3 mb-5 text-sm p-3 rounded-lg bg-surface-light/50">
           <div>
-            <span className="text-text-muted">{t('node.dueDate')}</span>
-            <div className={days !== null && days < 7 ? 'text-warning' : ''}>
+            <span className="text-xs text-text-muted">{t('node.weight')}</span>
+            <div className="font-mono font-semibold mt-0.5">×{node.weight.toFixed(2)}</div>
+          </div>
+          <div>
+            <span className="text-xs text-text-muted">{t('node.dueDate')}</span>
+            <div className={`mt-0.5 ${days !== null && days < 7 ? 'text-warning' : ''}`}>
               {formatDate(node.due_date)}
               {days !== null && <span className="text-xs ml-1">({days}일)</span>}
             </div>
@@ -188,6 +191,7 @@ export function NodeDetailPanel() {
           open={editOpen}
           onClose={() => setEditOpen(false)}
           editNode={node}
+          depth={node.depth}
         />
         <NodeFormModal
           open={addChildOpen}

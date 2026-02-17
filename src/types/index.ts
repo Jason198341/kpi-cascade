@@ -35,9 +35,8 @@ export interface KpiNode {
 export interface Organization {
   id: string
   name: string
-  year: number
+  slug?: string
   owner_id: string
-  settings: Record<string, unknown>
   created_at: string
 }
 
@@ -48,6 +47,7 @@ export interface Profile {
   avatar_url: string | null
   role: 'executive' | 'manager' | 'member'
   org_id: string | null
+  department: string | null
   created_at: string
 }
 

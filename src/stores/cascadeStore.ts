@@ -16,6 +16,7 @@ interface CascadeState {
   fetchNodes: (orgId: string) => Promise<void>
   addNode: (node: Partial<KpiNode> & { org_id: string; title: string; depth: Depth }) => Promise<void>
   updateNode: (id: string, updates: Partial<KpiNode>) => Promise<void>
+  batchUpdateWeights: (updates: Record<string, number>) => Promise<void>
   deleteNode: (id: string) => Promise<void>
   updateProgress: (id: string, newValue: number, note?: string) => Promise<void>
 
@@ -103,6 +104,21 @@ export const useCascadeStore = create<CascadeState>((set, get) => ({
       if (error) throw error
     }
     const nodes = get().nodes.map((n) => n.id === id ? { ...n, ...updates, updated_at: new Date().toISOString() } : n)
+    set({ nodes, ...rebuildMaps(nodes) })
+  },
+
+  batchUpdateWeights: async (updates) => {
+    const now = new Date().toISOString()
+    if (!isDemoMode) {
+      await Promise.all(
+        Object.entries(updates).map(([id, weight]) =>
+          supabase.from('kpi_nodes').update({ weight }).eq('id', id),
+        ),
+      )
+    }
+    const nodes = get().nodes.map((n) =>
+      updates[n.id] !== undefined ? { ...n, weight: updates[n.id], updated_at: now } : n,
+    )
     set({ nodes, ...rebuildMaps(nodes) })
   },
 

@@ -25,7 +25,7 @@ export function ProgressRing({ progress, depth = 0, size = 48, strokeWidth = 4, 
         <circle
           cx={size / 2} cy={size / 2} r={r}
           fill="none"
-          stroke="var(--color-surface-border)"
+          stroke="var(--color-surface-light)"
           strokeWidth={strokeWidth}
         />
         <circle
@@ -40,7 +40,7 @@ export function ProgressRing({ progress, depth = 0, size = 48, strokeWidth = 4, 
         />
       </svg>
       <span
-        className="absolute text-xs font-mono font-bold"
+        className="absolute text-xs font-mono font-semibold"
         style={{ color: depthColors[depth] }}
       >
         {Math.round(progress)}

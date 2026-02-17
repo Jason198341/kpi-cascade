@@ -33,6 +33,7 @@ const DEMO_PROFILE: Profile = {
   avatar_url: null,
   role: 'executive',
   org_id: 'demo-org-id',
+  department: '경영',
   created_at: new Date().toISOString(),
 }
 

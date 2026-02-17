@@ -21,7 +21,7 @@ export function CoachModeSelector() {
           onClick={() => setMode(m.mode)}
           className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md transition-colors cursor-pointer
             ${mode === m.mode
-              ? 'bg-accent/15 text-accent font-medium'
+              ? 'bg-primary/15 text-primary font-medium'
               : 'text-text-muted hover:text-text'
             }`}
         >

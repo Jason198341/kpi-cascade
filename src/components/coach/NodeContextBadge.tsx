@@ -10,12 +10,12 @@ export function NodeContextBadge() {
   if (!node) return null
 
   return (
-    <div className="flex items-center gap-2 px-3 py-1.5 bg-accent/10 rounded-lg border border-accent/20">
+    <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-lg border border-primary/20">
       <span className="text-sm">{node.emoji}</span>
-      <span className="text-xs text-accent">{node.title}</span>
+      <span className="text-xs text-primary">{node.title}</span>
       <button
         onClick={() => setContextNode(null)}
-        className="text-accent/50 hover:text-accent text-xs ml-1 cursor-pointer"
+        className="text-primary/50 hover:text-primary text-xs ml-1 cursor-pointer"
       >
         ✕
       </button>

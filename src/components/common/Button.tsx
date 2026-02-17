@@ -4,10 +4,10 @@ type Variant = 'primary' | 'secondary' | 'ghost' | 'danger'
 type Size = 'sm' | 'md' | 'lg'
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-primary hover:bg-primary-hover text-white',
-  secondary: 'bg-surface-light hover:bg-surface-border text-text border border-surface-border',
+  primary: 'btn-gradient-primary text-white hover:brightness-110 active:brightness-95 shadow-sm shadow-primary/20',
+  secondary: 'bg-surface-light hover:bg-surface-border text-text border border-surface-border hover:border-text-muted/30',
   ghost: 'hover:bg-surface-light text-text-muted hover:text-text',
-  danger: 'bg-danger/10 hover:bg-danger/20 text-danger border border-danger/30',
+  danger: 'bg-danger/10 hover:bg-danger/20 text-danger border border-danger/20 hover:border-danger/40',
 }
 
 const sizes: Record<Size, string> = {
@@ -25,8 +25,10 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
 export function Button({ variant = 'primary', size = 'md', className = '', children, ...rest }: Props) {
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors
-        disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer
+      className={`inline-flex items-center justify-center gap-2 rounded-lg font-medium
+        transition-all duration-150 active:scale-[0.98]
+        disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100 cursor-pointer
+        focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg
         ${variants[variant]} ${sizes[size]} ${className}`}
       {...rest}
     >

@@ -28,14 +28,19 @@ export function Modal({ open, onClose, title, children }: Props) {
             onClick={onClose}
           />
           <motion.div
-            className="relative w-full max-w-lg glass rounded-xl p-6 z-10"
+            className="relative w-full max-w-lg glass rounded-xl p-6 z-10 shadow-xl shadow-black/20"
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
           >
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between pb-4 mb-4 border-b border-surface-border">
               <h2 className="text-lg font-semibold">{title}</h2>
-              <button onClick={onClose} className="text-text-muted hover:text-text p-1 cursor-pointer">✕</button>
+              <button
+                onClick={onClose}
+                className="text-text-muted hover:text-text p-1 cursor-pointer rounded-md hover:bg-surface-light transition-colors"
+              >
+                ✕
+              </button>
             </div>
             {children}
           </motion.div>

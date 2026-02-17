@@ -60,5 +60,10 @@
   "people.actions": "액션 수",
   "people.owner": "담당자",
   "milestone.add": "마일스톤 추가",
-  "milestone.progress": "진행 상황"
+  "milestone.progress": "진행 상황",
+  "node.weightBalance": "가중치 배분",
+  "node.weightError": "합이 1.0이 아닙니다",
+  "node.autoBalance": "나머지 자동 배분",
+  "node.currentItem": "현재 항목",
+  "node.department": "파트"
 }

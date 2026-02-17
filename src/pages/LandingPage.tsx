@@ -15,26 +15,30 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-bg noise">
       {/* Hero */}
-      <div className="max-w-4xl mx-auto px-6 pt-20 pb-16 text-center">
+      <div className="relative max-w-4xl mx-auto px-6 pt-24 pb-20 text-center overflow-hidden">
+        {/* Background decorative blobs */}
+        <div className="absolute top-20 left-1/4 w-72 h-72 bg-depth-0/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-40 right-1/4 w-64 h-64 bg-depth-2/8 rounded-full blur-3xl pointer-events-none" />
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
+          className="relative"
         >
           <span className="text-6xl">🎯</span>
           <h1 className="text-4xl md:text-5xl font-bold mt-6 mb-4 leading-tight">
-            <span className="text-depth-0">전략</span>에서{' '}
-            <span className="text-depth-2">액션</span>까지
+            <span className="text-gradient-hero">전략에서 액션까지</span>
             <br />
             한눈에 보는 KPI 캐스케이드
           </h1>
-          <p className="text-text-muted text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
-            프랙탈 구조로 경영 목표가 팀원 개인 액션까지 연결됩니다.
+          <p className="text-text-muted text-lg max-w-xl mx-auto mb-10 leading-relaxed">
+            프랙탈 구조로 경영 목표를 팀원 액션까지 연결.
             <br />
-            내 일이 조직 목표에 얼마나 기여하는지, 실시간으로 확인하세요.
+            내 기여도를 실시간으로 확인하세요.
           </p>
           <div className="flex gap-4 justify-center">
-            <Button size="lg" onClick={() => navigate('/auth')}>
+            <Button size="lg" onClick={() => navigate('/auth')} className="glow-primary">
               시작하기 →
             </Button>
             <Button size="lg" variant="secondary" onClick={() => navigate('/auth')}>
@@ -45,13 +49,13 @@ export default function LandingPage() {
 
         {/* Contribution trace preview */}
         <motion.div
-          className="mt-16 p-6 rounded-2xl glass max-w-lg mx-auto"
+          className="relative mt-16 p-6 rounded-2xl glass max-w-lg mx-auto"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.6 }}
         >
-          <div className="text-xs text-text-muted mb-4">기여 추적 미리보기</div>
-          <div className="flex flex-col gap-3">
+          <div className="text-xs text-text-muted mb-4 font-medium">기여 추적 미리보기</div>
+          <div className="flex flex-col gap-2">
             {[
               { depth: 0, emoji: '💰', title: '연 매출 500억', progress: 56, color: 'depth-0' },
               { depth: 1, emoji: '📈', title: '영업팀 매출 성장', progress: 65, color: 'depth-1' },
@@ -62,15 +66,24 @@ export default function LandingPage() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.5 + i * 0.15 }}
-                className={`flex items-center gap-3 p-3 rounded-lg bg-surface-light border border-${item.color}/20`}
+                className="flex items-center gap-3 relative"
               >
-                <span>{item.emoji}</span>
-                <span className="text-sm flex-1">{item.title}</span>
-                <span className={`text-sm font-mono font-bold text-${item.color}`}>{item.progress}%</span>
+                {/* Left depth bar */}
+                <div
+                  className="w-1 self-stretch rounded-full shrink-0"
+                  style={{ backgroundColor: `var(--color-${item.color})`, opacity: 0.5 }}
+                />
+                <div className={`flex items-center gap-3 flex-1 p-3 rounded-lg bg-surface-light/60 border border-${item.color}/15`}>
+                  <span>{item.emoji}</span>
+                  <span className="text-sm flex-1 text-left">{item.title}</span>
+                  <span className={`text-sm font-mono font-bold text-${item.color}`}>{item.progress}%</span>
+                </div>
               </motion.div>
             ))}
-            <div className="text-center mt-2">
-              <span className="text-xs text-trace font-mono font-bold">✦ 내 기여도: 9.6%</span>
+            <div className="text-center mt-3">
+              <span className="text-xs text-trace font-mono font-bold glow-trace inline-block px-3 py-1 rounded-full bg-trace/10">
+                ✦ 내 기여도: 9.6%
+              </span>
             </div>
           </div>
         </motion.div>
@@ -85,11 +98,11 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 + i * 0.1 }}
-              className="glass rounded-xl p-6"
+              className="glass rounded-xl p-6 hover:border-primary/20 transition-colors"
             >
-              <span className="text-3xl">{f.emoji}</span>
+              <span className="text-2xl">{f.emoji}</span>
               <h3 className="text-lg font-semibold mt-3 mb-2">{f.title}</h3>
-              <p className="text-sm text-text-muted">{f.desc}</p>
+              <p className="text-sm text-text-muted leading-relaxed">{f.desc}</p>
             </motion.div>
           ))}
         </div>

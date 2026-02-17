@@ -34,7 +34,10 @@ function PersonDetail({ profile }: { profile: Profile }) {
         </div>
         <div className="flex-1">
           <h3 className="text-lg font-bold">{profile.display_name}</h3>
-          <div className="text-sm text-text-muted">{profile.email}</div>
+          <div className="text-sm text-text-muted">
+            {profile.department && <span>{profile.department} &middot; </span>}
+            {profile.email}
+          </div>
         </div>
         <div className="text-right">
           <div className="text-2xl font-bold font-mono text-trace">{totalImpact.toFixed(1)}%</div>
@@ -146,6 +149,7 @@ export default function PeoplePage() {
                           {isTop && <span className="ml-1">🏆</span>}
                         </div>
                         <div className="text-xs text-text-muted">
+                          {entry.profile.department && <span>{entry.profile.department} &middot; </span>}
                           {entry.actionCount}개 액션
                         </div>
                       </div>

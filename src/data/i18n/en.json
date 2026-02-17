@@ -60,5 +60,10 @@
   "people.actions": "Actions",
   "people.owner": "Owner",
   "milestone.add": "Add Milestone",
-  "milestone.progress": "Progress"
+  "milestone.progress": "Progress",
+  "node.weightBalance": "Weight Distribution",
+  "node.weightError": "Weights do not sum to 1.0",
+  "node.autoBalance": "Auto-balance others",
+  "node.currentItem": "Current item",
+  "node.department": "Department"
 }

@@ -23,17 +23,17 @@ function node(
 
 // Demo team members
 export const DEMO_MEMBERS: Profile[] = [
-  { id: 'demo-user', email: 'jason@cascade.io', display_name: '문정호', avatar_url: null, role: 'executive', org_id: ORG, created_at: NOW },
-  { id: 'demo-kim', email: 'kim@cascade.io', display_name: '김영수', avatar_url: null, role: 'manager', org_id: ORG, created_at: NOW },
-  { id: 'demo-lee', email: 'lee@cascade.io', display_name: '이수진', avatar_url: null, role: 'manager', org_id: ORG, created_at: NOW },
-  { id: 'demo-park', email: 'park@cascade.io', display_name: '박지민', avatar_url: null, role: 'member', org_id: ORG, created_at: NOW },
-  { id: 'demo-choi', email: 'choi@cascade.io', display_name: '최하늘', avatar_url: null, role: 'member', org_id: ORG, created_at: NOW },
+  { id: 'demo-user', email: 'jason@cascade.io', display_name: '문정호', avatar_url: null, role: 'executive', org_id: ORG, department: '경영', created_at: NOW },
+  { id: 'demo-kim', email: 'kim@cascade.io', display_name: '김영수', avatar_url: null, role: 'manager', org_id: ORG, department: '영업팀', created_at: NOW },
+  { id: 'demo-lee', email: 'lee@cascade.io', display_name: '이수진', avatar_url: null, role: 'manager', org_id: ORG, department: '마케팅팀', created_at: NOW },
+  { id: 'demo-park', email: 'park@cascade.io', display_name: '박지민', avatar_url: null, role: 'member', org_id: ORG, department: 'R&D팀', created_at: NOW },
+  { id: 'demo-choi', email: 'choi@cascade.io', display_name: '최하늘', avatar_url: null, role: 'member', org_id: ORG, department: 'CS팀', created_at: NOW },
 ]
 
-// Depth 0: Strategic Goals
-const REVENUE = node('s1', null, 0, '연 매출 500억 달성', '💰', 500, 280, '억원', 1.0, 0)
-const RETENTION = node('s2', null, 0, '고객 유지율 95%', '🤝', 95, 88, '%', 1.0, 1)
-const INNOVATION = node('s3', null, 0, '신제품 3건 출시', '🚀', 3, 1, '건', 1.0, 2)
+// Depth 0: Strategic Goals (weights sum to 1.0)
+const REVENUE = node('s1', null, 0, '연 매출 500억 달성', '💰', 500, 280, '억원', 0.50, 0)
+const RETENTION = node('s2', null, 0, '고객 유지율 95%', '🤝', 95, 88, '%', 0.30, 1)
+const INNOVATION = node('s3', null, 0, '신제품 3건 출시', '🚀', 3, 1, '건', 0.20, 2)
 
 // Depth 1: Team KPIs under Revenue
 const SALES_GROWTH = node('t1', 's1', 1, '영업팀 매출 성장', '📈', 100, 65, '%', 0.5, 0)
@@ -49,7 +49,7 @@ const RND_DELIVERY = node('t6', 's3', 1, 'R&D 프로젝트 납기', '🔬', 100,
 const DESIGN_SPRINT = node('t7', 's3', 1, '디자인 스프린트 완료', '🎨', 100, 60, '%', 0.5, 1)
 
 // Depth 2: Actions under Sales Growth
-const A1 = node('a1', 't1', 2, 'Q2 대형 고객 5건 미팅', '📞', 5, 3, '건', 1.0, 0, {
+const A1 = node('a1', 't1', 2, 'Q2 대형 고객 5건 미팅', '📞', 5, 3, '건', 0.40, 0, {
   owner_id: 'demo-kim',
   milestones: [
     { id: 'm1-1', label: '타겟 고객 리스트 확정', done: true },
@@ -59,7 +59,7 @@ const A1 = node('a1', 't1', 2, 'Q2 대형 고객 5건 미팅', '📞', 5, 3, '�
     { id: 'm1-5', label: '미팅 완료', done: false },
   ],
 })
-const A2 = node('a2', 't1', 2, '기존 고객 업셀링 캠페인', '💎', 4, 3, '건', 1.0, 1, {
+const A2 = node('a2', 't1', 2, '기존 고객 업셀링 캠페인', '💎', 4, 3, '건', 0.35, 1, {
   owner_id: 'demo-kim',
   milestones: [
     { id: 'm2-1', label: '대상 고객 세분화', done: true },
@@ -68,7 +68,7 @@ const A2 = node('a2', 't1', 2, '기존 고객 업셀링 캠페인', '💎', 4, 3
     { id: 'm2-4', label: '후속 미팅 진행', done: false },
   ],
 })
-const A3 = node('a3', 't1', 2, '영업 프로세스 자동화', '⚙️', 5, 3, '건', 1.0, 2, {
+const A3 = node('a3', 't1', 2, '영업 프로세스 자동화', '⚙️', 5, 3, '건', 0.25, 2, {
   owner_id: 'demo-park',
   milestones: [
     { id: 'm3-1', label: 'CRM 도구 선정', done: true },
@@ -80,7 +80,7 @@ const A3 = node('a3', 't1', 2, '영업 프로세스 자동화', '⚙️', 5, 3, 
 })
 
 // Depth 2: Actions under Marketing
-const A4 = node('a4', 't2', 2, '콘텐츠 마케팅 30건', '📝', 6, 4, '건', 1.0, 0, {
+const A4 = node('a4', 't2', 2, '콘텐츠 마케팅 30건', '📝', 6, 4, '건', 0.50, 0, {
   owner_id: 'demo-lee',
   milestones: [
     { id: 'm4-1', label: '콘텐츠 캘린더 수립', done: true },
@@ -91,7 +91,7 @@ const A4 = node('a4', 't2', 2, '콘텐츠 마케팅 30건', '📝', 6, 4, '건',
     { id: 'm4-6', label: '차기 전략 수립', done: false },
   ],
 })
-const A5 = node('a5', 't2', 2, 'SEO 키워드 순위 개선', '🔍', 4, 3, '건', 1.0, 1, {
+const A5 = node('a5', 't2', 2, 'SEO 키워드 순위 개선', '🔍', 4, 3, '건', 0.50, 1, {
   owner_id: 'demo-lee',
   milestones: [
     { id: 'm5-1', label: '키워드 리서치 완료', done: true },
@@ -102,7 +102,7 @@ const A5 = node('a5', 't2', 2, 'SEO 키워드 순위 개선', '🔍', 4, 3, '건
 })
 
 // Depth 2: Actions under Support
-const A6 = node('a6', 't4', 2, '응답 시간 1시간 이내', '⏱️', 4, 3, '건', 1.0, 0, {
+const A6 = node('a6', 't4', 2, '응답 시간 1시간 이내', '⏱️', 4, 3, '건', 0.50, 0, {
   owner_id: 'demo-choi',
   milestones: [
     { id: 'm6-1', label: '현재 응답 시간 분석', done: true },
@@ -111,7 +111,7 @@ const A6 = node('a6', 't4', 2, '응답 시간 1시간 이내', '⏱️', 4, 3, '
     { id: 'm6-4', label: '1시간 SLA 달성 검증', done: false },
   ],
 })
-const A7 = node('a7', 't4', 2, 'FAQ 자동화 구축', '🤖', 5, 2, '건', 1.0, 1, {
+const A7 = node('a7', 't4', 2, 'FAQ 자동화 구축', '🤖', 5, 2, '건', 0.50, 1, {
   owner_id: 'demo-choi',
   milestones: [
     { id: 'm7-1', label: '상위 50 질문 수집', done: true },
@@ -123,7 +123,7 @@ const A7 = node('a7', 't4', 2, 'FAQ 자동화 구축', '🤖', 5, 2, '건', 1.0,
 })
 
 // Depth 2: Actions under NPS
-const A8 = node('a8', 't5', 2, 'UX 리디자인 Phase 1', '🎨', 4, 3, '건', 1.0, 0, {
+const A8 = node('a8', 't5', 2, 'UX 리디자인 Phase 1', '🎨', 4, 3, '건', 0.60, 0, {
   owner_id: 'demo-park',
   milestones: [
     { id: 'm8-1', label: '사용자 리서치', done: true },
@@ -132,7 +132,7 @@ const A8 = node('a8', 't5', 2, 'UX 리디자인 Phase 1', '🎨', 4, 3, '건', 1
     { id: 'm8-4', label: '개발 구현 완료', done: false },
   ],
 })
-const A9 = node('a9', 't5', 2, '피드백 수집 시스템', '📋', 3, 1, '건', 1.0, 1, {
+const A9 = node('a9', 't5', 2, '피드백 수집 시스템', '📋', 3, 1, '건', 0.40, 1, {
   owner_id: 'demo-user',
   milestones: [
     { id: 'm9-1', label: '피드백 양식 설계', done: true },
@@ -142,7 +142,7 @@ const A9 = node('a9', 't5', 2, '피드백 수집 시스템', '📋', 3, 1, '건'
 })
 
 // Depth 2: Actions under R&D
-const A10 = node('a10', 't6', 2, 'MVP 프로토타입 완료', '🔧', 5, 2, '건', 1.0, 0, {
+const A10 = node('a10', 't6', 2, 'MVP 프로토타입 완료', '🔧', 5, 2, '건', 0.60, 0, {
   owner_id: 'demo-user',
   status: 'at_risk',
   milestones: [
@@ -153,7 +153,7 @@ const A10 = node('a10', 't6', 2, 'MVP 프로토타입 완료', '🔧', 5, 2, '�
     { id: 'm10-5', label: '데모 준비', done: false },
   ],
 })
-const A11 = node('a11', 't6', 2, '기술 검증 테스트', '🧪', 4, 2, '건', 1.0, 1, {
+const A11 = node('a11', 't6', 2, '기술 검증 테스트', '🧪', 4, 2, '건', 0.40, 1, {
   owner_id: 'demo-park',
   milestones: [
     { id: 'm11-1', label: '테스트 계획 수립', done: true },
@@ -164,7 +164,7 @@ const A11 = node('a11', 't6', 2, '기술 검증 테스트', '🧪', 4, 2, '건',
 })
 
 // Depth 2: Actions under Design
-const A12 = node('a12', 't7', 2, '사용자 인터뷰 20건', '🗣️', 4, 3, '건', 1.0, 0, {
+const A12 = node('a12', 't7', 2, '사용자 인터뷰 20건', '🗣️', 4, 3, '건', 0.50, 0, {
   owner_id: 'demo-lee',
   milestones: [
     { id: 'm12-1', label: '인터뷰 대상 선정', done: true },
@@ -173,7 +173,7 @@ const A12 = node('a12', 't7', 2, '사용자 인터뷰 20건', '🗣️', 4, 3, '
     { id: 'm12-4', label: '인사이트 정리 보고서', done: false },
   ],
 })
-const A13 = node('a13', 't7', 2, '프로토타입 사용성 테스트', '🧩', 3, 1, '건', 1.0, 1, {
+const A13 = node('a13', 't7', 2, '프로토타입 사용성 테스트', '🧩', 3, 1, '건', 0.50, 1, {
   owner_id: 'demo-kim',
   milestones: [
     { id: 'm13-1', label: '테스트 시나리오 설계', done: true },

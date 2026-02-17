@@ -13,15 +13,15 @@ const depthWidths: Record<Depth, string> = {
 }
 
 const depthBorders: Record<Depth, string> = {
-  0: 'border-depth-0/30 hover:border-depth-0/60',
-  1: 'border-depth-1/30 hover:border-depth-1/60',
-  2: 'border-depth-2/30 hover:border-depth-2/60',
+  0: 'border-depth-0/20 hover:border-depth-0/40',
+  1: 'border-depth-1/20 hover:border-depth-1/40',
+  2: 'border-depth-2/20 hover:border-depth-2/40',
 }
 
 const depthGlows: Record<Depth, string> = {
-  0: 'glow-depth-0',
-  1: 'glow-depth-1',
-  2: 'glow-depth-2',
+  0: 'glow-depth-0 ring-1 ring-depth-0/30',
+  1: 'glow-depth-1 ring-1 ring-depth-1/30',
+  2: 'glow-depth-2 ring-1 ring-depth-2/30',
 }
 
 interface Props {
@@ -50,7 +50,7 @@ export function NodeCard({ node, onClick, showTrace }: Props) {
       animate={{ opacity: 1, y: 0 }}
       className={`
         ${depthWidths[node.depth]} p-4 rounded-xl border cursor-pointer
-        bg-surface transition-all duration-200 shrink-0
+        bg-surface card-gradient transition-all duration-200 shrink-0
         ${depthBorders[node.depth]}
         ${isSelected ? depthGlows[node.depth] : ''}
       `}
@@ -73,8 +73,8 @@ export function NodeCard({ node, onClick, showTrace }: Props) {
         <StatusBadge status={node.status} />
       </div>
 
-      {/* Progress bar */}
-      <div className="h-1.5 rounded-full bg-surface-light overflow-hidden mb-2">
+      {/* Progress bar — thin & refined */}
+      <div className="h-1 rounded-full bg-surface-light overflow-hidden mb-2">
         <motion.div
           className="h-full rounded-full"
           style={{ backgroundColor: `var(--color-depth-${node.depth})` }}

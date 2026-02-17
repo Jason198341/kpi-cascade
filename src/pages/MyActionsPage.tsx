@@ -68,7 +68,10 @@ function ActionRow({ node }: { node: KpiNode }) {
               <div className="w-5 h-5 rounded-full bg-depth-2/20 text-depth-2 flex items-center justify-center text-[10px] font-bold">
                 {owner.display_name[0]}
               </div>
-              <span className="text-xs text-text-muted">{owner.display_name}</span>
+              <span className="text-xs text-text-muted">
+                {owner.display_name}
+                {owner.department && <span> &middot; {owner.department}</span>}
+              </span>
             </div>
           )}
 
@@ -179,13 +182,12 @@ export default function MyActionsPage() {
 
   return (
     <>
-      <Header title={t('nav.myActions')} />
+      <Header title={t('nav.myActions')} subtitle={actions.length > 0 ? `${actions.length}개 액션 진행중` : undefined} />
       <div className="flex-1 overflow-auto p-6">
         {actions.length === 0 ? (
           <EmptyState emoji="⚡" title="액션 플랜이 없습니다" description="캐스케이드에서 팀 KPI 하위에 액션을 추가하세요" />
         ) : (
           <div className="max-w-3xl mx-auto flex flex-col gap-3">
-            <div className="text-sm text-text-muted mb-2">{actions.length}개 액션</div>
             {actions.map((node) => (
               <ActionRow key={node.id} node={node} />
             ))}

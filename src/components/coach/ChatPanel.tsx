@@ -65,7 +65,7 @@ export function ChatPanel() {
                   key={q}
                   onClick={() => { setInput(q); }}
                   className="text-xs px-3 py-1.5 rounded-full bg-surface-light border border-surface-border
-                    hover:border-accent/30 text-text-muted hover:text-text transition-colors cursor-pointer"
+                    hover:border-primary/30 text-text-muted hover:text-text transition-colors cursor-pointer"
                 >
                   {q}
                 </button>
@@ -102,7 +102,7 @@ export function ChatPanel() {
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() } }}
             placeholder={t('coach.placeholder')}
             className="flex-1 bg-surface-light border border-surface-border rounded-lg px-4 py-2.5 text-sm
-              placeholder:text-text-muted/50 focus:outline-none focus:border-accent transition-colors"
+              placeholder:text-text-muted/40 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary transition-colors"
             disabled={streaming}
           />
           <Button onClick={handleSend} disabled={streaming || !input.trim()}>

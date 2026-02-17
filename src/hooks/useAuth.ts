@@ -11,6 +11,7 @@ export function useInitialize() {
   const initialized = useAuthStore((s) => s.initialized)
   const fetchNodes = useCascadeStore((s) => s.fetchNodes)
   const fetchOrg = useOrgStore((s) => s.fetchOrg)
+  const fetchMembers = useOrgStore((s) => s.fetchMembers)
   const createOrg = useOrgStore((s) => s.createOrg)
   const creatingOrg = useRef(false)
 
@@ -26,12 +27,12 @@ export function useInitialize() {
       .finally(() => { creatingOrg.current = false })
   }, [profile, createOrg, fetchProfile])
 
-  // Fetch org data + nodes once org_id is available
+  // Fetch org data + members + nodes once org_id is available
   useEffect(() => {
     if (!profile?.org_id) return
-    fetchOrg(profile.org_id)
+    fetchOrg(profile.org_id).then(() => fetchMembers())
     fetchNodes(profile.org_id)
-  }, [profile?.org_id, fetchOrg, fetchNodes])
+  }, [profile?.org_id, fetchOrg, fetchMembers, fetchNodes])
 
   return { initialized, isLoggedIn: !!profile }
 }
