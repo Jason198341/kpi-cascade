@@ -37,7 +37,15 @@ export interface Organization {
   name: string
   slug?: string
   owner_id: string
+  report_stages: number
+  feedback_rounds: number
+  org_levels: OrgLevel[]
   created_at: string
+}
+
+export interface OrgLevel {
+  name: string
+  depth: number
 }
 
 export interface Profile {
@@ -49,6 +57,8 @@ export interface Profile {
   org_id: string | null
   department: string | null
   hire_year: number | null
+  position_title: string | null
+  onboarding_completed: boolean
   created_at: string
 }
 

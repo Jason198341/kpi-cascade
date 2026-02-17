@@ -35,6 +35,8 @@ const DEMO_PROFILE: Profile = {
   org_id: 'demo-org-id',
   department: '경영',
   hire_year: 2010,
+  position_title: '상무',
+  onboarding_completed: true,
   created_at: new Date().toISOString(),
 }
 

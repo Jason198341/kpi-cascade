@@ -9,6 +9,7 @@ interface OrgState {
   loading: boolean
   fetchOrg: (orgId: string) => Promise<void>
   createOrg: (name: string, userId: string) => Promise<Organization>
+  updateOrg: (updates: Partial<Organization>) => Promise<void>
   fetchMembers: () => Promise<void>
   addMember: (member: Omit<Profile, 'id' | 'created_at'>) => Promise<void>
   updateMember: (id: string, updates: Partial<Profile>) => Promise<void>
@@ -20,6 +21,13 @@ const DEMO_ORG: Organization = {
   name: '캐스케이드 Inc.',
   slug: 'cascade-inc',
   owner_id: 'demo-user',
+  report_stages: 3,
+  feedback_rounds: 3,
+  org_levels: [
+    { name: '실', depth: 0 },
+    { name: '팀', depth: 1 },
+    { name: '파트', depth: 2 },
+  ],
   created_at: new Date().toISOString(),
 }
 
@@ -37,6 +45,15 @@ export const useOrgStore = create<OrgState>((set, get) => ({
       .eq('id', orgId)
       .single()
     set({ org: data as Organization | null, loading: false })
+  },
+
+  updateOrg: async (updates) => {
+    const org = get().org
+    if (!org) return
+    if (!isDemoMode) {
+      await supabase.from('organizations').update(updates).eq('id', org.id)
+    }
+    set({ org: { ...org, ...updates } })
   },
 
   createOrg: async (name, userId) => {

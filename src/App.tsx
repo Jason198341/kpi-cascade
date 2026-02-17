@@ -1,7 +1,9 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useInitialize } from '@/hooks/useAuth'
+import { useAuthStore } from '@/stores/authStore'
 import { AppShell } from '@/components/layout/AppShell'
+import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard'
 import { AuthPage } from '@/pages/AuthPage'
 
 const CascadePage = lazy(() => import('@/pages/CascadePage'))
@@ -27,8 +29,14 @@ function Loading() {
 
 function AppRoutes() {
   const { initialized, isLoggedIn } = useInitialize()
+  const profile = useAuthStore((s) => s.profile)
 
   if (!initialized) return <Loading />
+
+  // Show onboarding wizard for logged-in users who haven't completed it
+  if (isLoggedIn && profile && !profile.onboarding_completed) {
+    return <OnboardingWizard />
+  }
 
   return (
     <Suspense fallback={<Loading />}>

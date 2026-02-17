@@ -53,6 +53,8 @@ export default function SettingsPage() {
         org_id: org?.id || null,
         department: newDept.trim() || null,
         hire_year: newHireYear ? parseInt(newHireYear, 10) : null,
+        position_title: null,
+        onboarding_completed: true,
       })
       toast(`${newName.trim()} 추가됨`, 'success')
       setNewName(''); setNewEmail(''); setNewDept(''); setNewRole('member'); setNewHireYear('')
