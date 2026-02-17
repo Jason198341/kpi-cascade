@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { useExecutiveStore } from '@/stores/executiveStore'
 import { useUIStore } from '@/stores/uiStore'
 import type { ExecLogType, ExecutiveLog } from '@/types'
@@ -38,6 +38,13 @@ function CheckRow({
   const [memo, setMemo] = useState(log?.memo ?? '')
   const [editing, setEditing] = useState(false)
   const done = log?.done ?? false
+
+  // Sync memo state when log data changes externally
+  useEffect(() => {
+    if (!editing) {
+      setMemo(log?.memo ?? '')
+    }
+  }, [log?.memo, editing])
 
   const toggle = useCallback(() => {
     upsertLog(nodeId, logType, !done, log?.memo)
@@ -96,11 +103,16 @@ function CheckRow({
 }
 
 export function ExecLogPanel({ nodeId }: { nodeId: string }) {
-  const getLogsForNode = useExecutiveStore((s) => s.getLogsForNode)
+  // Subscribe to logs array directly — triggers re-render on any log change
+  const logs = useExecutiveStore((s) => s.logs)
   const t = useUIStore((s) => s.t)
-  const logs = getLogsForNode(nodeId)
 
-  const findLog = (type: ExecLogType) => logs.find((l) => l.log_type === type)
+  const nodeLogs = useMemo(
+    () => logs.filter((l) => l.node_id === nodeId),
+    [logs, nodeId],
+  )
+
+  const findLog = (type: ExecLogType) => nodeLogs.find((l) => l.log_type === type)
 
   const reportDone = REPORT_TYPES.filter((r) => findLog(r.type)?.done).length
   const feedbackDone = FEEDBACK_TYPES.filter((f) => findLog(f.type)?.done).length

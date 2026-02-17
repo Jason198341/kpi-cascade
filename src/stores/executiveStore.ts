@@ -45,63 +45,59 @@ export const useExecutiveStore = create<ExecutiveState>((set, get) => ({
   },
 
   upsertLog: async (nodeId, logType, done, memo) => {
-    const userId = isDemoMode ? 'demo-user' : undefined
+    const now = new Date().toISOString()
 
-    if (isDemoMode) {
-      set((s) => {
-        const existing = s.logs.find(
-          (l) => l.node_id === nodeId && l.log_type === logType,
-        )
-        if (existing) {
-          return {
-            logs: s.logs.map((l) =>
-              l.id === existing.id
-                ? {
-                    ...l,
-                    done,
-                    done_at: done ? new Date().toISOString() : null,
-                    memo: memo !== undefined ? memo : l.memo,
-                    updated_at: new Date().toISOString(),
-                  }
-                : l,
-            ),
-          }
+    // Optimistic update — UI reflects immediately
+    set((s) => {
+      const idx = s.logs.findIndex(
+        (l) => l.node_id === nodeId && l.log_type === logType,
+      )
+      if (idx >= 0) {
+        const updated = [...s.logs]
+        updated[idx] = {
+          ...updated[idx],
+          done,
+          done_at: done ? now : null,
+          memo: memo !== undefined ? memo : updated[idx].memo,
+          updated_at: now,
         }
-        const newLog: ExecutiveLog = {
+        return { logs: updated }
+      }
+      return {
+        logs: [...s.logs, {
           id: `el-${Date.now()}`,
           node_id: nodeId,
-          user_id: userId!,
+          user_id: isDemoMode ? 'demo-user' : 'pending',
           log_type: logType,
           done,
-          done_at: done ? new Date().toISOString() : null,
+          done_at: done ? now : null,
           memo: memo ?? null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }
-        return { logs: [...s.logs, newLog] }
-      })
-      return
-    }
+          created_at: now,
+          updated_at: now,
+        } as ExecutiveLog],
+      }
+    })
 
-    // Live mode: Supabase upsert
+    if (isDemoMode) return
+
+    // Live mode: sync to Supabase in background
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
-    const row = {
-      node_id: nodeId,
-      user_id: user.id,
-      log_type: logType,
-      done,
-      done_at: done ? new Date().toISOString() : null,
-      memo: memo !== undefined ? memo : null,
-    }
-
     const { data } = await supabase
       .from('executive_logs')
-      .upsert(row, { onConflict: 'node_id,user_id,log_type' })
+      .upsert({
+        node_id: nodeId,
+        user_id: user.id,
+        log_type: logType,
+        done,
+        done_at: done ? now : null,
+        memo: memo !== undefined ? memo : null,
+      }, { onConflict: 'node_id,user_id,log_type' })
       .select()
       .single()
 
+    // Reconcile with server response
     if (data) {
       set((s) => {
         const idx = s.logs.findIndex(
