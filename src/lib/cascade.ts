@@ -116,8 +116,10 @@ export function getPersonContribution(
     .map((node) => {
       const progress = getEffectiveProgress(node, nodeMap, childrenMap)
       const trace = getContributionTrace(node.id, nodeMap, childrenMap)
+      // Use full chain weight (leaf × parent × ...) for contribution to root KPI
+      // trace = [leaf, parent, root] — trace[length-2] has the complete chain weight
       const impact = trace.length > 1
-        ? trace[0].cumulativeImpact * trace[0].progress
+        ? trace[trace.length - 2].cumulativeImpact * trace[0].progress
         : progress
       return { node, progress, impact }
     })
