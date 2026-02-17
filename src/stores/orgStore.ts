@@ -78,6 +78,7 @@ export const useOrgStore = create<OrgState>((set, get) => ({
       .insert({
         id: crypto.randomUUID(),
         email: member.email,
+        name: member.display_name,
         display_name: member.display_name,
         avatar_url: null,
         role: member.role,
