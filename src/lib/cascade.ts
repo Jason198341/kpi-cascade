@@ -141,24 +141,26 @@ export function getTeamRanking(
     .sort((a, b) => b.totalContribution - a.totalContribution)
 }
 
-/** Expected contribution per member based on seniority (hire_year).
- *  More years = higher expectation. All expectations sum to 1.0.
- *  Members without hire_year default to 1 year of experience.
+/** Max possible contribution: if all assigned actions hit 100%, how much
+ *  would this person's work move the strategic goals?
+ *  Calculated by tracing each action's weight chain to root at 100% progress.
  */
-export function getExpectedContributions(
-  members: Profile[],
-): Map<string, number> {
-  const currentYear = new Date().getFullYear()
-  const entries = members.map((m) => ({
-    id: m.id,
-    years: m.hire_year ? Math.max(1, currentYear - m.hire_year) : 1,
-  }))
-  const totalYears = entries.reduce((s, e) => s + e.years, 0)
-  const map = new Map<string, number>()
-  for (const e of entries) {
-    map.set(e.id, totalYears > 0 ? e.years / totalYears : 1 / members.length)
+export function getMaxPossibleContribution(
+  ownerId: string,
+  nodes: KpiNode[],
+  nodeMap: NodeMap,
+  childrenMap: ChildrenMap,
+): number {
+  const actions = nodes.filter((n) => n.owner_id === ownerId && n.depth === 2)
+  let total = 0
+  for (const action of actions) {
+    const trace = getContributionTrace(action.id, nodeMap, childrenMap)
+    if (trace.length > 1) {
+      // weight chain (leaf→root) × 100% progress
+      total += trace[trace.length - 2].cumulativeImpact * 100
+    }
   }
-  return map
+  return total
 }
 
 /** Team ranking with expected contribution and performance ratio */
@@ -175,24 +177,16 @@ export function getTeamRankingWithExpectation(
   seniority: number
   performanceRatio: number
 }[] {
-  const expected = getExpectedContributions(members)
-  // Get total actual contribution across ALL members to normalize
-  const allContribs = members.map((p) => {
-    const c = getPersonContribution(p.id, nodes, nodeMap, childrenMap)
-    return c.reduce((sum, x) => sum + x.impact, 0)
-  })
-  const totalActual = allContribs.reduce((s, v) => s + v, 0)
   const currentYear = new Date().getFullYear()
 
   return members
-    .map((profile, i) => {
+    .map((profile) => {
       const contributions = getPersonContribution(profile.id, nodes, nodeMap, childrenMap)
       const totalContribution = contributions.reduce((sum, c) => sum + c.impact, 0)
-      const expectedPct = expected.get(profile.id) || 0
-      // Expected contribution in same unit as actual (share of total actual output)
-      const expectedContrib = expectedPct * totalActual
+      // Expected = max possible if all assigned actions hit 100%
+      const expectedContrib = getMaxPossibleContribution(profile.id, nodes, nodeMap, childrenMap)
       const seniority = profile.hire_year ? Math.max(1, currentYear - profile.hire_year) : 1
-      // Performance ratio: actual / expected (>1 = exceeding expectations)
+      // Performance ratio: actual / expected (>1 shouldn't happen, but possible with rounding)
       const performanceRatio = expectedContrib > 0 ? totalContribution / expectedContrib : 0
 
       return { profile, totalContribution, actionCount: contributions.length, expectedContrib, seniority, performanceRatio }
