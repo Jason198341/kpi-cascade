@@ -7,6 +7,7 @@ import { isDemoMode } from '@/lib/supabase'
 
 export function useInitialize() {
   const initialize = useAuthStore((s) => s.initialize)
+  const user = useAuthStore((s) => s.user)
   const profile = useAuthStore((s) => s.profile)
   const fetchProfile = useAuthStore((s) => s.fetchProfile)
   const initialized = useAuthStore((s) => s.initialized)
@@ -37,5 +38,5 @@ export function useInitialize() {
     fetchLogs(profile.id)
   }, [profile?.org_id, profile?.id, fetchOrg, fetchMembers, fetchNodes, fetchLogs])
 
-  return { initialized, isLoggedIn: !!profile }
+  return { initialized, isLoggedIn: !!user }
 }

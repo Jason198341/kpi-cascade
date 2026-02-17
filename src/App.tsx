@@ -33,6 +33,9 @@ function AppRoutes() {
 
   if (!initialized) return <Loading />
 
+  // User is logged in but profile hasn't loaded yet — wait
+  if (isLoggedIn && !profile) return <Loading />
+
   // Show onboarding wizard for logged-in users who haven't completed it
   if (isLoggedIn && profile && !profile.onboarding_completed) {
     return <OnboardingWizard />

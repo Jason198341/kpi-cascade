@@ -104,7 +104,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       .select('*')
       .eq('id', userId)
       .single()
-    if (data) set({ profile: data as Profile })
+    if (data) {
+      set({ profile: data as Profile })
+    } else {
+      // Profile might not exist yet (auth trigger race condition) — retry once
+      await new Promise((r) => setTimeout(r, 500))
+      const { data: retry } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single()
+      if (retry) set({ profile: retry as Profile })
+    }
   },
 
   updateProfile: async (updates) => {
