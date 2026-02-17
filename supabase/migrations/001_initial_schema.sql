@@ -80,10 +80,11 @@ create index idx_progress_logs_node on progress_logs(node_id);
 create index idx_comments_node on comments(node_id);
 
 -- Auto-create profile on signup
-create or replace function handle_new_user()
+-- IMPORTANT: use public.profiles (fully qualified) because auth triggers run outside public schema search_path
+create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-  insert into profiles (id, email, display_name)
+  insert into public.profiles (id, email, display_name)
   values (new.id, new.email, coalesce(new.raw_user_meta_data->>'display_name', split_part(new.email, '@', 1)));
   return new;
 end;
@@ -140,10 +141,9 @@ create policy "org_member" on organizations for all using (
   or owner_id = auth.uid()
 );
 
-create policy "profile_own" on profiles for all using (id = auth.uid());
-create policy "profile_read_org" on profiles for select using (
-  org_id in (select org_id from profiles where id = auth.uid())
-);
+create policy "profiles_select" on profiles for select using (auth.uid() is not null);
+create policy "profiles_insert" on profiles for insert with check (auth.uid() = id);
+create policy "profiles_update" on profiles for update using (auth.uid() = id);
 
 create policy "kpi_org" on kpi_nodes for all using (
   org_id in (select org_id from profiles where id = auth.uid())
