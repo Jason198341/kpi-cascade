@@ -28,8 +28,9 @@ export interface KpiNode {
 export interface Organization {
   id: string
   name: string
-  slug: string
+  year: number
   owner_id: string
+  settings: Record<string, unknown>
   created_at: string
 }
 

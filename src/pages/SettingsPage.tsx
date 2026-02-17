@@ -54,7 +54,7 @@ export default function SettingsPage() {
             {org ? (
               <div>
                 <div className="text-lg font-semibold">{org.name}</div>
-                <div className="text-sm text-text-muted">slug: {org.slug}</div>
+                <div className="text-sm text-text-muted">{org.year}년</div>
               </div>
             ) : (
               <p className="text-sm text-text-muted">조직에 속해있지 않습니다</p>

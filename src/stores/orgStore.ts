@@ -14,8 +14,9 @@ interface OrgState {
 const DEMO_ORG: Organization = {
   id: 'demo-org-id',
   name: '캐스케이드 Inc.',
-  slug: 'cascade-inc',
+  year: new Date().getFullYear(),
   owner_id: 'demo-user',
+  settings: {},
   created_at: new Date().toISOString(),
 }
 
@@ -36,10 +37,9 @@ export const useOrgStore = create<OrgState>((set, get) => ({
   },
 
   createOrg: async (name, userId) => {
-    const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
     const { data, error } = await supabase
       .from('organizations')
-      .insert({ name, slug, owner_id: userId })
+      .insert({ name, year: new Date().getFullYear(), owner_id: userId, settings: {} })
       .select()
       .single()
     if (error) throw error
