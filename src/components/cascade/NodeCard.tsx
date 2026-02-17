@@ -33,10 +33,12 @@ interface Props {
 export function NodeCard({ node, onClick, showTrace }: Props) {
   const navigate = useNavigate()
   const getProgress = useCascadeStore((s) => s.getProgress)
+  const childrenMap = useCascadeStore((s) => s.childrenMap)
   const selectedNodeId = useCascadeStore((s) => s.selectedNodeId)
   const selectNode = useCascadeStore((s) => s.selectNode)
   const progress = getProgress(node.id)
   const isSelected = selectedNodeId === node.id
+  const hasChildren = (childrenMap[node.id] || []).length > 0
 
   const handleClick = () => {
     selectNode(node.id)
@@ -89,6 +91,10 @@ export function NodeCard({ node, onClick, showTrace }: Props) {
         {node.milestones && node.milestones.length > 0 ? (
           <span className="font-mono">
             ✓ {node.milestones.filter((m) => m.done).length}/{node.milestones.length}
+          </span>
+        ) : hasChildren ? (
+          <span className="font-mono">
+            {(childrenMap[node.id] || []).length}개 하위 항목
           </span>
         ) : (
           <span className="font-mono">{node.current_value}/{node.target_value} {node.unit}</span>

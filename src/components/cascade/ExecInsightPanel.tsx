@@ -4,6 +4,7 @@ import { useCascadeStore } from '@/stores/cascadeStore'
 import { useOrgStore } from '@/stores/orgStore'
 import { useExecutiveStore } from '@/stores/executiveStore'
 import { useUIStore } from '@/stores/uiStore'
+import { buildMaps, getEffectiveProgress } from '@/lib/cascade'
 import { daysUntil, isOverdue } from '@/lib/date'
 import type { KpiNode, ExecutiveLog, Profile } from '@/types'
 
@@ -56,6 +57,7 @@ function buildInsightContext(
 ): string {
   const today = new Date().toISOString().split('T')[0]
   const lines: string[] = [`기준일: ${today}\n`]
+  const { nodeMap, childrenMap } = buildMaps(nodes)
 
   // Team members
   lines.push('## 팀원 구조')
@@ -70,7 +72,7 @@ function buildInsightContext(
     lines.push(`## ${label}`)
     const depthNodes = nodes.filter((n) => n.depth === depth)
     for (const n of depthNodes) {
-      const progress = n.target_value > 0 ? Math.round((n.current_value / n.target_value) * 100) : 0
+      const progress = Math.round(getEffectiveProgress(n, nodeMap, childrenMap))
       const owner = n.owner_id ? members.find((m) => m.id === n.owner_id) : null
       const days = daysUntil(n.due_date)
       const overdue = isOverdue(n.due_date)

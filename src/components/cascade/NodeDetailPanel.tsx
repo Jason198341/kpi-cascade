@@ -80,6 +80,10 @@ export function NodeDetailPanel() {
               <div className="text-xs text-text-muted">
                 ✓ {node.milestones!.filter((m) => m.done).length}/{node.milestones!.length} {t('milestone.progress')}
               </div>
+            ) : children.length > 0 ? (
+              <div className="text-xs text-text-muted">
+                {children.length}개 하위 항목
+              </div>
             ) : (
               <div className="text-xs text-text-muted">
                 {node.current_value}/{node.target_value} {node.unit}

@@ -31,7 +31,7 @@ export function ChatPanel() {
       .filter((n) => n.depth === 0 || n.depth === 1)
       .map((n) => {
         const p = getProgress(n.id)
-        return `[depth${n.depth}] ${n.emoji} ${n.title}: ${Math.round(p)}% (${n.current_value}/${n.target_value} ${n.unit}, status: ${n.status})`
+        return `[depth${n.depth}] ${n.emoji} ${n.title}: ${Math.round(p)}% (status: ${n.status})`
       })
       .join('\n')
   }
