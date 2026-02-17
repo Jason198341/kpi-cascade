@@ -53,10 +53,6 @@ function ExecNodeRow({ node, depth }: { node: KpiNode; depth: Depth }) {
         </div>
       </div>
 
-      {/* ExecLogPanel */}
-      <div className="px-3 pb-2.5">
-        <ExecLogPanel nodeId={node.id} />
-      </div>
     </motion.div>
   )
 }
