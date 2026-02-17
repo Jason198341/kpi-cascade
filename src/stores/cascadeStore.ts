@@ -41,6 +41,7 @@ export const useCascadeStore = create<CascadeState>((set, get) => ({
   loading: false,
 
   fetchNodes: async (orgId) => {
+    if (!orgId) { set({ loading: false }); return }
     set({ loading: true })
     if (isDemoMode) {
       const maps = rebuildMaps(SEED_NODES)

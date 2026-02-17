@@ -54,12 +54,16 @@ export function NodeFormModal({ open, onClose, editNode, parentId, depth = 0 }: 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!profile?.org_id) {
+      toast('조직이 설정되지 않았습니다. 잠시 후 다시 시도해주세요.', 'error')
+      return
+    }
     try {
       if (editNode) {
         await updateNode(editNode.id, { title, description: description || null, emoji, target_value: targetValue, unit, weight, due_date: dueDate || null })
       } else {
         await addNode({
-          org_id: profile?.org_id || 'demo-org-id',
+          org_id: profile.org_id,
           parent_id: parentId || null,
           depth,
           title,
