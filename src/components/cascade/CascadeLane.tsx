@@ -15,7 +15,7 @@ const depthBg: Record<Depth, string> = {
 
 export function CascadeLane({ depth, nodes, highlightIds }: Props) {
   return (
-    <div className={`flex-1 min-w-0 rounded-xl p-4 ${depthBg[depth]}`}>
+    <div className={`flex-1 min-w-0 rounded-xl p-3 md:p-4 ${depthBg[depth]}`}>
       <div className="flex items-center gap-2 mb-4 px-1 pb-3 border-b border-surface-border/50">
         <div
           className="w-2 h-2 rounded-full"

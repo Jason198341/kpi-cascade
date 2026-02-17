@@ -32,7 +32,7 @@ export default function CascadePage() {
           </div>
         }
       />
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative">
         {nodes.length === 0 ? (
           <div className="flex-1 flex items-center justify-center">
             <EmptyState
@@ -49,7 +49,18 @@ export default function CascadePage() {
             <div className="flex-1 overflow-auto">
               <CascadeTree />
             </div>
-            {selectedNodeId && <NodeDetailPanel />}
+            {/* Mobile: overlay detail panel */}
+            {selectedNodeId && (
+              <>
+                <div
+                  className="fixed inset-0 bg-black/50 z-40 md:hidden"
+                  onClick={() => selectNode(null)}
+                />
+                <div className="fixed inset-y-0 right-0 z-50 md:relative md:z-auto">
+                  <NodeDetailPanel />
+                </div>
+              </>
+            )}
           </>
         )}
       </div>

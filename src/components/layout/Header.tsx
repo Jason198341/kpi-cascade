@@ -12,7 +12,7 @@ export function Header({ title, subtitle, actions }: Props) {
   const setLang = useUIStore((s) => s.setLang)
 
   return (
-    <header className="h-14 border-b border-surface-border flex items-center justify-between px-6 shrink-0 bg-surface/60 backdrop-blur-sm">
+    <header className="h-14 border-b border-surface-border flex items-center justify-between px-4 sm:px-6 shrink-0 bg-surface/60 backdrop-blur-sm">
       <div className="flex items-center gap-3">
         <button
           onClick={toggleSidebar}

@@ -160,6 +160,9 @@ export function ExecLogPanel({ nodeId }: { nodeId: string }) {
             />
           ))}
         </div>
+        <p className="text-[10px] text-text-muted/60 mt-2 leading-relaxed">
+          💡 {t('exec.reportHint')}
+        </p>
       </div>
     </div>
   )

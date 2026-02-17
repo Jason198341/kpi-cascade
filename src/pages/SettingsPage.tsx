@@ -78,10 +78,10 @@ export default function SettingsPage() {
   return (
     <>
       <Header title={t('nav.settings')} />
-      <div className="flex-1 overflow-auto p-6">
-        <div className="max-w-lg mx-auto space-y-8">
+      <div className="flex-1 overflow-auto p-4 sm:p-6">
+        <div className="max-w-lg mx-auto space-y-6 sm:space-y-8">
           {/* Profile */}
-          <section className="glass rounded-xl p-6">
+          <section className="glass rounded-xl p-4 sm:p-6">
             <h3 className="text-sm font-medium text-text-muted mb-4">프로필</h3>
             <div className="flex items-center gap-4 mb-4">
               <div className="w-14 h-14 rounded-full bg-primary/20 text-primary flex items-center justify-center text-2xl font-bold">
@@ -102,7 +102,7 @@ export default function SettingsPage() {
           </section>
 
           {/* Organization */}
-          <section className="glass rounded-xl p-6">
+          <section className="glass rounded-xl p-4 sm:p-6">
             <h3 className="text-sm font-medium text-text-muted mb-4">조직</h3>
             {org ? (
               <div className="text-lg font-semibold">{org.name}</div>
@@ -113,7 +113,7 @@ export default function SettingsPage() {
 
           {/* Team Members */}
           {org && (
-            <section className="glass rounded-xl p-6">
+            <section className="glass rounded-xl p-4 sm:p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-medium text-text-muted">
                   팀원 관리 <span className="text-text">({members.length}명)</span>
@@ -126,11 +126,11 @@ export default function SettingsPage() {
               {/* Add member form */}
               {showAddForm && (
                 <div className="mb-4 p-4 rounded-lg bg-surface-light border border-surface-border space-y-3">
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <Input label="이름 *" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="홍길동" />
                     <Input label="이메일" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="hong@company.com" />
                   </div>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
                       <label className="text-sm text-text-muted mb-1.5 block">역할</label>
                       <select
@@ -213,7 +213,7 @@ export default function SettingsPage() {
           )}
 
           {/* Language */}
-          <section className="glass rounded-xl p-6">
+          <section className="glass rounded-xl p-4 sm:p-6">
             <h3 className="text-sm font-medium text-text-muted mb-4">언어</h3>
             <div className="flex gap-2">
               {(['ko', 'en'] as const).map((l) => (

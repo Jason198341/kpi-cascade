@@ -74,5 +74,16 @@
   "exec.feedback1": "1st",
   "exec.feedback2": "2nd",
   "exec.feedback3": "3rd",
-  "exec.memoPlaceholder": "Feedback notes..."
+  "exec.memoPlaceholder": "Feedback notes...",
+  "exec.reportHint": "Feedback and memos are included in the year-end personal KPI report. Feel free to record anytime.",
+  "nav.report": "Annual Report",
+  "report.title": "Year-End KPI Report",
+  "report.selectMember": "Select Member",
+  "report.generate": "Generate AI Report",
+  "report.generating": "Generating report...",
+  "report.contributions": "Contributions",
+  "report.feedbackHistory": "Feedback History",
+  "report.summary": "Overall Assessment",
+  "report.empty": "No report generated yet",
+  "report.hint": "Select a member and generate a report. AI will analyze contributions, activities, weights, milestones, and feedback history."
 }

@@ -74,5 +74,16 @@
   "exec.feedback1": "1차",
   "exec.feedback2": "2차",
   "exec.feedback3": "3차",
-  "exec.memoPlaceholder": "피드백 내용..."
+  "exec.memoPlaceholder": "피드백 내용...",
+  "exec.reportHint": "피드백과 메모는 연말 개인 KPI 레포트에 반영됩니다. 수시로 기록해 주세요.",
+  "nav.report": "연말 레포트",
+  "report.title": "연말 KPI 레포트",
+  "report.selectMember": "팀원 선택",
+  "report.generate": "AI 레포트 생성",
+  "report.generating": "레포트 생성중...",
+  "report.contributions": "기여 활동",
+  "report.feedbackHistory": "피드백 이력",
+  "report.summary": "종합 평가",
+  "report.empty": "생성된 레포트가 없습니다",
+  "report.hint": "팀원을 선택하고 레포트를 생성하세요. AI가 기여도, 활동 내역, 가중치, 마일스톤, 피드백 이력을 종합 분석합니다."
 }

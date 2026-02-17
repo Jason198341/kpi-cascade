@@ -52,7 +52,7 @@ export function NodeDetailPanel() {
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: 20 }}
-        className="w-80 border-l border-surface-border bg-surface p-5 overflow-y-auto shrink-0 card-gradient"
+        className="w-[85vw] max-w-80 h-full border-l border-surface-border bg-surface p-4 md:p-5 overflow-y-auto shrink-0 card-gradient"
       >
         {/* Close */}
         <div className="flex items-center justify-between mb-4">

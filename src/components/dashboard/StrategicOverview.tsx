@@ -29,14 +29,14 @@ export function StrategicOverview() {
   if (goals.length === 0) return null
 
   return (
-    <div className="glass rounded-xl p-5">
+    <div className="glass rounded-xl p-4 sm:p-5">
       {/* Header with legend */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <div>
           <h3 className="text-sm font-semibold text-text">전략 목표 가중치 분포</h3>
           <p className="text-xs text-text-muted mt-0.5">카드 너비 = 가중치 비율. 넓을수록 중요도가 높습니다</p>
         </div>
-        <div className="flex items-center gap-3 text-xs text-text-muted">
+        <div className="flex items-center gap-3 text-xs text-text-muted shrink-0">
           <span className="flex items-center gap-1">
             <span className="w-2.5 h-2.5 rounded-full bg-success" /> 70%+
           </span>
@@ -50,7 +50,7 @@ export function StrategicOverview() {
       </div>
 
       {/* Weight proportional cards — flex with basis proportional to weight */}
-      <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row gap-2">
         {goals.map((g, i) => {
           const pct = totalWeight > 0 ? (g.node.weight / totalWeight) * 100 : 25
           const progress = Math.round(g.progress)
@@ -67,8 +67,8 @@ export function StrategicOverview() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08, duration: 0.4 }}
-              className="relative rounded-lg bg-surface-light border border-surface-border overflow-hidden"
-              style={{ flex: `${pct} 0 0%`, minWidth: 0 }}
+              className="relative rounded-lg bg-surface-light border border-surface-border overflow-hidden min-w-0"
+              style={{ flex: `${pct} 0 0%` }}
             >
               {/* Weight fill bar at top */}
               <div

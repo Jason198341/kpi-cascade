@@ -124,7 +124,7 @@ export default function PeoplePage() {
   return (
     <>
       <Header title={t('people.title')} />
-      <div className="flex-1 overflow-auto p-6">
+      <div className="flex-1 overflow-auto p-4 sm:p-6">
         <div className="max-w-5xl mx-auto">
           {members.length === 0 ? (
             <EmptyState emoji="👥" title="팀원이 없습니다" description="조직에 멤버를 초대하세요" />

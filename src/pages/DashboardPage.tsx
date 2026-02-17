@@ -12,7 +12,7 @@ export default function DashboardPage() {
   return (
     <>
       <Header title={t('nav.dashboard')} />
-      <div className="flex-1 overflow-auto p-6">
+      <div className="flex-1 overflow-auto p-4 sm:p-6">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Row 1: Strategic Goals Weight Distribution — full width */}
           <div className="lg:col-span-12">

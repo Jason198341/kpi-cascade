@@ -10,6 +10,7 @@ const DashboardPage = lazy(() => import('@/pages/DashboardPage'))
 const PeoplePage = lazy(() => import('@/pages/PeoplePage'))
 const TracePage = lazy(() => import('@/pages/TracePage'))
 const CoachPage = lazy(() => import('@/pages/CoachPage'))
+const ReportPage = lazy(() => import('@/pages/ReportPage'))
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'))
 const LandingPage = lazy(() => import('@/pages/LandingPage'))
 
@@ -43,6 +44,7 @@ function AppRoutes() {
           <Route path="/people/:userId" element={<PeoplePage />} />
           <Route path="/trace/:nodeId" element={<TracePage />} />
           <Route path="/coach" element={<CoachPage />} />
+          <Route path="/report" element={<ReportPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Routes>

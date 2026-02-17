@@ -34,7 +34,7 @@ export function CascadeTree() {
   }, [nodes, selectedNodeId, childrenMap, nodeMap])
 
   return (
-    <div className="flex gap-4 h-full overflow-auto p-4">
+    <div className="flex flex-col md:flex-row gap-4 h-full overflow-auto p-3 md:p-4">
       <CascadeLane depth={0 as Depth} nodes={filteredByDepth.d0} />
       <CascadeLane depth={1 as Depth} nodes={filteredByDepth.d1} />
       <CascadeLane depth={2 as Depth} nodes={filteredByDepth.d2} />

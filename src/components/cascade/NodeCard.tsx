@@ -7,9 +7,9 @@ import { DepthTag } from '@/components/common/DepthTag'
 import type { KpiNode, Depth } from '@/types'
 
 const depthWidths: Record<Depth, string> = {
-  0: 'w-80',
-  1: 'w-68',
-  2: 'w-60',
+  0: 'w-full md:w-80',
+  1: 'w-full md:w-68',
+  2: 'w-full md:w-60',
 }
 
 const depthBorders: Record<Depth, string> = {

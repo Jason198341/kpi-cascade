@@ -25,7 +25,7 @@ interface UIState {
 
 export const useUIStore = create<UIState>((set, get) => ({
   lang: (navigator.language.startsWith('ko') ? 'ko' : 'en') as Lang,
-  sidebarOpen: true,
+  sidebarOpen: typeof window !== 'undefined' ? window.innerWidth >= 768 : true,
   toasts: [],
   setLang: (lang) => set({ lang }),
   toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
