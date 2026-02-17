@@ -81,11 +81,18 @@ create index idx_comments_node on comments(node_id);
 
 -- Auto-create profile on signup
 -- IMPORTANT: use public.profiles (fully qualified) because auth triggers run outside public schema search_path
+-- NOTE: 'name' column exists in the shared kpi-pulse Supabase project (NOT NULL, no default)
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-  insert into public.profiles (id, email, display_name)
-  values (new.id, new.email, coalesce(new.raw_user_meta_data->>'display_name', split_part(new.email, '@', 1)));
+  insert into public.profiles (id, email, name, display_name, onboarding_completed)
+  values (
+    new.id,
+    new.email,
+    coalesce(new.raw_user_meta_data->>'display_name', split_part(new.email, '@', 1)),
+    coalesce(new.raw_user_meta_data->>'display_name', split_part(new.email, '@', 1)),
+    false
+  );
   return new;
 end;
 $$ language plpgsql security definer;

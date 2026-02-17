@@ -4,7 +4,7 @@ import { buildCoachMessages } from '@/data/prompts/coach-system'
 import { useAuthStore } from './authStore'
 import type { ChatMessage, CoachMode } from '@/types/ai'
 
-const UNLIMITED_EMAILS = ['kcmmer1@naver.com']
+const UNLIMITED_EMAILS = ['kcmmer1@naver.com', 'skypeople41@gmail.com']
 const DAILY_AI_LIMIT = 1
 
 function getTodayKey() {
