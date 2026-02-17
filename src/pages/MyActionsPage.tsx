@@ -7,6 +7,7 @@ import { StatusBadge } from '@/components/common/StatusBadge'
 import { Button } from '@/components/common/Button'
 import { EmptyState } from '@/components/common/EmptyState'
 import { ExecLogPanel } from '@/components/cascade/ExecLogPanel'
+import { ExecInsightPanel } from '@/components/cascade/ExecInsightPanel'
 import { useCascadeStore } from '@/stores/cascadeStore'
 import { useAuthStore } from '@/stores/authStore'
 import { useOrgStore } from '@/stores/orgStore'
@@ -276,6 +277,9 @@ export default function MyActionsPage() {
           <EmptyState emoji="⚡" title="액션 플랜이 없습니다" description="캐스케이드에서 팀 KPI 하위에 액션을 추가하세요" />
         ) : (
           <div className="max-w-3xl mx-auto flex flex-col gap-2">
+            {/* AI Insight for executives */}
+            {isExec && <ExecInsightPanel />}
+
             {/* Depth 0: Strategic Goals (exec only) */}
             {grouped.d0.length > 0 && (
               <>
