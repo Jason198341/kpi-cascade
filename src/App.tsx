@@ -17,12 +17,6 @@ const ReportPage = lazy(() => import('@/pages/ReportPage'))
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'))
 const LandingPage = lazy(() => import('@/pages/LandingPage'))
 
-// Commonization pages
-const CoDashboardPage = lazy(() => import('@/pages/CoDashboardPage'))
-const CoProjectsPage = lazy(() => import('@/pages/CoProjectsPage'))
-const CoAnalyticsPage = lazy(() => import('@/pages/CoAnalyticsPage'))
-const CoOpportunityPage = lazy(() => import('@/pages/CoOpportunityPage'))
-
 function Loading() {
   return (
     <div className="flex items-center justify-center h-screen bg-bg">
@@ -64,11 +58,6 @@ function AppRoutes() {
           <Route path="/coach" element={<CoachPage />} />
           <Route path="/report" element={<ReportPage />} />
           <Route path="/settings" element={<SettingsPage />} />
-          {/* Commonization routes */}
-          <Route path="/co/dashboard" element={<CoDashboardPage />} />
-          <Route path="/co/projects" element={<CoProjectsPage />} />
-          <Route path="/co/analytics" element={<CoAnalyticsPage />} />
-          <Route path="/co/opportunity" element={<CoOpportunityPage />} />
         </Route>
       </Routes>
     </Suspense>
