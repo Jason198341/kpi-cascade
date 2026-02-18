@@ -155,7 +155,7 @@ export function ExecInsightPanel() {
       }
     } catch (err) {
       if ((err as Error).name !== 'AbortError') {
-        setContent((prev) => prev + `\n\n오류: ${err}`)
+        setContent((prev) => prev + `\n\n${err}`)
       }
     } finally {
       setStreaming(false)
@@ -176,12 +176,12 @@ export function ExecInsightPanel() {
         {streaming ? (
           <>
             <span className="animate-pulse">&#9632;</span>
-            분석 중지
+            {t('exec.analyzing')}
           </>
         ) : (
           <>
             <span>&#9889;</span>
-            AI 커뮤니케이션 인사이트
+            {t('exec.aiInsight')}
           </>
         )}
       </button>
@@ -194,13 +194,13 @@ export function ExecInsightPanel() {
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-medium text-text-muted uppercase tracking-wider">
-              AI 인사이트
+              {t('exec.insightLabel')}
             </span>
             <button
               onClick={() => setOpen(false)}
               className="text-xs text-text-muted hover:text-text cursor-pointer"
             >
-              닫기
+              {t('common.close')}
             </button>
           </div>
           <div className="text-sm text-text leading-relaxed whitespace-pre-wrap">

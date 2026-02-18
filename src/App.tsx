@@ -4,6 +4,7 @@ import { useInitialize } from '@/hooks/useAuth'
 import { useAuthStore } from '@/stores/authStore'
 import { AppShell } from '@/components/layout/AppShell'
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard'
+import { ThemeInit } from '@/components/common/ThemeInit'
 import { AuthPage } from '@/pages/AuthPage'
 
 const CascadePage = lazy(() => import('@/pages/CascadePage'))
@@ -66,6 +67,7 @@ function AppRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
+      <ThemeInit />
       <AppRoutes />
     </BrowserRouter>
   )

@@ -46,12 +46,14 @@ export function ChatPanel() {
     await sendMessage(msg, buildKpiContext())
   }
 
+  const suggestions = [t('coach.suggestion1'), t('coach.suggestion2'), t('coach.suggestion3')]
+
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-surface-border">
         <CoachModeSelector />
-        <Button variant="ghost" size="sm" onClick={clearMessages}>지우기</Button>
+        <Button variant="ghost" size="sm" onClick={clearMessages}>{t('coach.clear')}</Button>
       </div>
 
       <NodeContextBadge />
@@ -61,9 +63,9 @@ export function ChatPanel() {
         {messages.length === 0 && (
           <div className="text-center py-12 text-text-muted">
             <span className="text-4xl block mb-3">🤖</span>
-            <p className="text-sm">KPI에 대해 질문해 보세요</p>
+            <p className="text-sm">{t('coach.ask')}</p>
             <div className="flex flex-wrap gap-2 justify-center mt-4">
-              {['위험 KPI 분석해줘', '진행률 높일 방법은?', '이번 주 보고서 작성'].map((q) => (
+              {suggestions.map((q) => (
                 <button
                   key={q}
                   onClick={() => { setInput(q); }}
@@ -101,8 +103,8 @@ export function ChatPanel() {
         {remaining !== Infinity && (
           <div className={`text-[10px] mb-1.5 ${remaining > 0 ? 'text-text-muted' : 'text-danger'}`}>
             {remaining > 0
-              ? `오늘 AI 사용 가능: ${remaining}회 남음`
-              : '오늘의 AI 사용 횟수를 모두 소진했습니다'}
+              ? t('coach.remainingUses').replace('{n}', String(remaining))
+              : t('coach.noUses')}
           </div>
         )}
         <div className="flex gap-2">
@@ -116,7 +118,7 @@ export function ChatPanel() {
             disabled={streaming || !checkCanUse()}
           />
           <Button onClick={handleSend} disabled={streaming || !input.trim() || !checkCanUse()}>
-            {streaming ? '...' : '전송'}
+            {streaming ? '...' : t('coach.send')}
           </Button>
         </div>
       </div>

@@ -1,9 +1,11 @@
 import { useMemo } from 'react'
 import { useCascadeStore } from '@/stores/cascadeStore'
+import { useUIStore } from '@/stores/uiStore'
 import { timeAgo } from '@/lib/date'
 
 export function ActivityFeed() {
   const nodes = useCascadeStore((s) => s.nodes)
+  const t = useUIStore((s) => s.t)
 
   // Simulate activity from recently updated nodes
   const activities = useMemo(() => {
@@ -14,7 +16,7 @@ export function ActivityFeed() {
         id: n.id,
         emoji: n.emoji,
         title: n.title,
-        action: n.current_value > 0 ? '진행률 업데이트' : '생성됨',
+        action: n.current_value > 0 ? t('dashboard.progressUpdate') : t('dashboard.created'),
         value: `${n.current_value}/${n.target_value} ${n.unit}`,
         time: timeAgo(n.updated_at),
       }))
@@ -22,7 +24,7 @@ export function ActivityFeed() {
 
   return (
     <div className="glass rounded-xl p-6">
-      <h3 className="text-sm font-medium text-text-muted mb-4">최근 활동</h3>
+      <h3 className="text-sm font-medium text-text-muted mb-4">{t('dashboard.activity')}</h3>
       <div className="flex flex-col gap-2">
         {activities.map((a) => (
           <div key={a.id} className="flex items-center gap-3 py-2 border-b border-surface-border/50 last:border-0">

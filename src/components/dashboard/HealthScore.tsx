@@ -1,9 +1,11 @@
 import { motion } from 'framer-motion'
 import { useCascadeStore } from '@/stores/cascadeStore'
+import { useUIStore } from '@/stores/uiStore'
 
 export function HealthScore() {
   const nodes = useCascadeStore((s) => s.nodes)
   const getProgress = useCascadeStore((s) => s.getProgress)
+  const t = useUIStore((s) => s.t)
 
   // Health = avg progress of depth-0 nodes
   const roots = nodes.filter((n) => n.depth === 0)
@@ -23,7 +25,7 @@ export function HealthScore() {
 
   return (
     <div className="glass rounded-xl p-6">
-      <h3 className="text-sm font-medium text-text-muted mb-4">조직 건강도</h3>
+      <h3 className="text-sm font-medium text-text-muted mb-4">{t('dashboard.health')}</h3>
       <div className="flex items-center gap-6">
         <div className="relative">
           <svg width={160} height={160} className="-rotate-90">
@@ -47,16 +49,16 @@ export function HealthScore() {
         </div>
         <div className="flex flex-col gap-3">
           <div>
-            <div className="text-xs text-text-muted">전략 목표</div>
-            <div className="text-lg font-semibold">{roots.length}개</div>
+            <div className="text-xs text-text-muted">{t('dashboard.strategicGoals')}</div>
+            <div className="text-lg font-semibold">{roots.length}{t('common.count')}</div>
           </div>
           <div>
-            <div className="text-xs text-text-muted">위험 항목</div>
-            <div className="text-lg font-semibold text-warning">{atRiskCount}개</div>
+            <div className="text-xs text-text-muted">{t('dashboard.atRisk')}</div>
+            <div className="text-lg font-semibold text-warning">{atRiskCount}{t('common.count')}</div>
           </div>
           <div>
-            <div className="text-xs text-text-muted">완료</div>
-            <div className="text-lg font-semibold text-success">{completedCount}개</div>
+            <div className="text-xs text-text-muted">{t('dashboard.completed')}</div>
+            <div className="text-lg font-semibold text-success">{completedCount}{t('common.count')}</div>
           </div>
         </div>
       </div>

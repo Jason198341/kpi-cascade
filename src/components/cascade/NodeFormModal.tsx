@@ -102,11 +102,11 @@ export function NodeFormModal({ open, onClose, editNode, parentId, depth = 0 }: 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!profile?.org_id) {
-      toast('조직이 설정되지 않았습니다. 잠시 후 다시 시도해주세요.', 'error')
+      toast(t('form.orgNotSet'), 'error')
       return
     }
     if (!isWeightBalanced) {
-      toast(`가중치 합이 1.0이 아닙니다 (현재: ${totalWeightSum.toFixed(2)})`, 'error')
+      toast(`${t('node.weightError')} (${totalWeightSum.toFixed(2)})`, 'error')
       return
     }
     try {
@@ -148,10 +148,10 @@ export function NodeFormModal({ open, onClose, editNode, parentId, depth = 0 }: 
           milestones: milestonesData,
         } as Parameters<typeof addNode>[0])
       }
-      toast(editNode ? '수정되었습니다' : '생성되었습니다', 'success')
+      toast(editNode ? t('form.updated') : t('form.created'), 'success')
       onClose()
     } catch (err) {
-      toast(`오류: ${err}`, 'error')
+      toast(`${err}`, 'error')
     }
   }
 
@@ -160,7 +160,7 @@ export function NodeFormModal({ open, onClose, editNode, parentId, depth = 0 }: 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {/* Emoji picker */}
         <div>
-          <label className="text-sm text-text-muted mb-1.5 block">아이콘</label>
+          <label className="text-sm text-text-muted mb-1.5 block">{t('node.icon')}</label>
           <div className="flex flex-wrap gap-1">
             {EMOJIS.map((e) => (
               <button
@@ -183,14 +183,14 @@ export function NodeFormModal({ open, onClose, editNode, parentId, depth = 0 }: 
         {!isActionPlan && (
           <div className="grid grid-cols-2 gap-3">
             <Input label={t('node.target')} type="number" value={targetValue} onChange={(e) => setTargetValue(+e.target.value)} min={0} />
-            <Input label="단위" value={unit} onChange={(e) => setUnit(e.target.value)} />
+            <Input label={t('node.unit')} value={unit} onChange={(e) => setUnit(e.target.value)} />
           </div>
         )}
 
         {/* Action plan milestone info */}
         {isActionPlan && (
           <div className="text-xs text-text-muted bg-surface-light rounded-lg p-2">
-            액션 플랜의 진행률은 마일스톤 체크로 자동 계산됩니다
+            {t('milestone.autoCalcHint')}
           </div>
         )}
 
@@ -208,13 +208,13 @@ export function NodeFormModal({ open, onClose, editNode, parentId, depth = 0 }: 
         {/* Owner selector for action plans */}
         {isActionPlan && members.length > 0 && (
           <div>
-            <label className="text-sm text-text-muted mb-1.5 block">{t('people.owner') || '담당자'}</label>
+            <label className="text-sm text-text-muted mb-1.5 block">{t('people.owner')}</label>
             <select
               value={ownerId || ''}
               onChange={(e) => setOwnerId(e.target.value || null)}
               className="w-full rounded-lg border border-surface-border bg-bg px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary"
             >
-              <option value="">미지정</option>
+              <option value="">{t('node.unassigned')}</option>
               {members.map((m) => (
                 <option key={m.id} value={m.id}>
                   {m.display_name}{m.department ? ` · ${m.department}` : ''}
@@ -223,7 +223,7 @@ export function NodeFormModal({ open, onClose, editNode, parentId, depth = 0 }: 
             </select>
             {selectedOwner?.department && (
               <div className="text-xs text-text-muted mt-1.5 px-1">
-                {t('node.department') || '파트'}: <span className="font-semibold text-text">{selectedOwner.department}</span>
+                {t('node.department')}: <span className="font-semibold text-text">{selectedOwner.department}</span>
               </div>
             )}
           </div>
@@ -239,7 +239,7 @@ export function NodeFormModal({ open, onClose, editNode, parentId, depth = 0 }: 
                 value={newMilestone}
                 onChange={(e) => setNewMilestone(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddMilestone() } }}
-                placeholder="마일스톤 입력 후 Enter..."
+                placeholder={t('milestone.placeholder')}
                 className="flex-1 rounded-lg border border-surface-border bg-bg px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-depth-2/30 focus-visible:border-depth-2"
               />
               <Button type="button" size="sm" onClick={handleAddMilestone}>+</Button>

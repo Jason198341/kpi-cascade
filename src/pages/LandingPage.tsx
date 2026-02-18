@@ -1,16 +1,18 @@
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/common/Button'
-
-const FEATURES = [
-  { emoji: '🔗', title: '프랙탈 캐스케이드', desc: '경영진 → 팀장 → 팀원까지 3단계 프랙탈 KPI 트리' },
-  { emoji: '✦', title: '기여 추적', desc: '내 액션이 최상위 목표에 얼마나 기여하는지 실시간 시각화' },
-  { emoji: '📊', title: '조직 건강도', desc: '대시보드에서 위험 항목, 진행 추세, 부서별 현황 한눈에' },
-  { emoji: '🤖', title: 'AI 코치', desc: 'KPI 분석, 개선 제안, 보고서 자동 생성' },
-]
+import { useUIStore } from '@/stores/uiStore'
 
 export default function LandingPage() {
   const navigate = useNavigate()
+  const t = useUIStore((s) => s.t)
+
+  const FEATURES = [
+    { emoji: '🔗', title: t('landing.feature1Title'), desc: t('landing.feature1Desc') },
+    { emoji: '✦', title: t('landing.feature2Title'), desc: t('landing.feature2Desc') },
+    { emoji: '📊', title: t('landing.feature3Title'), desc: t('landing.feature3Desc') },
+    { emoji: '🤖', title: t('landing.feature4Title'), desc: t('landing.feature4Desc') },
+  ]
 
   return (
     <div className="min-h-screen bg-bg noise">
@@ -28,21 +30,21 @@ export default function LandingPage() {
         >
           <span className="text-6xl">🎯</span>
           <h1 className="text-4xl md:text-5xl font-bold mt-6 mb-4 leading-tight">
-            <span className="text-gradient-hero">전략에서 액션까지</span>
+            <span className="text-gradient-hero">{t('landing.heroTitle1')}</span>
             <br />
-            한눈에 보는 KPI 캐스케이드
+            {t('landing.heroTitle2')}
           </h1>
           <p className="text-text-muted text-lg max-w-xl mx-auto mb-10 leading-relaxed">
-            프랙탈 구조로 경영 목표를 팀원 액션까지 연결.
+            {t('landing.heroDesc1')}
             <br />
-            내 기여도를 실시간으로 확인하세요.
+            {t('landing.heroDesc2')}
           </p>
           <div className="flex gap-4 justify-center">
             <Button size="lg" onClick={() => navigate('/auth')} className="glow-primary">
-              시작하기 →
+              {t('landing.start')}
             </Button>
             <Button size="lg" variant="secondary" onClick={() => navigate('/auth')}>
-              데모 체험
+              {t('landing.demo')}
             </Button>
           </div>
         </motion.div>
@@ -54,12 +56,12 @@ export default function LandingPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.6 }}
         >
-          <div className="text-xs text-text-muted mb-4 font-medium">기여 추적 미리보기</div>
+          <div className="text-xs text-text-muted mb-4 font-medium">{t('landing.tracePreview')}</div>
           <div className="flex flex-col gap-2">
             {[
-              { depth: 0, emoji: '💰', title: '연 매출 500억', progress: 56, color: 'depth-0' },
-              { depth: 1, emoji: '📈', title: '영업팀 매출 성장', progress: 65, color: 'depth-1' },
-              { depth: 2, emoji: '📞', title: 'Q2 대형 고객 미팅', progress: 60, color: 'depth-2' },
+              { depth: 0, emoji: '💰', title: t('landing.heroTitle1'), progress: 56, color: 'depth-0' },
+              { depth: 1, emoji: '📈', title: t('depth.1'), progress: 65, color: 'depth-1' },
+              { depth: 2, emoji: '📞', title: t('depth.2'), progress: 60, color: 'depth-2' },
             ].map((item, i) => (
               <motion.div
                 key={i}
@@ -82,7 +84,7 @@ export default function LandingPage() {
             ))}
             <div className="text-center mt-3">
               <span className="text-xs text-trace font-mono font-bold glow-trace inline-block px-3 py-1 rounded-full bg-trace/10">
-                ✦ 내 기여도: 9.6%
+                ✦ {t('landing.myContrib')}: 9.6%
               </span>
             </div>
           </div>

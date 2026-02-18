@@ -23,7 +23,7 @@ export default function CascadePage() {
           <div className="flex gap-2">
             {selectedNodeId && (
               <Button variant="ghost" size="sm" onClick={() => selectNode(null)}>
-                전체 보기
+                {t('cascade.viewAll')}
               </Button>
             )}
             <Button size="sm" onClick={() => setCreateOpen(true)}>
@@ -37,10 +37,10 @@ export default function CascadePage() {
           <div className="flex-1 flex items-center justify-center">
             <EmptyState
               emoji="🎯"
-              title="아직 KPI가 없습니다"
-              description="첫 번째 전략 목표를 만들어 프랙탈 캐스케이드를 시작하세요"
+              title={t('cascade.noKpi')}
+              description={t('cascade.noKpiDesc')}
               action={
-                <Button onClick={() => setCreateOpen(true)}>+ 전략 목표 만들기</Button>
+                <Button onClick={() => setCreateOpen(true)}>{t('cascade.createStrategic')}</Button>
               }
             />
           </div>

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { ProgressRing } from '@/components/common/ProgressRing'
+import { useUIStore } from '@/stores/uiStore'
 import type { TraceStep as TraceStepType } from '@/types'
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
 
 export function TraceStepCard({ step, index, total, isLeaf }: Props) {
   const { node, progress, normalizedWeight, cumulativeImpact } = step
+  const t = useUIStore((s) => s.t)
 
   return (
     <motion.div
@@ -48,12 +50,12 @@ export function TraceStepCard({ step, index, total, isLeaf }: Props) {
             <h3 className="text-sm font-semibold truncate">{node.title}</h3>
           </div>
           <div className="flex items-center gap-3 text-xs text-text-muted">
-            <span>가중치: <span className="font-mono text-text">×{normalizedWeight.toFixed(2)}</span></span>
-            <span>진행률: <span className="font-mono text-text">{Math.round(progress)}%</span></span>
+            <span>{t('trace.weight')}: <span className="font-mono text-text">×{normalizedWeight.toFixed(2)}</span></span>
+            <span>{t('trace.progressLabel')}: <span className="font-mono text-text">{Math.round(progress)}%</span></span>
           </div>
         </div>
         <div className="text-right">
-          <div className="text-xs text-text-muted">누적 기여</div>
+          <div className="text-xs text-text-muted">{t('trace.cumulativeImpact')}</div>
           <div className="text-lg font-bold font-mono text-trace">
             {(cumulativeImpact * 100).toFixed(1)}%
           </div>

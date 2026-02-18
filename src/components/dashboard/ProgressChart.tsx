@@ -1,15 +1,17 @@
 import { useMemo } from 'react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import { useCascadeStore } from '@/stores/cascadeStore'
+import { useUIStore } from '@/stores/uiStore'
 
 export function ProgressChart() {
   const nodes = useCascadeStore((s) => s.nodes)
   const getProgress = useCascadeStore((s) => s.getProgress)
+  const t = useUIStore((s) => s.t)
 
   // Simulate trend data from current progress
   const data = useMemo(() => {
     const roots = nodes.filter((n) => n.depth === 0)
-    const months = ['1월', '2월', '3월', '4월', '5월', '6월']
+    const months = [t('month.1'), t('month.2'), t('month.3'), t('month.4'), t('month.5'), t('month.6')]
     return months.map((month, i) => {
       const factor = (i + 1) / 6
       const entry: Record<string, unknown> = { month }
@@ -27,7 +29,7 @@ export function ProgressChart() {
 
   return (
     <div className="glass rounded-xl p-6">
-      <h3 className="text-sm font-medium text-text-muted mb-4">진행 추세</h3>
+      <h3 className="text-sm font-medium text-text-muted mb-4">{t('dashboard.progress')}</h3>
       <ResponsiveContainer width="100%" height={220}>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-surface-border)" />

@@ -1,5 +1,6 @@
 import { NodeCard } from './NodeCard'
 import { DEPTH_LABELS, type Depth, type KpiNode } from '@/types'
+import { useUIStore } from '@/stores/uiStore'
 
 interface Props {
   depth: Depth
@@ -14,6 +15,9 @@ const depthBg: Record<Depth, string> = {
 }
 
 export function CascadeLane({ depth, nodes, highlightIds }: Props) {
+  const lang = useUIStore((s) => s.lang)
+  const t = useUIStore((s) => s.t)
+
   return (
     <div className={`flex-1 min-w-0 rounded-xl p-3 md:p-4 ${depthBg[depth]}`}>
       <div className="flex items-center gap-2 mb-4 px-1 pb-3 border-b border-surface-border/50">
@@ -22,9 +26,9 @@ export function CascadeLane({ depth, nodes, highlightIds }: Props) {
           style={{ backgroundColor: `var(--color-depth-${depth})` }}
         />
         <h2 className="text-sm font-semibold" style={{ color: `var(--color-depth-${depth})` }}>
-          {DEPTH_LABELS[depth].ko}
+          {DEPTH_LABELS[depth][lang]}
         </h2>
-        <span className="text-xs text-text-muted ml-auto">{nodes.length}개</span>
+        <span className="text-xs text-text-muted ml-auto">{nodes.length}{t('common.count')}</span>
       </div>
       <div className="flex flex-col gap-3 items-center">
         {nodes.map((node) => (

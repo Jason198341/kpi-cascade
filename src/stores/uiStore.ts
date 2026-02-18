@@ -3,6 +3,7 @@ import ko from '@/data/i18n/ko.json'
 import en from '@/data/i18n/en.json'
 
 type Lang = 'ko' | 'en'
+type Theme = 'dark' | 'light'
 const dictionaries: Record<Lang, Record<string, string>> = { ko, en }
 
 interface Toast {
@@ -13,9 +14,12 @@ interface Toast {
 
 interface UIState {
   lang: Lang
+  theme: Theme
   sidebarOpen: boolean
   toasts: Toast[]
   setLang: (l: Lang) => void
+  setTheme: (t: Theme) => void
+  toggleTheme: () => void
   toggleSidebar: () => void
   setSidebarOpen: (v: boolean) => void
   t: (key: string) => string
@@ -23,11 +27,31 @@ interface UIState {
   dismissToast: (id: string) => void
 }
 
+function getInitialTheme(): Theme {
+  if (typeof window === 'undefined') return 'dark'
+  return (localStorage.getItem('kc_theme') as Theme) || 'dark'
+}
+
+function applyTheme(theme: Theme) {
+  if (typeof document === 'undefined') return
+  document.documentElement.classList.toggle('light', theme === 'light')
+}
+
 export const useUIStore = create<UIState>((set, get) => ({
   lang: (navigator.language.startsWith('ko') ? 'ko' : 'en') as Lang,
+  theme: getInitialTheme(),
   sidebarOpen: typeof window !== 'undefined' ? window.innerWidth >= 768 : true,
   toasts: [],
   setLang: (lang) => set({ lang }),
+  setTheme: (theme) => {
+    localStorage.setItem('kc_theme', theme)
+    applyTheme(theme)
+    set({ theme })
+  },
+  toggleTheme: () => {
+    const next = get().theme === 'dark' ? 'light' : 'dark'
+    get().setTheme(next)
+  },
   toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
   setSidebarOpen: (v) => set({ sidebarOpen: v }),
   t: (key) => dictionaries[get().lang][key] || key,

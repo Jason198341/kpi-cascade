@@ -19,7 +19,7 @@ export default function TracePage() {
         title={`${t('trace.title')} — ${node?.emoji || ''} ${node?.title || ''}`}
         actions={
           <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
-            ← 돌아가기
+            ← {t('trace.goBack')}
           </Button>
         }
       />
@@ -28,7 +28,7 @@ export default function TracePage() {
           <TraceView nodeId={nodeId} />
         ) : (
           <div className="flex items-center justify-center h-full text-text-muted">
-            노드를 선택하세요
+            {t('trace.selectNode')}
           </div>
         )}
       </div>

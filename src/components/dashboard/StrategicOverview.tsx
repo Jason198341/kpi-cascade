@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { useCascadeStore } from '@/stores/cascadeStore'
+import { useUIStore } from '@/stores/uiStore'
 import type { KpiNode, Depth } from '@/types'
 
 /** Row of depth-0 cards where width ∝ weight — makes weight concept instantly visual */
@@ -9,6 +10,7 @@ export function StrategicOverview() {
   const getProgress = useCascadeStore((s) => s.getProgress)
   const childrenMap = useCascadeStore((s) => s.childrenMap)
   const nodeMap = useCascadeStore((s) => s.nodeMap)
+  const t = useUIStore((s) => s.t)
 
   const goals = useMemo(() => {
     return nodes
@@ -33,8 +35,8 @@ export function StrategicOverview() {
       {/* Header with legend */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
         <div>
-          <h3 className="text-sm font-semibold text-text">전략 목표 가중치 분포</h3>
-          <p className="text-xs text-text-muted mt-0.5">카드 너비 = 가중치 비율. 넓을수록 중요도가 높습니다</p>
+          <h3 className="text-sm font-semibold text-text">{t('dashboard.strategicWeight')}</h3>
+          <p className="text-xs text-text-muted mt-0.5">{t('dashboard.strategicWeightDesc')}</p>
         </div>
         <div className="flex items-center gap-3 text-xs text-text-muted shrink-0">
           <span className="flex items-center gap-1">
@@ -84,7 +86,7 @@ export function StrategicOverview() {
                     className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
                     style={{ background: 'rgba(167, 139, 250, 0.15)', color: 'var(--color-depth-0)' }}
                   >
-                    비중 {Math.round(pct)}%
+                    {t('dashboard.proportion')} {Math.round(pct)}%
                   </span>
                 </div>
 
@@ -111,8 +113,8 @@ export function StrategicOverview() {
                     </div>
                   </div>
                   <div className="flex flex-col gap-0.5 text-[10px] text-text-muted min-w-0">
-                    <span>KPI <b className="text-text">{g.kpiCount}</b>개</span>
-                    <span>액션 <b className="text-text">{g.actionCount}</b>개</span>
+                    <span>{t('dashboard.kpiLabel')} <b className="text-text">{g.kpiCount}</b>{t('common.count')}</span>
+                    <span>{t('dashboard.actionLabel')} <b className="text-text">{g.actionCount}</b>{t('common.count')}</span>
                     <span>×{g.node.weight.toFixed(2)}</span>
                   </div>
                 </div>
@@ -125,7 +127,7 @@ export function StrategicOverview() {
       {/* Weight sum check */}
       <div className="mt-2 text-center">
         <span className={`text-[10px] font-mono ${Math.abs(totalWeight - 1) < 0.01 ? 'text-success' : 'text-danger'}`}>
-          Σ 가중치 = {totalWeight.toFixed(2)} {Math.abs(totalWeight - 1) < 0.01 ? '✓' : '⚠'}
+          Σ {t('dashboard.weightSum')} = {totalWeight.toFixed(2)} {Math.abs(totalWeight - 1) < 0.01 ? '✓' : '⚠'}
         </span>
       </div>
     </div>

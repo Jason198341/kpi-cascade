@@ -4,7 +4,7 @@
   --font-sans: "Pretendard Variable", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  /* ── Supabase-inspired dark palette ── */
+  /* ── Supabase-inspired dark palette (default) ── */
   --color-bg: #090B11;
   --color-surface: #111318;
   --color-surface-light: #1A1D25;
@@ -37,6 +37,17 @@ html {
   color-scheme: dark;
 }
 
+/* ── Light theme overrides ── */
+html.light {
+  color-scheme: light;
+  --color-bg: #F8F9FB;
+  --color-surface: #FFFFFF;
+  --color-surface-light: #F1F3F5;
+  --color-surface-border: #E2E5E9;
+  --color-text: #1A1D25;
+  --color-text-muted: #6B7280;
+}
+
 body {
   margin: 0;
   background: var(--color-bg);
@@ -58,6 +69,9 @@ body {
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--color-surface-border);
 }
+html.light .glass {
+  background: rgba(255, 255, 255, 0.85);
+}
 
 /* ── Subtle depth glows ── */
 .glow-depth-0 { box-shadow: 0 0 24px rgba(167, 139, 250, 0.06); }
@@ -69,6 +83,9 @@ body {
 /* ── Card gradient — barely-there top highlight ── */
 .card-gradient {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.015) 0%, transparent 50%);
+}
+html.light .card-gradient {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.01) 0%, transparent 50%);
 }
 
 /* ── Button solid fill ── */
@@ -100,3 +117,7 @@ body {
 .hero-glow {
   background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(62, 207, 142, 0.08) 0%, transparent 70%);
 }
+
+/* ── Light theme scrollbar ── */
+html.light ::-webkit-scrollbar-thumb { background: #D1D5DB; }
+html.light ::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }

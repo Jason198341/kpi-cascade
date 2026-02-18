@@ -13,13 +13,13 @@ import { getPersonContribution } from '@/lib/cascade'
 import { formatDate } from '@/lib/date'
 import type { Profile, ExecLogType } from '@/types'
 
-const REPORT_LABELS: Record<ExecLogType, string> = {
-  plan_report: '계획 보고',
-  mid_report: '중간 보고',
-  result_report: '결과 보고',
-  feedback_1: '1차 피드백',
-  feedback_2: '2차 피드백',
-  feedback_3: '3차 피드백',
+const REPORT_LABEL_KEYS: Record<ExecLogType, string> = {
+  plan_report: 'report.planReport',
+  mid_report: 'report.midReport',
+  result_report: 'report.resultReport',
+  feedback_1: 'report.feedback1',
+  feedback_2: 'report.feedback2',
+  feedback_3: 'report.feedback3',
 }
 
 export default function ReportPage() {
@@ -60,7 +60,7 @@ export default function ReportPage() {
   const handleGenerate = async () => {
     if (!selectedMember || generating) return
     if (!aiAvailable) {
-      setReport('오늘의 AI 사용 횟수(1회)를 모두 소진했습니다. 내일 다시 이용해 주세요.')
+      setReport(t('report.aiLimitReached'))
       return
     }
     setGenerating(true)
@@ -90,7 +90,7 @@ export default function ReportPage() {
     lines.push('', '--- 보고/피드백 이력 ---')
     memberLogs.forEach((l) => {
       const nodeName = nodeMap[l.node_id]?.title || l.node_id
-      lines.push(`[${nodeName}] ${REPORT_LABELS[l.log_type]}: ${l.done_at ? formatDate(l.done_at) : ''} ${l.memo ? `— "${l.memo}"` : ''}`)
+      lines.push(`[${nodeName}] ${t(REPORT_LABEL_KEYS[l.log_type])}: ${l.done_at ? formatDate(l.done_at) : ''} ${l.memo ? `— "${l.memo}"` : ''}`)
     })
 
     lines.push('', `총 기여도: ${totalImpact.toFixed(1)}%`)
@@ -117,9 +117,9 @@ ${context}`
       // Get the last assistant message
       const updatedMessages = useCoachStore.getState().messages
       const lastMsg = updatedMessages.filter((m) => m.role === 'assistant').pop()
-      setReport(lastMsg?.content || '레포트 생성에 실패했습니다.')
+      setReport(lastMsg?.content || t('report.failed'))
     } catch {
-      setReport('AI 레포트 생성 중 오류가 발생했습니다. 다시 시도해주세요.')
+      setReport(t('report.error'))
     } finally {
       setGenerating(false)
     }
@@ -140,7 +140,7 @@ ${context}`
                   onChange={(e) => { setSelectedId(e.target.value || null); setReport(null) }}
                   className="w-full rounded-lg border border-surface-border bg-bg px-3 py-2.5 text-sm"
                 >
-                  <option value="">-- 선택 --</option>
+                  <option value="">{t('report.selectOption')}</option>
                   {members.map((m) => (
                     <option key={m.id} value={m.id}>
                       {m.display_name} {m.department ? `(${m.department})` : ''} — {m.role}
@@ -211,15 +211,15 @@ ${context}`
                             <span className="text-sm font-medium truncate">{node.title}</span>
                           </div>
                           <div className="text-[10px] text-text-muted">
-                            가중치 ×{node.weight.toFixed(2)} · 기여 {impact.toFixed(1)}%
-                            {node.milestones && ` · 마일스톤 ${node.milestones.filter((m) => m.done).length}/${node.milestones.length}`}
+                            {t('report.weightLabel')} ×{node.weight.toFixed(2)} · {t('report.contribLabel')} {impact.toFixed(1)}%
+                            {node.milestones && ` · ${t('report.milestoneLabel')} ${node.milestones.filter((m) => m.done).length}/${node.milestones.length}`}
                           </div>
                         </div>
                         <span className="text-xs font-mono font-bold text-depth-2">{Math.round(progress)}%</span>
                       </div>
                     ))}
                     {contributions.length === 0 && (
-                      <p className="text-xs text-text-muted text-center py-4">배정된 액션이 없습니다</p>
+                      <p className="text-xs text-text-muted text-center py-4">{t('people.noAssignedActions')}</p>
                     )}
                   </div>
                 </div>
@@ -235,7 +235,7 @@ ${context}`
                           <div key={log.id} className="flex items-start gap-2 text-xs p-2 rounded bg-surface-light">
                             <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-medium
                               ${log.log_type.includes('feedback') ? 'bg-primary/15 text-primary' : 'bg-depth-0/15 text-depth-0'}`}>
-                              {REPORT_LABELS[log.log_type]}
+                              {t(REPORT_LABEL_KEYS[log.log_type])}
                             </span>
                             <div className="flex-1 min-w-0">
                               <span className="text-text-muted">{nodeName}</span>
@@ -272,8 +272,8 @@ ${context}`
                 {/* Empty state */}
                 {!report && !generating && (
                   <div className="text-center py-8 text-text-muted text-sm">
-                    <p>위 버튼을 눌러 AI 레포트를 생성하세요</p>
-                    <p className="text-[10px] mt-1">기여도, 마일스톤, 피드백 이력을 종합 분석합니다</p>
+                    <p>{t('report.generatePrompt')}</p>
+                    <p className="text-[10px] mt-1">{t('report.generateDesc')}</p>
                   </div>
                 )}
               </motion.div>

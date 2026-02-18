@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion'
+import { useUIStore } from '@/stores/uiStore'
 
 interface Props {
   impact: number  // 0-100 scale
 }
 
 export function ImpactMeter({ impact }: Props) {
+  const t = useUIStore((s) => s.t)
   const display = Math.max(0, Math.min(100, impact))
 
   return (
@@ -14,7 +16,7 @@ export function ImpactMeter({ impact }: Props) {
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: 0.3, type: 'spring' }}
     >
-      <div className="text-sm text-trace/70 mb-2">내 기여도</div>
+      <div className="text-sm text-trace/70 mb-2">{t('trace.myImpact')}</div>
       <motion.div
         className="text-5xl font-bold font-mono text-trace"
         initial={{ opacity: 0 }}
@@ -33,7 +35,7 @@ export function ImpactMeter({ impact }: Props) {
         />
       </div>
       <p className="text-xs text-text-muted mt-3">
-        이 액션이 최상위 전략 목표에 기여하는 정도
+        {t('trace.impactDesc')}
       </p>
     </motion.div>
   )

@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Header } from '@/components/layout/Header'
 import { ProgressRing } from '@/components/common/ProgressRing'
 import { StatusBadge } from '@/components/common/StatusBadge'
@@ -17,6 +17,109 @@ import type { KpiNode, Depth } from '@/types'
 import { DEPTH_LABELS } from '@/types'
 
 const MAX_VISIBLE_MILESTONES = 5
+
+// ── Mobile full-screen edit overlay ──────────────────────────────────
+function MobileEditOverlay({
+  node,
+  onClose,
+}: {
+  node: KpiNode
+  onClose: () => void
+}) {
+  const updateProgress = useCascadeStore((s) => s.updateProgress)
+  const toggleMilestone = useCascadeStore((s) => s.toggleMilestone)
+  const getProgress = useCascadeStore((s) => s.getProgress)
+  const toast = useUIStore((s) => s.toast)
+  const t = useUIStore((s) => s.t)
+
+  const progress = getProgress(node.id)
+  const hasMilestones = node.milestones && node.milestones.length > 0
+  const [tempValue, setTempValue] = useState(node.current_value)
+
+  const handleSave = async () => {
+    await updateProgress(node.id, tempValue)
+    toast(t('actions.progressUpdated'), 'success')
+    onClose()
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 bg-bg md:hidden flex flex-col"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-surface-border">
+        <h2 className="text-sm font-semibold">{t('actions.updateAction')}</h2>
+        <button onClick={onClose} className="text-text-muted hover:text-text text-lg cursor-pointer">✕</button>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-auto p-6 flex flex-col gap-6">
+        {/* Node info */}
+        <div className="flex items-center gap-4">
+          <ProgressRing progress={progress} depth={2} size={56} strokeWidth={4} />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xl">{node.emoji}</span>
+              <h3 className="text-base font-semibold truncate">{node.title}</h3>
+            </div>
+            <StatusBadge status={node.status} />
+          </div>
+        </div>
+
+        {hasMilestones ? (
+          /* Milestone checklist */
+          <div className="flex flex-col gap-2">
+            <div className="text-xs text-text-muted font-medium">{t('milestone.progress')}</div>
+            {node.milestones!.map((m) => (
+              <label key={m.id} className="flex items-center gap-3 p-3 rounded-lg bg-surface border border-surface-border cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={m.done}
+                  onChange={() => toggleMilestone(node.id, m.id)}
+                  className="accent-depth-2 w-5 h-5 shrink-0 cursor-pointer"
+                />
+                <span className={`text-sm ${m.done ? 'line-through text-text-muted' : 'text-text'}`}>
+                  {m.label}
+                </span>
+              </label>
+            ))}
+          </div>
+        ) : (
+          /* Slider */
+          <div className="flex flex-col gap-4">
+            <div className="text-xs text-text-muted font-medium">{t('node.progress')}</div>
+            <input
+              type="range"
+              min={0}
+              max={node.target_value}
+              value={tempValue}
+              onChange={(e) => setTempValue(+e.target.value)}
+              className="w-full h-3 accent-depth-2"
+            />
+            <div className="text-center text-2xl font-bold font-mono text-depth-2">
+              {tempValue}<span className="text-base text-text-muted">/{node.target_value} {node.unit}</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Footer buttons */}
+      <div className="p-4 border-t border-surface-border flex gap-3">
+        {!hasMilestones && (
+          <Button onClick={handleSave} className="flex-1">
+            {t('common.save')}
+          </Button>
+        )}
+        <Button variant={hasMilestones ? 'primary' : 'ghost'} onClick={onClose} className="flex-1">
+          {hasMilestones ? t('common.done') : t('common.cancel')}
+        </Button>
+      </div>
+    </motion.div>
+  )
+}
 
 // ── Compact summary row for depth-0/1 nodes (exec view) ──────────────
 function ExecNodeRow({ node, depth }: { node: KpiNode; depth: Depth }) {
@@ -58,7 +161,7 @@ function ExecNodeRow({ node, depth }: { node: KpiNode; depth: Depth }) {
 }
 
 // ── Existing ActionRow for depth-2 nodes ──────────────────────────────
-function ActionRow({ node, isExec }: { node: KpiNode; isExec: boolean }) {
+function ActionRow({ node, isExec, onMobileEdit }: { node: KpiNode; isExec: boolean; onMobileEdit: (node: KpiNode) => void }) {
   const navigate = useNavigate()
   const updateProgress = useCascadeStore((s) => s.updateProgress)
   const toggleMilestone = useCascadeStore((s) => s.toggleMilestone)
@@ -66,6 +169,7 @@ function ActionRow({ node, isExec }: { node: KpiNode; isExec: boolean }) {
   const getTrace = useCascadeStore((s) => s.getTrace)
   const members = useOrgStore((s) => s.members)
   const toast = useUIStore((s) => s.toast)
+  const t = useUIStore((s) => s.t)
 
   const progress = getProgress(node.id)
   const trace = getTrace(node.id)
@@ -81,7 +185,7 @@ function ActionRow({ node, isExec }: { node: KpiNode; isExec: boolean }) {
 
   const handleSave = async () => {
     await updateProgress(node.id, tempValue)
-    toast('진행률이 업데이트되었습니다', 'success')
+    toast(t('actions.progressUpdated'), 'success')
     setEditing(false)
   }
 
@@ -141,7 +245,7 @@ function ActionRow({ node, isExec }: { node: KpiNode; isExec: boolean }) {
                   onClick={() => setExpanded(true)}
                   className="text-xs text-primary hover:underline mt-1 cursor-pointer"
                 >
-                  ...외 {hiddenCount}개
+                  ...{t('common.moreCount').replace('{n}', String(hiddenCount))}
                 </button>
               )}
               {expanded && hiddenCount > 0 && (
@@ -149,14 +253,22 @@ function ActionRow({ node, isExec }: { node: KpiNode; isExec: boolean }) {
                   onClick={() => setExpanded(false)}
                   className="text-xs text-primary hover:underline mt-1 cursor-pointer"
                 >
-                  접기
+                  {t('common.fold')}
                 </button>
               )}
+              {/* Mobile edit button for milestones */}
+              <button
+                onClick={() => onMobileEdit(node)}
+                className="md:hidden text-xs text-primary hover:underline mt-1.5 cursor-pointer"
+              >
+                {t('common.edit')}
+              </button>
             </div>
           ) : (
             <div className="flex items-center gap-3 mt-1.5">
+              {/* Desktop inline edit (md+) */}
               {editing ? (
-                <div className="flex items-center gap-2 flex-1">
+                <div className="hidden md:flex items-center gap-2 flex-1">
                   <input
                     type="range"
                     min={0}
@@ -168,10 +280,12 @@ function ActionRow({ node, isExec }: { node: KpiNode; isExec: boolean }) {
                   <span className="text-xs font-mono w-16 text-right">
                     {tempValue}/{node.target_value}
                   </span>
-                  <Button size="sm" onClick={handleSave}>저장</Button>
-                  <Button size="sm" variant="ghost" onClick={() => setEditing(false)}>취소</Button>
+                  <Button size="sm" onClick={handleSave}>{t('common.save')}</Button>
+                  <Button size="sm" variant="ghost" onClick={() => setEditing(false)}>{t('common.cancel')}</Button>
                 </div>
-              ) : (
+              ) : null}
+              {/* Progress bar + update button (always shown when not desktop-editing) */}
+              {!editing && (
                 <div className="flex items-center gap-3 flex-1">
                   <div className="flex-1 h-1.5 rounded-full bg-surface-light overflow-hidden">
                     <div
@@ -182,11 +296,19 @@ function ActionRow({ node, isExec }: { node: KpiNode; isExec: boolean }) {
                   <span className="text-xs font-mono text-text-muted">
                     {node.current_value}/{node.target_value} {node.unit}
                   </span>
+                  {/* Desktop: inline edit */}
                   <button
                     onClick={() => { setTempValue(node.current_value); setEditing(true) }}
-                    className="text-xs text-primary hover:underline cursor-pointer"
+                    className="hidden md:inline text-xs text-primary hover:underline cursor-pointer"
                   >
-                    업데이트
+                    {t('common.update')}
+                  </button>
+                  {/* Mobile: full-screen overlay */}
+                  <button
+                    onClick={() => onMobileEdit(node)}
+                    className="md:hidden text-xs text-primary hover:underline cursor-pointer"
+                  >
+                    {t('common.update')}
                   </button>
                 </div>
               )}
@@ -200,11 +322,11 @@ function ActionRow({ node, isExec }: { node: KpiNode; isExec: boolean }) {
             onClick={() => navigate(`/trace/${node.id}`)}
             className="text-xs text-trace hover:underline cursor-pointer block mb-1"
           >
-            기여도: {impact.toFixed(1)}%
+            {t('trace.contribution')}: {impact.toFixed(1)}%
           </button>
           {days !== null && (
             <div className={`text-xs mt-1 ${overdue ? 'text-danger' : days < 7 ? 'text-warning' : 'text-text-muted'}`}>
-              {overdue ? '기한 초과' : `D-${days}`}
+              {overdue ? t('trace.overdue') : `D-${days}`}
             </div>
           )}
         </div>
@@ -240,6 +362,7 @@ export default function MyActionsPage() {
   const nodes = useCascadeStore((s) => s.nodes)
   const profile = useAuthStore((s) => s.profile)
   const t = useUIStore((s) => s.t)
+  const [mobileEditNode, setMobileEditNode] = useState<KpiNode | null>(null)
 
   const isExec = profile?.role === 'executive'
 
@@ -260,9 +383,9 @@ export default function MyActionsPage() {
 
   const totalCount = grouped.d0.length + grouped.d1.length + grouped.d2.length
   const subtitle = isExec
-    ? `${totalCount}개 KPI 관리중`
+    ? `${totalCount}${t('actions.managing')}`
     : grouped.d2.length > 0
-      ? `${grouped.d2.length}개 액션 진행중`
+      ? `${grouped.d2.length}${t('actions.inProgress')}`
       : undefined
 
   return (
@@ -270,7 +393,7 @@ export default function MyActionsPage() {
       <Header title={t('nav.myActions')} subtitle={subtitle} />
       <div className="flex-1 overflow-auto p-4 sm:p-6">
         {totalCount === 0 ? (
-          <EmptyState emoji="⚡" title="액션 플랜이 없습니다" description="캐스케이드에서 팀 KPI 하위에 액션을 추가하세요" />
+          <EmptyState emoji="⚡" title={t('actions.noActions')} description={t('actions.noActionsDesc')} />
         ) : (
           <div className="max-w-3xl mx-auto flex flex-col gap-2">
             {/* AI Insight for executives */}
@@ -301,13 +424,23 @@ export default function MyActionsPage() {
               <>
                 {isExec && <DepthHeader depth={2} count={grouped.d2.length} />}
                 {grouped.d2.map((node) => (
-                  <ActionRow key={node.id} node={node} isExec={isExec} />
+                  <ActionRow key={node.id} node={node} isExec={isExec} onMobileEdit={setMobileEditNode} />
                 ))}
               </>
             )}
           </div>
         )}
       </div>
+
+      {/* Mobile full-screen edit overlay */}
+      <AnimatePresence>
+        {mobileEditNode && (
+          <MobileEditOverlay
+            node={mobileEditNode}
+            onClose={() => setMobileEditNode(null)}
+          />
+        )}
+      </AnimatePresence>
     </>
   )
 }

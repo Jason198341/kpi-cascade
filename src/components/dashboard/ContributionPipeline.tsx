@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCascadeStore } from '@/stores/cascadeStore'
 import { useOrgStore } from '@/stores/orgStore'
+import { useUIStore } from '@/stores/uiStore'
 import type { KpiNode } from '@/types'
 
 /**
@@ -15,6 +16,7 @@ export function ContributionPipeline() {
   const childrenMap = useCascadeStore((s) => s.childrenMap)
   const getProgress = useCascadeStore((s) => s.getProgress)
   const members = useOrgStore((s) => s.members)
+  const t = useUIStore((s) => s.t)
 
   const goals = useMemo(
     () => nodes.filter((n) => n.depth === 0).sort((a, b) => a.sort_order - b.sort_order),
@@ -41,8 +43,8 @@ export function ContributionPipeline() {
     <div className="glass rounded-xl p-5">
       <div className="flex items-center justify-between mb-1">
         <div>
-          <h3 className="text-sm font-semibold text-text">기여 파이프라인</h3>
-          <p className="text-xs text-text-muted mt-0.5">가중치가 곱해져 내려가며, 최종 기여도가 결정됩니다</p>
+          <h3 className="text-sm font-semibold text-text">{t('dashboard.contribPipeline')}</h3>
+          <p className="text-xs text-text-muted mt-0.5">{t('dashboard.contribPipelineDesc')}</p>
         </div>
       </div>
 
@@ -138,13 +140,13 @@ export function ContributionPipeline() {
       {/* Legend */}
       <div className="mt-4 pt-3 border-t border-surface-border/50 flex flex-wrap gap-4 text-[10px] text-text-muted">
         <span>
-          <b className="text-depth-0">●</b> 가중치(×) = 형제 중 중요도
+          <b className="text-depth-0">●</b> {t('dashboard.weightDesc')}
         </span>
         <span>
-          <b className="text-depth-2">█</b> 진행률(%) = 목표 대비 달성
+          <b className="text-depth-2">█</b> {t('dashboard.progressDesc')}
         </span>
         <span>
-          <b className="text-trace">★</b> 누적기여도 = 경로 가중치 곱 × 진행률
+          <b className="text-trace">★</b> {t('dashboard.contribDesc')}
         </span>
       </div>
     </div>
@@ -154,7 +156,8 @@ export function ContributionPipeline() {
 /* ─── Pipeline Row ─── */
 
 const depthColors = ['var(--color-depth-0)', 'var(--color-depth-1)', 'var(--color-depth-2)']
-const depthLabels = ['전략 목표', '팀 KPI', '액션 플랜']
+// depthLabels are now unused since we use i18n keys via PipelineRow
+const depthLabels = ['dashboard.depthGoal', 'dashboard.depthKpi', 'dashboard.depthAction']
 
 function PipelineRow({
   emoji,
@@ -242,7 +245,7 @@ function PipelineRow({
           {/* Cumulative contribution formula (depth-2 only) */}
           {showFormula && formulaParts && (
             <div className="flex items-center gap-1 mt-1">
-              <span className="text-[9px] text-text-muted">누적기여도:</span>
+              <span className="text-[9px] text-text-muted">{useUIStore.getState().t('dashboard.cumulativeContrib')}:</span>
               <span className="text-[9px] font-mono text-text-muted">
                 {formulaParts.map((p) => p.toFixed(2)).join(' × ')}
               </span>
@@ -255,7 +258,7 @@ function PipelineRow({
               </span>
               {actualContrib !== undefined && (
                 <>
-                  <span className="text-[9px] text-text-muted ml-1">실제:</span>
+                  <span className="text-[9px] text-text-muted ml-1">{useUIStore.getState().t('trace.actual')}:</span>
                   <span className="text-[9px] font-mono font-bold" style={{ color: 'var(--color-trace)' }}>
                     {(actualContrib * 100).toFixed(1)}%p
                   </span>

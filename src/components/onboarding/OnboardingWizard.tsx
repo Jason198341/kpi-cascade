@@ -6,20 +6,22 @@ import { useUIStore } from '@/stores/uiStore'
 import { Button } from '@/components/common/Button'
 import { Input } from '@/components/common/Input'
 
-const STEPS = [
-  { title: '환영합니다', subtitle: '기본 정보를 입력해 주세요' },
-  { title: '조직 구조', subtitle: '조직도 레벨을 설정하세요' },
-  { title: '보고/피드백', subtitle: '보고 단계와 피드백 횟수를 설정하세요' },
-]
-
-const POSITION_PRESETS = ['사원', '주임', '대리', '과장', '차장', '부장', '이사', '상무', '전무', '부사장', '사장']
-
 export function OnboardingWizard() {
   const profile = useAuthStore((s) => s.profile)
   const updateProfile = useAuthStore((s) => s.updateProfile)
   const org = useOrgStore((s) => s.org)
   const updateOrg = useOrgStore((s) => s.updateOrg)
   const toast = useUIStore((s) => s.toast)
+  const t = useUIStore((s) => s.t)
+  const lang = useUIStore((s) => s.lang)
+
+  const STEPS = [
+    { title: t('onboarding.welcome'), subtitle: t('onboarding.welcomeSubtitle') },
+    { title: t('onboarding.orgStructure'), subtitle: t('onboarding.orgStructureSubtitle') },
+    { title: t('onboarding.reportFeedback'), subtitle: t('onboarding.reportFeedbackSubtitle') },
+  ]
+
+  const POSITION_PRESETS = t('onboarding.positions').split(',')
 
   const [step, setStep] = useState(0)
   const [saving, setSaving] = useState(false)
@@ -31,9 +33,9 @@ export function OnboardingWizard() {
 
   // Step 2: Org structure
   const [orgLevels, setOrgLevels] = useState([
-    { name: '실', depth: 0 },
-    { name: '팀', depth: 1 },
-    { name: '파트', depth: 2 },
+    { name: lang === 'ko' ? '실' : 'Division', depth: 0 },
+    { name: lang === 'ko' ? '팀' : 'Team', depth: 1 },
+    { name: lang === 'ko' ? '파트' : 'Unit', depth: 2 },
   ])
 
   // Step 3: Report/Feedback config
@@ -67,9 +69,9 @@ export function OnboardingWizard() {
         position_title: positionTitle.trim(),
         onboarding_completed: true,
       })
-      toast('설정이 완료되었습니다!', 'success')
+      toast(t('onboarding.setupComplete'), 'success')
     } catch (err) {
-      toast(`오류: ${err}`, 'error')
+      toast(`${err}`, 'error')
     } finally {
       setSaving(false)
     }
@@ -106,7 +108,7 @@ export function OnboardingWizard() {
         <div className="text-center mb-8">
           <span className="text-5xl">🎯</span>
           <h1 className="text-2xl font-bold mt-3">KPI Cascade</h1>
-          <p className="text-sm text-text-muted mt-1">당신의 개인 KPI 비서를 설정합니다</p>
+          <p className="text-sm text-text-muted mt-1">{t('onboarding.setupDesc')}</p>
         </div>
 
         {/* Progress dots */}
@@ -144,19 +146,19 @@ export function OnboardingWizard() {
               {step === 0 && (
                 <div className="space-y-4">
                   <Input
-                    label="회사/조직 이름"
+                    label={t('onboarding.companyName')}
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
-                    placeholder="캐스케이드 Inc."
+                    placeholder={t('onboarding.companyPlaceholder')}
                   />
                   <Input
-                    label="이름"
+                    label={t('auth.name')}
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    placeholder="홍길동"
+                    placeholder={t('onboarding.namePlaceholder')}
                   />
                   <div>
-                    <label className="text-sm text-text-muted mb-1.5 block">직급/직책</label>
+                    <label className="text-sm text-text-muted mb-1.5 block">{t('onboarding.positionTitle')}</label>
                     <div className="flex flex-wrap gap-1.5 mb-2">
                       {POSITION_PRESETS.map((p) => (
                         <button
@@ -175,14 +177,14 @@ export function OnboardingWizard() {
                     <input
                       value={positionTitle}
                       onChange={(e) => setPositionTitle(e.target.value)}
-                      placeholder="직접 입력..."
+                      placeholder={t('onboarding.positionPlaceholder')}
                       className="w-full rounded-lg border border-surface-border bg-bg px-3 py-2 text-sm
                         placeholder:text-text-muted/40 focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
                     />
                   </div>
                   <div className="p-3 rounded-lg bg-surface-light text-xs text-text-muted leading-relaxed">
-                    💡 <b className="text-text">{displayName || '___'}  {positionTitle || '___'}님</b>의 개인 KPI 비서가 됩니다.
-                    KPI 체계는 <b className="text-text">전략 목표 → KPI → 액션 플랜</b> 3단계로 고정됩니다.
+                    💡 <b className="text-text">{displayName || '___'}  {positionTitle || '___'}</b>{t('onboarding.personalAssistant')}
+                    {' '}{t('onboarding.kpiStructure')}
                   </div>
                 </div>
               )}
@@ -190,7 +192,7 @@ export function OnboardingWizard() {
               {step === 1 && (
                 <div className="space-y-4">
                   <p className="text-xs text-text-muted leading-relaxed">
-                    조직의 레벨 구조를 설정하세요. 이 정보는 팀원 관리와 레포트 생성에 활용됩니다.
+                    {t('onboarding.orgLevelDesc')}
                   </p>
                   <div className="flex flex-col gap-2">
                     {orgLevels.map((level, i) => (
@@ -199,7 +201,7 @@ export function OnboardingWizard() {
                         <input
                           value={level.name}
                           onChange={(e) => updateLevel(i, e.target.value)}
-                          placeholder={`레벨 ${i + 1} 이름 (예: 실, 팀, 파트)`}
+                          placeholder={t('onboarding.levelPlaceholder').replace('{n}', String(i + 1))}
                           className="flex-1 rounded-lg border border-surface-border bg-bg px-3 py-2 text-sm
                             placeholder:text-text-muted/40 focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
                         />
@@ -219,13 +221,13 @@ export function OnboardingWizard() {
                       onClick={addLevel}
                       className="text-xs text-primary hover:underline cursor-pointer"
                     >
-                      + 레벨 추가
+                      {t('onboarding.addLevel')}
                     </button>
                   )}
                   <div className="p-3 rounded-lg bg-surface-light text-xs text-text-muted leading-relaxed">
-                    📋 예시: <b className="text-text">본부 → 실 → 팀 → 파트</b> 또는 <b className="text-text">사업부 → 팀</b>
+                    📋 {t('onboarding.orgExample')}
                     <br />
-                    KPI 트리 뎁스(전략-KPI-액션)와는 별개로, 조직 구조는 인사/보고 라인입니다.
+                    {t('onboarding.orgNote')}
                   </div>
                 </div>
               )}
@@ -233,7 +235,7 @@ export function OnboardingWizard() {
               {step === 2 && (
                 <div className="space-y-5">
                   <div>
-                    <label className="text-sm text-text-muted mb-2 block">경영층 보고 단계</label>
+                    <label className="text-sm text-text-muted mb-2 block">{t('onboarding.reportStages')}</label>
                     <div className="flex items-center gap-3">
                       {[1, 2, 3, 4, 5].map((n) => (
                         <button
@@ -248,15 +250,15 @@ export function OnboardingWizard() {
                           {n}
                         </button>
                       ))}
-                      <span className="text-xs text-text-muted">단계</span>
+                      <span className="text-xs text-text-muted">{t('onboarding.stages')}</span>
                     </div>
                     <p className="text-[10px] text-text-muted mt-1.5">
-                      기본 3단계: 계획 보고 → 중간 보고 → 결과 보고
+                      {t('onboarding.defaultStages')}
                     </p>
                   </div>
 
                   <div>
-                    <label className="text-sm text-text-muted mb-2 block">피드백 횟수</label>
+                    <label className="text-sm text-text-muted mb-2 block">{t('onboarding.feedbackRounds')}</label>
                     <div className="flex items-center gap-3">
                       {[1, 2, 3, 4, 5].map((n) => (
                         <button
@@ -271,16 +273,16 @@ export function OnboardingWizard() {
                           {n}
                         </button>
                       ))}
-                      <span className="text-xs text-text-muted">회</span>
+                      <span className="text-xs text-text-muted">{t('onboarding.rounds')}</span>
                     </div>
                     <p className="text-[10px] text-text-muted mt-1.5">
-                      각 KPI 항목에 대한 피드백 기록 횟수. 피드백에 메모를 남기면 연말 레포트에 반영됩니다.
+                      {t('onboarding.feedbackDesc')}
                     </p>
                   </div>
 
                   <div className="p-3 rounded-lg bg-trace/5 border border-trace/20 text-xs text-text leading-relaxed">
-                    🤖 설정 완료 후 <b>{displayName} {positionTitle}님</b>의 개인 KPI 비서가 활성화됩니다.
-                    보고/피드백 데이터는 연말 개인 KPI 레포트 생성에 활용되니 수시로 기록해 주세요.
+                    🤖 {t('onboarding.finishMsg').replace('{name}', `${displayName} ${positionTitle}`)}
+                    {' '}{t('onboarding.finishDesc')}
                   </div>
                 </div>
               )}
@@ -291,7 +293,7 @@ export function OnboardingWizard() {
           <div className="flex items-center justify-between mt-8 pt-4 border-t border-surface-border">
             {step > 0 ? (
               <Button variant="ghost" size="sm" onClick={() => setStep(step - 1)}>
-                ← 이전
+                {t('onboarding.previous')}
               </Button>
             ) : (
               <div />
@@ -300,7 +302,7 @@ export function OnboardingWizard() {
               onClick={handleNext}
               disabled={!canNext() || saving}
             >
-              {saving ? '저장중...' : step === STEPS.length - 1 ? '완료 ✓' : '다음 →'}
+              {saving ? t('common.saving') : step === STEPS.length - 1 ? t('onboarding.finish') : t('onboarding.nextStep')}
             </Button>
           </div>
         </div>

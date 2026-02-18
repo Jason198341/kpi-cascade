@@ -68,18 +68,18 @@ export function SiblingWeightEditor({
     return (
       <div className="text-xs text-text-muted bg-surface-light rounded-lg p-3">
         {t('node.weight')}: <span className="font-mono font-semibold">1.00</span>
-        <span className="ml-2">(유일 항목)</span>
+        <span className="ml-2">({t('node.onlyItem')})</span>
       </div>
     )
   }
 
   return (
     <div className="rounded-xl border border-surface-border bg-surface-light/50 p-3">
-      <div className="text-xs text-text-muted font-medium mb-2">{t('node.weightBalance') || '가중치 배분'}</div>
+      <div className="text-xs text-text-muted font-medium mb-2">{t('node.weightBalance')}</div>
 
       {/* Current node weight slider */}
       <div className="flex items-center gap-3 mb-3 p-2 rounded-lg bg-primary/5 border border-primary/20">
-        <span className="text-sm font-semibold flex-1 truncate">{t('node.currentItem') || '현재 항목'}</span>
+        <span className="text-sm font-semibold flex-1 truncate">{t('node.currentItem')}</span>
         <input
           type="range"
           min={0.01}
@@ -119,7 +119,7 @@ export function SiblingWeightEditor({
         </span>
         {!isBalanced && (
           <span className="text-xs text-danger">
-            {t('node.weightError') || '합이 1.0이 아닙니다'}
+            {t('node.weightError')}
           </span>
         )}
       </div>
@@ -133,7 +133,7 @@ export function SiblingWeightEditor({
           onClick={handleAutoBalance}
           className="w-full mt-2"
         >
-          {t('node.autoBalance') || '나머지 자동 배분'}
+          {t('node.autoBalance')}
         </Button>
       )}
     </div>

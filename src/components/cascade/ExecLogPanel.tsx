@@ -35,6 +35,7 @@ function CheckRow({
   showMemo?: boolean
 }) {
   const upsertLog = useExecutiveStore((s) => s.upsertLog)
+  const t = useUIStore((s) => s.t)
   const [memo, setMemo] = useState(log?.memo ?? '')
   const [editing, setEditing] = useState(false)
   const done = log?.done ?? false
@@ -86,14 +87,14 @@ function CheckRow({
               autoFocus
               rows={2}
               className="w-full text-xs bg-transparent border border-surface-border rounded px-2 py-1 text-text resize-none focus:outline-none focus:border-primary"
-              placeholder="피드백 내용..."
+              placeholder={t('exec.memoPlaceholder')}
             />
           ) : (
             <button
               onClick={() => setEditing(true)}
               className="text-xs text-text-muted hover:text-text w-full text-left py-0.5 cursor-pointer truncate"
             >
-              {log?.memo || '메모 입력...'}
+              {log?.memo || t('exec.memoInput')}
             </button>
           )}
         </div>

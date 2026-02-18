@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCascadeStore } from '@/stores/cascadeStore'
+import { useUIStore } from '@/stores/uiStore'
 import { DepthTag } from '@/components/common/DepthTag'
 import { isOverdue, daysUntil } from '@/lib/date'
 
@@ -8,6 +9,7 @@ export function AtRiskList() {
   const navigate = useNavigate()
   const nodes = useCascadeStore((s) => s.nodes)
   const getProgress = useCascadeStore((s) => s.getProgress)
+  const t = useUIStore((s) => s.t)
 
   const atRisk = useMemo(() => {
     return nodes
@@ -26,8 +28,8 @@ export function AtRiskList() {
   if (atRisk.length === 0) {
     return (
       <div className="glass rounded-xl p-6">
-        <h3 className="text-sm font-medium text-text-muted mb-4">위험 항목</h3>
-        <div className="text-sm text-success flex items-center gap-2">✓ 위험 항목 없음</div>
+        <h3 className="text-sm font-medium text-text-muted mb-4">{t('dashboard.atRisk')}</h3>
+        <div className="text-sm text-success flex items-center gap-2">✓ {t('dashboard.noAtRisk')}</div>
       </div>
     )
   }
@@ -35,7 +37,7 @@ export function AtRiskList() {
   return (
     <div className="glass rounded-xl p-6">
       <h3 className="text-sm font-medium text-text-muted mb-4">
-        위험 항목 <span className="text-warning">({atRisk.length})</span>
+        {t('dashboard.atRisk')} <span className="text-warning">({atRisk.length})</span>
       </h3>
       <div className="flex flex-col gap-2">
         {atRisk.map((n) => {
@@ -56,7 +58,7 @@ export function AtRiskList() {
                 <div className="text-sm font-mono text-warning">{Math.round(prog)}%</div>
                 {days !== null && (
                   <div className={`text-xs ${days < 0 ? 'text-danger' : 'text-warning'}`}>
-                    {days < 0 ? `${-days}일 초과` : `D-${days}`}
+                    {days < 0 ? `${-days}${t('dashboard.daysOverdue')}` : `D-${days}`}
                   </div>
                 )}
               </div>

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { useCascadeStore } from '@/stores/cascadeStore'
+import { useUIStore } from '@/stores/uiStore'
 import { ProgressRing } from '@/components/common/ProgressRing'
 import { StatusBadge } from '@/components/common/StatusBadge'
 import { DepthTag } from '@/components/common/DepthTag'
@@ -36,6 +37,7 @@ export function NodeCard({ node, onClick, showTrace }: Props) {
   const childrenMap = useCascadeStore((s) => s.childrenMap)
   const selectedNodeId = useCascadeStore((s) => s.selectedNodeId)
   const selectNode = useCascadeStore((s) => s.selectNode)
+  const t = useUIStore((s) => s.t)
   const progress = getProgress(node.id)
   const isSelected = selectedNodeId === node.id
   const hasChildren = (childrenMap[node.id] || []).length > 0
@@ -94,7 +96,7 @@ export function NodeCard({ node, onClick, showTrace }: Props) {
           </span>
         ) : hasChildren ? (
           <span className="font-mono">
-            {(childrenMap[node.id] || []).length}개 하위 항목
+            {(childrenMap[node.id] || []).length}{t('cascade.subItems')}
           </span>
         ) : (
           <span className="font-mono">{node.current_value}/{node.target_value} {node.unit}</span>
@@ -110,7 +112,7 @@ export function NodeCard({ node, onClick, showTrace }: Props) {
           onClick={(e) => { e.stopPropagation(); navigate(`/trace/${node.id}`) }}
           className="mt-3 w-full text-xs text-trace hover:underline flex items-center justify-center gap-1 cursor-pointer"
         >
-          ✦ 기여 추적 보기
+          ✦ {t('trace.viewTrace')}
         </button>
       )}
     </motion.div>

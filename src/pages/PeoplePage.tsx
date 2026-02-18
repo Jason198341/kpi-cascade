@@ -38,7 +38,7 @@ function PersonDetail({ profile }: { profile: Profile }) {
           <h3 className="text-lg font-bold">{profile.display_name}</h3>
           <div className="text-sm text-text-muted">
             {profile.department && <span>{profile.department} &middot; </span>}
-            {profile.hire_year && <span>{new Date().getFullYear() - profile.hire_year}년차 &middot; </span>}
+            {profile.hire_year && <span>{new Date().getFullYear() - profile.hire_year}{t('people.yearExp')} &middot; </span>}
             {profile.email}
           </div>
         </div>
@@ -49,7 +49,7 @@ function PersonDetail({ profile }: { profile: Profile }) {
       </div>
 
       {/* Actions list */}
-      <div className="text-sm text-text-muted">{contributions.length}개 {t('people.actions')}</div>
+      <div className="text-sm text-text-muted">{contributions.length}{t('common.count')} {t('people.actions')}</div>
       {contributions.map(({ node, progress }) => (
         <div key={node.id} className="p-4 rounded-xl bg-surface border border-surface-border">
           <div className="flex items-center gap-3 mb-3">
@@ -86,7 +86,7 @@ function PersonDetail({ profile }: { profile: Profile }) {
       ))}
 
       {contributions.length === 0 && (
-        <EmptyState emoji="📋" title="배정된 액션이 없습니다" description="" />
+        <EmptyState emoji="📋" title={t('people.noAssignedActions')} description="" />
       )}
     </motion.div>
   )
@@ -127,7 +127,7 @@ export default function PeoplePage() {
       <div className="flex-1 overflow-auto p-4 sm:p-6">
         <div className="max-w-5xl mx-auto">
           {members.length === 0 ? (
-            <EmptyState emoji="👥" title="팀원이 없습니다" description="조직에 멤버를 초대하세요" />
+            <EmptyState emoji="👥" title={t('people.noMembers')} description={t('people.inviteMembers')} />
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-6">
               {/* Ranking list */}
@@ -140,22 +140,22 @@ export default function PeoplePage() {
                       className={`text-xs px-2.5 py-1 rounded-md cursor-pointer transition-colors
                         ${sortMode === 'contribution' ? 'bg-trace/15 text-trace' : 'text-text-muted hover:text-text'}`}
                     >
-                      기여도 순
+                      {t('people.sortByContrib')}
                     </button>
                     <button
                       onClick={() => setSortMode('performance')}
                       className={`text-xs px-2.5 py-1 rounded-md cursor-pointer transition-colors
                         ${sortMode === 'performance' ? 'bg-depth-0/15 text-depth-0' : 'text-text-muted hover:text-text'}`}
                     >
-                      기대 대비 순
+                      {t('people.sortByExpected')}
                     </button>
                   </div>
                   <div className="flex items-center gap-3 text-[10px] text-text-muted">
                     <span className="flex items-center gap-1">
-                      <span className="w-3 h-1.5 rounded-full bg-trace inline-block" /> 실제 기여
+                      <span className="w-3 h-1.5 rounded-full bg-trace inline-block" /> {t('people.actualContrib')}
                     </span>
                     <span className="flex items-center gap-1">
-                      <span className="w-3 h-1.5 rounded-full bg-depth-0/50 inline-block" /> 기대치
+                      <span className="w-3 h-1.5 rounded-full bg-depth-0/50 inline-block" /> {t('people.expected')}
                     </span>
                   </div>
                 </div>
@@ -201,12 +201,12 @@ export default function PeoplePage() {
                             {isTop && sortMode === 'contribution' && <span className="ml-1">🏆</span>}
                           </span>
                           <span className="text-[10px] text-text-muted shrink-0">
-                            {entry.seniority}년차
+                            {entry.seniority}{t('people.yearExp')}
                           </span>
                         </div>
                         <div className="text-[10px] text-text-muted">
                           {entry.profile.department && <span>{entry.profile.department} · </span>}
-                          {entry.actionCount}개 액션
+                          {entry.actionCount}{t('people.actionsCount')}
                         </div>
 
                         {/* Dual bars */}
@@ -244,7 +244,7 @@ export default function PeoplePage() {
 
                         {/* Performance ratio badge */}
                         <div className="flex items-center gap-1.5 mt-1.5">
-                          <span className="text-[9px] text-text-muted">기대 대비</span>
+                          <span className="text-[9px] text-text-muted">{t('people.vsExpected')}</span>
                           <span className={`text-xs font-bold font-mono ${ratioColor}`}>
                             {ratio > 0 ? `${(ratio * 100).toFixed(0)}%` : '—'}
                           </span>
@@ -267,7 +267,7 @@ export default function PeoplePage() {
                     animate={{ opacity: 1 }}
                     className="flex items-center justify-center h-64 text-text-muted text-sm"
                   >
-                    팀원을 선택하여 기여도를 확인하세요
+                    {t('people.selectMember')}
                   </motion.div>
                 )}
               </AnimatePresence>

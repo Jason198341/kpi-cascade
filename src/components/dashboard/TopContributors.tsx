@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { useCascadeStore } from '@/stores/cascadeStore'
 import { useOrgStore } from '@/stores/orgStore'
+import { useUIStore } from '@/stores/uiStore'
 import { getContributionTrace, getEffectiveProgress } from '@/lib/cascade'
 import type { KpiNode } from '@/types'
 
@@ -26,6 +27,7 @@ export function TopContributors() {
   const childrenMap = useCascadeStore((s) => s.childrenMap)
   const getProgress = useCascadeStore((s) => s.getProgress)
   const members = useOrgStore((s) => s.members)
+  const t = useUIStore((s) => s.t)
 
   const entries = useMemo(() => {
     const memberMap: Record<string, { name: string; dept: string | null }> = {}
@@ -52,7 +54,7 @@ export function TopContributors() {
         progress,
         cumulativeWeight,
         actualContrib,
-        ownerName: owner?.name || '미지정',
+        ownerName: owner?.name || t('node.unassigned'),
         ownerDept: owner?.dept || null,
       })
     }
@@ -67,9 +69,9 @@ export function TopContributors() {
   return (
     <div className="glass rounded-xl p-5">
       <div className="mb-4">
-        <h3 className="text-sm font-semibold text-text">기여도 TOP 액션 플랜</h3>
+        <h3 className="text-sm font-semibold text-text">{t('dashboard.topContribActions')}</h3>
         <p className="text-xs text-text-muted mt-0.5">
-          전략 목표에 가장 큰 영향을 주고 있는 액션. 실제 기여 = 누적가중치 × 진행률
+          {t('dashboard.topContribDesc')}
         </p>
       </div>
 
@@ -141,7 +143,7 @@ export function TopContributors() {
                 {/* Progress + actual contrib */}
                 <div className="flex items-center justify-end gap-2 mt-0.5">
                   <span className="text-[10px] font-mono" style={{ color: progressColor }}>
-                    진행 {Math.round(e.progress)}%
+                    {t('trace.progressLabel')} {Math.round(e.progress)}%
                   </span>
                   <span
                     className="text-xs font-bold font-mono px-1.5 py-0.5 rounded"
