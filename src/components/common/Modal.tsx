@@ -28,12 +28,12 @@ export function Modal({ open, onClose, title, children }: Props) {
             onClick={onClose}
           />
           <motion.div
-            className="relative w-full max-w-lg glass rounded-xl p-6 z-10 shadow-xl shadow-black/20"
+            className="relative w-full max-w-lg max-h-[85dvh] glass rounded-xl p-6 z-10 shadow-xl shadow-black/20 flex flex-col"
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
           >
-            <div className="flex items-center justify-between pb-4 mb-4 border-b border-surface-border">
+            <div className="flex items-center justify-between pb-4 mb-4 border-b border-surface-border shrink-0">
               <h2 className="text-lg font-semibold">{title}</h2>
               <button
                 onClick={onClose}
@@ -42,7 +42,9 @@ export function Modal({ open, onClose, title, children }: Props) {
                 ✕
               </button>
             </div>
-            {children}
+            <div className="overflow-y-auto min-h-0">
+              {children}
+            </div>
           </motion.div>
         </div>
       )}
