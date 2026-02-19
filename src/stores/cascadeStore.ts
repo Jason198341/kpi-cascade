@@ -59,7 +59,10 @@ export const useCascadeStore = create<CascadeState>((set, get) => ({
       .select('*')
       .eq('org_id', orgId)
       .order('sort_order')
-    const nodes = (data || []) as KpiNode[]
+    // Normalize corrupted weights (>1 stored as percentages)
+    const nodes = ((data || []) as KpiNode[]).map((n) =>
+      n.weight > 1 ? { ...n, weight: n.weight / 100 } : n,
+    )
     const maps = rebuildMaps(nodes)
     set({ nodes, ...maps, loading: false })
   },

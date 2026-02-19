@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useCascadeStore } from '@/stores/cascadeStore'
 import { useUIStore } from '@/stores/uiStore'
 import { Button } from '@/components/common/Button'
@@ -64,6 +64,18 @@ export function SiblingWeightEditor({
     onSiblingOverridesChange(overrides)
   }
 
+  // Local text state for the weight input — allows intermediate typing like "0." or ""
+  const [weightText, setWeightText] = useState(currentWeight.toFixed(2))
+  useEffect(() => { setWeightText(currentWeight.toFixed(2)) }, [currentWeight])
+
+  const commitWeight = (text: string) => {
+    const v = parseFloat(text)
+    if (!isNaN(v) && v >= 0.01 && v <= 0.99) {
+      onWeightChange(+v.toFixed(2))
+    }
+    setWeightText(currentWeight.toFixed(2))
+  }
+
   if (isOnlyNode || isNewWithNoSiblings) {
     return (
       <div className="text-xs text-text-muted bg-surface-light rounded-lg p-3">
@@ -90,15 +102,12 @@ export function SiblingWeightEditor({
           className="w-24 accent-primary"
         />
         <input
-          type="number"
-          min={0.01}
-          max={0.99}
-          step={0.01}
-          value={currentWeight}
-          onChange={(e) => {
-            const v = +e.target.value
-            if (v > 0 && v < 1) onWeightChange(v)
-          }}
+          type="text"
+          inputMode="decimal"
+          value={weightText}
+          onChange={(e) => setWeightText(e.target.value)}
+          onBlur={(e) => commitWeight(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') commitWeight(weightText) }}
           className="w-16 text-center text-sm font-mono bg-bg border border-surface-border rounded px-1 py-0.5"
         />
       </div>
