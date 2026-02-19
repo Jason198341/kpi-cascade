@@ -113,9 +113,19 @@ export function TopContributors() {
                   <span>›</span>
                   <span style={{ color: 'var(--color-depth-2)' }}>{e.ownerName}</span>
                   {e.ownerDept && <span className="text-text-muted/60">· {e.ownerDept}</span>}
+                  {e.action.milestones && e.action.milestones.length > 0 && (
+                    <span className="ml-1 text-depth-2">
+                      ✓{e.action.milestones.filter((m) => m.done).length}/{e.action.milestones.length}
+                    </span>
+                  )}
                 </div>
 
-                {/* Contribution bar */}
+                {/* Period + Contribution bar */}
+                {(e.action.start_date || e.action.due_date) && (
+                  <div className="text-[9px] text-text-muted/60 mt-0.5">
+                    {e.action.start_date || '?'} ~ {e.action.due_date || '?'}
+                  </div>
+                )}
                 <div className="flex items-center gap-2 mt-1">
                   <div className="flex-1 h-1.5 bg-surface-border/50 rounded-full overflow-hidden">
                     <motion.div
