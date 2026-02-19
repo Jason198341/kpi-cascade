@@ -8,6 +8,7 @@ import { Button } from '@/components/common/Button'
 import { EmptyState } from '@/components/common/EmptyState'
 import { ExecLogPanel } from '@/components/cascade/ExecLogPanel'
 import { ExecInsightPanel } from '@/components/cascade/ExecInsightPanel'
+import { NodeFormModal } from '@/components/cascade/NodeFormModal'
 import { useCascadeStore } from '@/stores/cascadeStore'
 import { useAuthStore } from '@/stores/authStore'
 import { useOrgStore } from '@/stores/orgStore'
@@ -122,9 +123,18 @@ function MobileEditOverlay({
 }
 
 // ── Compact summary row for depth-0/1 nodes (exec view) ──────────────
-function ExecNodeRow({ node, depth }: { node: KpiNode; depth: Depth }) {
+function ExecNodeRow({
+  node,
+  depth,
+  onEdit,
+  onDelete,
+}: {
+  node: KpiNode
+  depth: Depth
+  onEdit: (node: KpiNode) => void
+  onDelete: (node: KpiNode) => void
+}) {
   const getProgress = useCascadeStore((s) => s.getProgress)
-  const lang = useUIStore((s) => s.lang)
   const progress = getProgress(node.id)
 
   return (
@@ -132,9 +142,8 @@ function ExecNodeRow({ node, depth }: { node: KpiNode; depth: Depth }) {
       layout
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="border border-surface-border rounded-lg bg-surface overflow-hidden"
+      className="border border-surface-border rounded-lg bg-surface overflow-hidden group"
     >
-      {/* Header: emoji + title + progress */}
       <div className="flex items-center gap-3 px-3 py-2.5">
         <span className="text-base shrink-0">{node.emoji}</span>
         <div className="flex-1 min-w-0">
@@ -153,15 +162,43 @@ function ExecNodeRow({ node, depth }: { node: KpiNode; depth: Depth }) {
           <span className="text-xs font-mono text-text-muted w-9 text-right">
             {Math.round(progress)}%
           </span>
+          {/* Edit / Delete */}
+          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button
+              onClick={() => onEdit(node)}
+              className="text-xs text-primary hover:text-primary-hover cursor-pointer px-1"
+              title="Edit"
+            >
+              ✏️
+            </button>
+            <button
+              onClick={() => onDelete(node)}
+              className="text-xs text-danger hover:text-red-400 cursor-pointer px-1"
+              title="Delete"
+            >
+              🗑
+            </button>
+          </div>
         </div>
       </div>
-
     </motion.div>
   )
 }
 
-// ── Existing ActionRow for depth-2 nodes ──────────────────────────────
-function ActionRow({ node, isExec, onMobileEdit }: { node: KpiNode; isExec: boolean; onMobileEdit: (node: KpiNode) => void }) {
+// ── Action row for depth-2 nodes ──────────────────────────────────────
+function ActionRow({
+  node,
+  isExec,
+  onMobileEdit,
+  onEdit,
+  onDelete,
+}: {
+  node: KpiNode
+  isExec: boolean
+  onMobileEdit: (node: KpiNode) => void
+  onEdit: (node: KpiNode) => void
+  onDelete: (node: KpiNode) => void
+}) {
   const navigate = useNavigate()
   const updateProgress = useCascadeStore((s) => s.updateProgress)
   const toggleMilestone = useCascadeStore((s) => s.toggleMilestone)
@@ -199,7 +236,7 @@ function ActionRow({ node, isExec, onMobileEdit }: { node: KpiNode; isExec: bool
       layout
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="border border-surface-border rounded-lg bg-surface overflow-hidden"
+      className="border border-surface-border rounded-lg bg-surface overflow-hidden group"
     >
       <div className="flex items-center gap-3 p-3 sm:gap-4 sm:p-4">
         <ProgressRing progress={progress} depth={2} size={42} strokeWidth={3.5} />
@@ -227,14 +264,14 @@ function ActionRow({ node, isExec, onMobileEdit }: { node: KpiNode; isExec: bool
             <div className="mt-1.5">
               <div className="flex flex-col gap-0.5">
                 {visibleMilestones.map((m) => (
-                  <label key={m.id} className="flex items-center gap-2 cursor-pointer group">
+                  <label key={m.id} className="flex items-center gap-2 cursor-pointer group/ms">
                     <input
                       type="checkbox"
                       checked={m.done}
                       onChange={() => toggleMilestone(node.id, m.id)}
                       className="accent-depth-2 w-3.5 h-3.5 shrink-0 cursor-pointer"
                     />
-                    <span className={`text-xs ${m.done ? 'line-through text-text-muted' : 'text-text group-hover:text-depth-2'}`}>
+                    <span className={`text-xs ${m.done ? 'line-through text-text-muted' : 'text-text group-hover/ms:text-depth-2'}`}>
                       {m.label}
                     </span>
                   </label>
@@ -284,7 +321,6 @@ function ActionRow({ node, isExec, onMobileEdit }: { node: KpiNode; isExec: bool
                   <Button size="sm" variant="ghost" onClick={() => setEditing(false)}>{t('common.cancel')}</Button>
                 </div>
               ) : null}
-              {/* Progress bar + update button (always shown when not desktop-editing) */}
               {!editing && (
                 <div className="flex items-center gap-3 flex-1">
                   <div className="flex-1 h-1.5 rounded-full bg-surface-light overflow-hidden">
@@ -296,14 +332,12 @@ function ActionRow({ node, isExec, onMobileEdit }: { node: KpiNode; isExec: bool
                   <span className="text-xs font-mono text-text-muted">
                     {node.current_value}/{node.target_value} {node.unit}
                   </span>
-                  {/* Desktop: inline edit */}
                   <button
                     onClick={() => { setTempValue(node.current_value); setEditing(true) }}
                     className="hidden md:inline text-xs text-primary hover:underline cursor-pointer"
                   >
                     {t('common.update')}
                   </button>
-                  {/* Mobile: full-screen overlay */}
                   <button
                     onClick={() => onMobileEdit(node)}
                     className="md:hidden text-xs text-primary hover:underline cursor-pointer"
@@ -316,19 +350,35 @@ function ActionRow({ node, isExec, onMobileEdit }: { node: KpiNode; isExec: bool
           )}
         </div>
 
-        {/* Right: trace + due date */}
-        <div className="text-right shrink-0">
+        {/* Right: trace + due date + edit/delete */}
+        <div className="text-right shrink-0 flex flex-col items-end gap-1">
           <button
             onClick={() => navigate(`/trace/${node.id}`)}
-            className="text-xs text-trace hover:underline cursor-pointer block mb-1"
+            className="text-xs text-trace hover:underline cursor-pointer"
           >
             {t('trace.contribution')}: {impact.toFixed(1)}%
           </button>
           {days !== null && (
-            <div className={`text-xs mt-1 ${overdue ? 'text-danger' : days < 7 ? 'text-warning' : 'text-text-muted'}`}>
+            <div className={`text-xs ${overdue ? 'text-danger' : days < 7 ? 'text-warning' : 'text-text-muted'}`}>
               {overdue ? t('trace.overdue') : `D-${days}`}
             </div>
           )}
+          {/* Edit / Delete buttons */}
+          <div className="flex gap-1.5 mt-1 opacity-0 group-hover:opacity-100 sm:opacity-100 transition-opacity">
+            <button
+              onClick={() => onEdit(node)}
+              className="text-[11px] text-primary hover:underline cursor-pointer"
+            >
+              {t('common.edit')}
+            </button>
+            <span className="text-text-muted text-[11px]">|</span>
+            <button
+              onClick={() => onDelete(node)}
+              className="text-[11px] text-danger hover:underline cursor-pointer"
+            >
+              {t('node.delete')}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -360,13 +410,15 @@ function DepthHeader({ depth, count }: { depth: Depth; count: number }) {
 // ── Page ──────────────────────────────────────────────────────────────
 export default function MyActionsPage() {
   const nodes = useCascadeStore((s) => s.nodes)
+  const deleteNode = useCascadeStore((s) => s.deleteNode)
   const profile = useAuthStore((s) => s.profile)
   const t = useUIStore((s) => s.t)
+  const toast = useUIStore((s) => s.toast)
   const [mobileEditNode, setMobileEditNode] = useState<KpiNode | null>(null)
+  const [editingNode, setEditingNode] = useState<KpiNode | null>(null)
 
   const isExec = profile?.role === 'executive'
 
-  // Executive: all nodes grouped by depth. Non-exec: depth-2 only.
   const grouped = useMemo(() => {
     if (isExec) {
       const d0 = nodes.filter((n) => n.depth === 0).sort((a, b) => a.sort_order - b.sort_order)
@@ -388,6 +440,17 @@ export default function MyActionsPage() {
       ? `${grouped.d2.length}${t('actions.inProgress')}`
       : undefined
 
+  const handleEdit = useCallback((node: KpiNode) => {
+    setEditingNode(node)
+  }, [])
+
+  const handleDelete = useCallback(async (node: KpiNode) => {
+    const msg = t('settings.confirmRemove').replace('{name}', node.title)
+    if (!confirm(msg)) return
+    await deleteNode(node.id)
+    toast(t('settings.removed'), 'success')
+  }, [deleteNode, toast, t])
+
   return (
     <>
       <Header title={t('nav.myActions')} subtitle={subtitle} />
@@ -404,7 +467,7 @@ export default function MyActionsPage() {
               <>
                 <DepthHeader depth={0} count={grouped.d0.length} />
                 {grouped.d0.map((node) => (
-                  <ExecNodeRow key={node.id} node={node} depth={0} />
+                  <ExecNodeRow key={node.id} node={node} depth={0} onEdit={handleEdit} onDelete={handleDelete} />
                 ))}
               </>
             )}
@@ -414,7 +477,7 @@ export default function MyActionsPage() {
               <>
                 <DepthHeader depth={1} count={grouped.d1.length} />
                 {grouped.d1.map((node) => (
-                  <ExecNodeRow key={node.id} node={node} depth={1} />
+                  <ExecNodeRow key={node.id} node={node} depth={1} onEdit={handleEdit} onDelete={handleDelete} />
                 ))}
               </>
             )}
@@ -424,7 +487,14 @@ export default function MyActionsPage() {
               <>
                 {isExec && <DepthHeader depth={2} count={grouped.d2.length} />}
                 {grouped.d2.map((node) => (
-                  <ActionRow key={node.id} node={node} isExec={isExec} onMobileEdit={setMobileEditNode} />
+                  <ActionRow
+                    key={node.id}
+                    node={node}
+                    isExec={isExec}
+                    onMobileEdit={setMobileEditNode}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                  />
                 ))}
               </>
             )}
@@ -441,6 +511,16 @@ export default function MyActionsPage() {
           />
         )}
       </AnimatePresence>
+
+      {/* Full edit modal (NodeFormModal) */}
+      {editingNode && (
+        <NodeFormModal
+          open={!!editingNode}
+          onClose={() => setEditingNode(null)}
+          editNode={editingNode}
+          depth={editingNode.depth}
+        />
+      )}
     </>
   )
 }

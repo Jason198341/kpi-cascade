@@ -17,8 +17,8 @@ export default function DashboardPage() {
   const { nodes, nodeMap, childrenMap } = useCascadeStore()
   const { org, members } = useOrgStore()
 
-  const handlePDF = () => {
-    generatePDF(nodes, nodeMap, childrenMap, members, org?.name || 'KPI Cascade', lang)
+  const handlePDF = async () => {
+    await generatePDF(nodes, nodeMap, childrenMap, members, org?.name || 'KPI Cascade', lang)
   }
 
   const handleEmail = async () => {
