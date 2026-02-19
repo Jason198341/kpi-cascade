@@ -83,10 +83,16 @@ function buildSingleLangEmail(
   for (const a of actions) {
     const progress = getEffectiveProgress(a, nodeMap, childrenMap)
     const owner = a.owner_id ? (memberMap[a.owner_id] || '-') : '-'
-    lines.push(`${clean(a.title)} [${owner}] - ${fmt(progress)}`)
+    const period = (a.start_date || a.due_date)
+      ? ` (${a.start_date || '?'} ~ ${a.due_date || '?'})`
+      : ''
+    lines.push(`${clean(a.title)} [${owner}] - ${fmt(progress)}${period}`)
     if (a.milestones && a.milestones.length > 0) {
       for (const ms of a.milestones) {
-        lines.push(`   ${ms.done ? '[V]' : '[  ]'} ${ms.label}`)
+        const msDate = (ms.start_date || ms.end_date)
+          ? ` (${ms.start_date || '?'}~${ms.end_date || '?'})`
+          : ''
+        lines.push(`   ${ms.done ? '[V]' : '[  ]'} ${ms.label}${msDate}`)
       }
     }
   }

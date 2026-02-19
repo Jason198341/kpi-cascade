@@ -159,10 +159,13 @@ function buildActionPlanSheet(
         d2Row.getCell(9).value = action.start_date || ''
         d2Row.getCell(10).value = action.due_date || ''
 
-        // Milestones
+        // Milestones with dates
         if (action.milestones) {
           action.milestones.forEach((ms, mi) => {
-            d2Row.getCell(11 + mi).value = `${ms.done ? '[V]' : '[  ]'} ${ms.label}`
+            const datePart = (ms.start_date || ms.end_date)
+              ? ` (${ms.start_date || '?'} ~ ${ms.end_date || '?'})`
+              : ''
+            d2Row.getCell(11 + mi).value = `${ms.done ? '[V]' : '[  ]'} ${ms.label}${datePart}`
           })
         }
 
@@ -330,7 +333,7 @@ function buildGanttSheet(
       start: n.start_date ? new Date(n.start_date) : null,
       end: n.due_date ? new Date(n.due_date) : null,
     })
-    // Milestones for depth-2
+    // Milestones for depth-2 (with dates for Gantt bars)
     if (n.depth === 2 && n.milestones && n.milestones.length > 0) {
       for (const ms of n.milestones) {
         rows.push({
@@ -339,8 +342,8 @@ function buildGanttSheet(
           owner: '-',
           progress: ms.done ? '100%' : '0%',
           status: ms.done ? (sm['completed'] || 'Done') : '-',
-          start: null,
-          end: null,
+          start: ms.start_date ? new Date(ms.start_date) : null,
+          end: ms.end_date ? new Date(ms.end_date) : null,
         })
       }
     }

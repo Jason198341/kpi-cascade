@@ -116,18 +116,25 @@ export function NodeDetailPanel() {
               {node.milestones!.map((m) => (
                 <label
                   key={m.id}
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer transition-colors
+                  className={`flex items-start gap-2.5 px-3 py-2 rounded-lg cursor-pointer transition-colors
                     ${m.done ? 'bg-depth-2/10' : 'bg-surface-light hover:bg-surface-light/80'}`}
                 >
                   <input
                     type="checkbox"
                     checked={m.done}
                     onChange={() => toggleMilestone(node.id, m.id)}
-                    className="accent-depth-2 w-4 h-4 shrink-0 cursor-pointer"
+                    className="accent-depth-2 w-4 h-4 shrink-0 cursor-pointer mt-0.5"
                   />
-                  <span className={`text-sm ${m.done ? 'line-through text-text-muted' : ''}`}>
-                    {m.label}
-                  </span>
+                  <div className="flex-1 min-w-0">
+                    <span className={`text-sm ${m.done ? 'line-through text-text-muted' : ''}`}>
+                      {m.label}
+                    </span>
+                    {(m.start_date || m.end_date) && (
+                      <div className="text-[10px] text-text-muted mt-0.5">
+                        {m.start_date || '?'} ~ {m.end_date || '?'}
+                      </div>
+                    )}
+                  </div>
                 </label>
               ))}
             </div>
@@ -146,6 +153,10 @@ export function NodeDetailPanel() {
             <div className="font-mono font-semibold mt-0.5">×{node.weight.toFixed(2)}</div>
           </div>
           <div>
+            <span className="text-xs text-text-muted">{t('node.startDate')}</span>
+            <div className="mt-0.5">{formatDate(node.start_date)}</div>
+          </div>
+          <div className="col-span-2">
             <span className="text-xs text-text-muted">{t('node.dueDate')}</span>
             <div className={`mt-0.5 ${days !== null && days < 7 ? 'text-warning' : ''}`}>
               {formatDate(node.due_date)}

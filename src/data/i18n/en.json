@@ -30,6 +30,7 @@
   "node.target": "Target",
   "node.current": "Current",
   "node.weight": "Weight",
+  "node.startDate": "Start Date",
   "node.dueDate": "Due Date",
   "node.progress": "Progress",
   "node.status": "Status",

@@ -7,6 +7,8 @@ export interface Milestone {
   id: string
   label: string
   done: boolean
+  start_date?: string | null
+  end_date?: string | null
 }
 
 export interface KpiNode {

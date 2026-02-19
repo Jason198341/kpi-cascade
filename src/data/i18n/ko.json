@@ -30,6 +30,7 @@
   "node.target": "목표값",
   "node.current": "현재값",
   "node.weight": "가중치",
+  "node.startDate": "시작일",
   "node.dueDate": "마감일",
   "node.progress": "진행률",
   "node.status": "상태",

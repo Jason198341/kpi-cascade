@@ -96,9 +96,12 @@ function buildTree(
     if (n.depth === 2 && n.milestones && n.milestones.length > 0) {
       const msIndent = '    '.repeat(3)
       for (const ms of n.milestones) {
+        const datePart = (ms.start_date || ms.end_date)
+          ? ` (${ms.start_date || '?'}~${ms.end_date || '?'})`
+          : ''
         rows.push({
           depth: 3,
-          label: `${msIndent}${ms.done ? '[V]' : '[  ]'} ${ms.label}`,
+          label: `${msIndent}${ms.done ? '[V]' : '[  ]'} ${ms.label}${datePart}`,
           progress: ms.done ? '100%' : '0%',
           status: ms.done ? (statusMap['completed'] || 'Done') : '-',
           weight: '-',
@@ -312,7 +315,10 @@ async function buildSinglePDF(
           if (y > H - 10) { doc.addPage(); doc.setFont(F, 'normal'); y = 14 }
           doc.setFontSize(7.5)
           doc.setTextColor(ms.done ? 16 : 140, ms.done ? 160 : 140, ms.done ? 110 : 140)
-          doc.text(`    ${ms.done ? '[V]' : '[  ]'} ${ms.label}`, M + 2, y)
+          const msDate = (ms.start_date || ms.end_date)
+            ? `  [${ms.start_date || '?'} ~ ${ms.end_date || '?'}]`
+            : ''
+          doc.text(`    ${ms.done ? '[V]' : '[  ]'} ${ms.label}${msDate}`, M + 2, y)
           y += 4
         }
       }
