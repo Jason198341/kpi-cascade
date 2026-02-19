@@ -291,10 +291,14 @@
   "dashboard.depthKpi": "팀 KPI",
   "dashboard.depthAction": "액션 플랜",
 
-  "export.pdfButton": "PDF 다운로드",
-  "export.emailButton": "이메일 생성",
+  "export.pdfButton": "PDF 다운로드 (KO+EN)",
+  "export.emailButton": "이메일 생성 (KO+EN)",
   "export.copied": "클립보드에 복사됨!",
   "export.pdfTitle": "KPI 캐스케이드 종합 점검 보고서",
+  "export.excelAction": "액션 플랜 엑셀 다운로드",
+  "export.excelActionShort": "Excel",
+  "export.excelGantt": "간트 차트 엑셀 다운로드",
+  "export.excelGanttShort": "Gantt",
 
   "month.1": "1월",
   "month.2": "2월",

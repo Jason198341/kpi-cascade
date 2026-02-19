@@ -2,10 +2,17 @@ import {
   getEffectiveProgress,
   getRootNodes,
   getNodesByDepth,
-  getContributionTrace,
   getTeamRankingWithExpectation,
 } from '@/lib/cascade'
 import type { KpiNode, NodeMap, ChildrenMap, Profile, Depth } from '@/types'
+
+// Emoji removal (consistent with PDF)
+function clean(text: string): string {
+  return text
+    .replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE0E}\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+}
 
 const STATUS_KO: Record<string, string> = {
   active: '진행중',
@@ -15,10 +22,10 @@ const STATUS_KO: Record<string, string> = {
 }
 
 const STATUS_EN: Record<string, string> = {
-  active: 'active',
-  at_risk: 'at risk',
-  completed: 'completed',
-  paused: 'paused',
+  active: 'Active',
+  at_risk: 'At Risk',
+  completed: 'Done',
+  paused: 'Paused',
 }
 
 function fmt(n: number): string {
@@ -29,13 +36,13 @@ function today(): string {
   return new Date().toISOString().slice(0, 10)
 }
 
-export function generateEmailText(
+function buildSingleLangEmail(
   nodes: KpiNode[],
   nodeMap: NodeMap,
   childrenMap: ChildrenMap,
   members: Profile[],
   orgName: string,
-  lang: 'ko' | 'en' = 'ko',
+  lang: 'ko' | 'en',
 ): string {
   const isKo = lang === 'ko'
   const statusMap = isKo ? STATUS_KO : STATUS_EN
@@ -55,7 +62,7 @@ export function generateEmailText(
   const roots = getRootNodes(nodes)
   for (const r of roots) {
     const progress = getEffectiveProgress(r, nodeMap, childrenMap)
-    lines.push(`${r.emoji} ${r.title} — ${fmt(progress)} (${statusMap[r.status] || r.status})`)
+    lines.push(`${clean(r.title)} - ${fmt(progress)} (${statusMap[r.status] || r.status})`)
   }
   lines.push('')
 
@@ -65,8 +72,8 @@ export function generateEmailText(
   for (const kpi of depth1) {
     const progress = getEffectiveProgress(kpi, nodeMap, childrenMap)
     const parent = kpi.parent_id ? nodeMap[kpi.parent_id] : null
-    const parentRef = parent ? ` (→ ${parent.emoji} ${parent.title})` : ''
-    lines.push(`  ${kpi.emoji} ${kpi.title} — ${fmt(progress)}${parentRef}`)
+    const parentRef = parent ? ` (-> ${clean(parent.title)})` : ''
+    lines.push(`  ${clean(kpi.title)} - ${fmt(progress)}${parentRef}`)
   }
   lines.push('')
 
@@ -75,11 +82,11 @@ export function generateEmailText(
   lines.push(isKo ? '━━━ 액션 플랜 상세 ━━━' : '━━━ Action Plans ━━━')
   for (const a of actions) {
     const progress = getEffectiveProgress(a, nodeMap, childrenMap)
-    const owner = a.owner_id ? (memberMap[a.owner_id] || '—') : '—'
-    lines.push(`${a.emoji} ${a.title} [${owner}] — ${fmt(progress)}`)
+    const owner = a.owner_id ? (memberMap[a.owner_id] || '-') : '-'
+    lines.push(`${clean(a.title)} [${owner}] - ${fmt(progress)}`)
     if (a.milestones && a.milestones.length > 0) {
       for (const ms of a.milestones) {
-        lines.push(`   ${ms.done ? '✓' : '○'} ${ms.label}`)
+        lines.push(`   ${ms.done ? '[V]' : '[  ]'} ${ms.label}`)
       }
     }
   }
@@ -93,7 +100,7 @@ export function generateEmailText(
   } else {
     for (const n of atRisk) {
       const progress = getEffectiveProgress(n, nodeMap, childrenMap)
-      lines.push(`🔴 ${n.emoji} ${n.title} — ${fmt(progress)} (${isKo ? '기한' : 'due'}: ${n.due_date || '—'})`)
+      lines.push(`[!] ${clean(n.title)} - ${fmt(progress)} (${isKo ? '기한' : 'due'}: ${n.due_date || '-'})`)
     }
   }
   lines.push('')
@@ -103,8 +110,21 @@ export function generateEmailText(
     .filter((r) => r.actionCount > 0)
   lines.push(isKo ? '━━━ 기여도 순위 ━━━' : '━━━ Contribution Ranking ━━━')
   ranking.forEach((r, i) => {
-    lines.push(`${i + 1}. ${r.profile.display_name} (${r.profile.department || '—'}) — ${r.totalContribution.toFixed(1)}%`)
+    lines.push(`${i + 1}. ${r.profile.display_name} (${r.profile.department || '-'}) - ${r.totalContribution.toFixed(1)}%`)
   })
 
   return lines.join('\n')
+}
+
+/** Generate BOTH KO and EN email text, concatenated with separator */
+export function generateEmailText(
+  nodes: KpiNode[],
+  nodeMap: NodeMap,
+  childrenMap: ChildrenMap,
+  members: Profile[],
+  orgName: string,
+): string {
+  const ko = buildSingleLangEmail(nodes, nodeMap, childrenMap, members, orgName, 'ko')
+  const en = buildSingleLangEmail(nodes, nodeMap, childrenMap, members, orgName, 'en')
+  return `${ko}\n\n${'='.repeat(60)}\n\n${en}`
 }

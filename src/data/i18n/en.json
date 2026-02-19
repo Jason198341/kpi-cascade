@@ -291,10 +291,14 @@
   "dashboard.depthKpi": "Team KPI",
   "dashboard.depthAction": "Action Plan",
 
-  "export.pdfButton": "Download PDF",
-  "export.emailButton": "Generate Email",
+  "export.pdfButton": "Download PDF (KO+EN)",
+  "export.emailButton": "Generate Email (KO+EN)",
   "export.copied": "Copied to clipboard!",
   "export.pdfTitle": "KPI Cascade Inspection Report",
+  "export.excelAction": "Download Action Plan Excel",
+  "export.excelActionShort": "Excel",
+  "export.excelGantt": "Download Gantt Chart Excel",
+  "export.excelGanttShort": "Gantt",
 
   "month.1": "Jan",
   "month.2": "Feb",

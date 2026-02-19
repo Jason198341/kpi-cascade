@@ -9,6 +9,8 @@ import { useCascadeStore } from '@/stores/cascadeStore'
 import { useOrgStore } from '@/stores/orgStore'
 import { generatePDF } from '@/lib/exportPdf'
 import { generateEmailText } from '@/lib/exportEmail'
+// Lazy-loaded to keep main chunk small (~400KB exceljs)
+const loadExcel = () => import('@/lib/exportExcel')
 
 export default function DashboardPage() {
   const t = useUIStore((s) => s.t)
@@ -17,17 +19,18 @@ export default function DashboardPage() {
   const { nodes, nodeMap, childrenMap } = useCascadeStore()
   const { org, members } = useOrgStore()
 
+  const orgName = org?.name || 'KPI Cascade'
+
   const handlePDF = async () => {
-    await generatePDF(nodes, nodeMap, childrenMap, members, org?.name || 'KPI Cascade', lang)
+    await generatePDF(nodes, nodeMap, childrenMap, members, orgName)
   }
 
   const handleEmail = async () => {
-    const text = generateEmailText(nodes, nodeMap, childrenMap, members, org?.name || 'KPI Cascade', lang)
+    const text = generateEmailText(nodes, nodeMap, childrenMap, members, orgName)
     try {
       await navigator.clipboard.writeText(text)
       toast(t('export.copied'), 'success')
     } catch {
-      // Fallback for non-secure contexts
       const ta = document.createElement('textarea')
       ta.value = text
       ta.style.position = 'fixed'
@@ -40,21 +43,36 @@ export default function DashboardPage() {
     }
   }
 
+  const handleExcelActionPlan = async () => {
+    const { generateExcel } = await loadExcel()
+    await generateExcel(nodes, nodeMap, childrenMap, members, orgName, lang, 'actionplan')
+  }
+
+  const handleExcelGantt = async () => {
+    const { generateExcel } = await loadExcel()
+    await generateExcel(nodes, nodeMap, childrenMap, members, orgName, lang, 'gantt')
+  }
+
+  const btnClass =
+    'text-xs font-medium px-2.5 py-1 rounded-md border border-surface-border hover:border-depth-0/50 hover:text-depth-0 text-text-muted cursor-pointer transition-colors'
+  const btnClass2 =
+    'text-xs font-medium px-2.5 py-1 rounded-md border border-surface-border hover:border-depth-1/50 hover:text-depth-1 text-text-muted cursor-pointer transition-colors'
+  const btnClass3 =
+    'text-xs font-medium px-2.5 py-1 rounded-md border border-surface-border hover:border-depth-2/50 hover:text-depth-2 text-text-muted cursor-pointer transition-colors'
+
   const exportActions = (
-    <div className="flex gap-1.5">
-      <button
-        onClick={handlePDF}
-        className="text-xs font-medium px-2.5 py-1 rounded-md border border-surface-border hover:border-depth-0/50 hover:text-depth-0 text-text-muted cursor-pointer transition-colors"
-        title={t('export.pdfButton')}
-      >
+    <div className="flex gap-1.5 flex-wrap">
+      <button onClick={handlePDF} className={btnClass} title={t('export.pdfButton')}>
         PDF
       </button>
-      <button
-        onClick={handleEmail}
-        className="text-xs font-medium px-2.5 py-1 rounded-md border border-surface-border hover:border-depth-1/50 hover:text-depth-1 text-text-muted cursor-pointer transition-colors"
-        title={t('export.emailButton')}
-      >
+      <button onClick={handleEmail} className={btnClass2} title={t('export.emailButton')}>
         Email
+      </button>
+      <button onClick={handleExcelActionPlan} className={btnClass3} title={t('export.excelAction')}>
+        {t('export.excelActionShort')}
+      </button>
+      <button onClick={handleExcelGantt} className={btnClass} title={t('export.excelGantt')}>
+        {t('export.excelGanttShort')}
       </button>
     </div>
   )
