@@ -3,18 +3,18 @@ ESIR Master Tracker V3.1 -- Excel Generator
 Automotive Interior Parts (Console / Trim / Seat)
 Hyundai Motor India Engineering Sample / Initial Run Test Preparation
 
-Simplified V3.1 Architecture (25 cols A-Y, 3 reference tables):
+V3.2 Architecture (25 cols A-Y, 3 reference tables, no supplier):
   Sheet 1: Config (hidden helper)
-  Sheet 2: Reference Data (SSOT with 3 tables: Vehicle, TestMaster, VehicleParts)
-  Sheet 3: Master Tracker (25 cols, formula-driven)
+  Sheet 2: Reference Data (SSOT: Vehicle + TestCatalog + PartMap)
+  Sheet 3: Master Tracker (25 cols, formula-driven, G=manual)
   Sheet 4: Dashboard (COUNTIFS + vehicle filter)
   Sheet 5: Supplier Checklist
 
-Reference Data consolidation (8 → 3 tables):
-  - TBL_Vehicle (10 cols): Vehicle schedule + LeadTime offsets merged
-  - TBL_TestMaster (6 cols, 22 rows): Parts + TestCatalog + PartTests merged
-  - TBL_VehicleParts (2 cols, 18 rows): Vehicle×Part→Supplier mapping
-  Eliminated: TBL_LeadTime, TBL_Status, TBL_Supplier, TBL_Parts, TBL_TestCatalog, TBL_PartTests
+Reference Data (3 tables, 32 rows):
+  - TBL_Vehicle (10 cols, 3 rows): Vehicle schedule + LeadTime offsets
+  - TBL_TestCatalog (4 cols, 15 rows): Unique tests with type/spec/duration
+  - TBL_PartMap (2 cols, 6 rows): Part→Category mapping
+  Removed: TBL_VehicleParts (supplier info → col G manual)
 """
 
 import datetime
@@ -34,10 +34,9 @@ TRACKER_END = 200  # max data row for formulas/validations
 
 # == Explicit cross-sheet range references for VLOOKUPs ==
 REF = "'Reference Data 기준데이터'"
-RNG_VEHICLE       = f"{REF}!$A$2:$J$5"       # 10 cols (schedule + 4 LeadTime offsets)
-RNG_TESTMASTER    = f"{REF}!$A$8:$F$30"       # 22 rows: TestNameKR key, 6 cols
-RNG_PARTS         = f"{REF}!$E$8:$F$30"       # sub-range: PartName→PartCategory
-RNG_VEHICLE_PARTS = f"{REF}!$A$33:$B$51"      # 18 rows: VPKey→SupplierCode
+RNG_VEHICLE     = f"{REF}!$A$2:$J$5"       # 10 cols (schedule + 4 LeadTime offsets)
+RNG_TESTCATALOG = f"{REF}!$A$8:$D$23"      # 15 unique tests, 4 cols
+RNG_PARTMAP     = f"{REF}!$A$26:$B$32"     # 6 parts → category
 
 # == Mapping Data (SSOT for table generation + sim data) ==
 VEHICLE_ORDER = ["AE_PE", "SU2i", "EN_SUV"]
@@ -50,19 +49,6 @@ T0_DATES = {
     "AE_PE":  datetime.date(2026, 1, 15),
     "SU2i":   datetime.date(2026, 3, 1),
     "EN_SUV": datetime.date(2026, 2, 1),
-}
-
-# Vehicle x Part -> Supplier
-VEHICLE_PARTS = {
-    "AE_PE":  {"Center Console Assy": "SUP_A", "Console Lid Assy": "SUP_A",
-               "Door Trim LH": "SUP_B", "Pillar Trim C": "SUP_C",
-               "Front Seat Assy LH": "SUP_D", "Rear Seat Assy": "SUP_D"},
-    "SU2i":   {"Center Console Assy": "SUP_B", "Console Lid Assy": "SUP_B",
-               "Door Trim LH": "SUP_C", "Pillar Trim C": "SUP_A",
-               "Front Seat Assy LH": "SUP_D", "Rear Seat Assy": "SUP_D"},
-    "EN_SUV": {"Center Console Assy": "SUP_C", "Console Lid Assy": "SUP_A",
-               "Door Trim LH": "SUP_B", "Pillar Trim C": "SUP_B",
-               "Front Seat Assy LH": "SUP_D", "Rear Seat Assy": "SUP_D"},
 }
 
 # Part -> Tests (fixed test set per part, human-readable names)
@@ -312,7 +298,7 @@ def build_config(wb):
 
 
 # ================================================================
-# Sheet 2: Reference Data (SSOT - 3 tables + dropdown helpers)
+# Sheet 2: Reference Data (SSOT - 3 tables, 32 rows)
 # ================================================================
 
 def build_reference_data(wb):
@@ -320,7 +306,7 @@ def build_reference_data(wb):
     ws.sheet_properties.tabColor = C_MID_BLUE
 
     set_col_widths(ws, {
-        "A": 30, "B": 28, "C": 18, "D": 18, "E": 24, "F": 14,
+        "A": 30, "B": 28, "C": 18, "D": 18, "E": 18, "F": 18,
         "G": 16, "H": 16, "I": 16, "J": 16,
     })
 
@@ -358,60 +344,37 @@ def build_reference_data(wb):
 
     add_openpyxl_table(ws, "TBL_Vehicle", f"A2:J{r + len(vehicles)}", "TableStyleMedium2")
 
-    # ── TBL_TestMaster (A7:F30) — 22 rows: Part×Test combos ──
+    # ── TBL_TestCatalog (A7:D23) — 15 unique tests ──
     r = 7
-    styled_cell(ws, r, 1, "TBL_TestMaster (시험 마스터)", FONT_REF_TITLE, FILL_LIGHT_BLUE, ALIGN_LEFT, THIN_BORDER)
+    styled_cell(ws, r, 1, "TBL_TestCatalog (시험 카탈로그)", FONT_REF_TITLE, FILL_LIGHT_BLUE, ALIGN_LEFT, THIN_BORDER)
     r = 8
-    th = ["TestNameKR", "TestType", "Spec", "DurationDays", "PartName", "PartCategory"]
+    th = ["TestNameKR", "TestType", "Spec", "DurationDays"]
     write_table_header(ws, r, 1, th)
-    tm_rows = []
-    for p in PART_NAMES:
-        cat = PART_CATEGORIES[p]
-        for t in PART_TESTS[p]:
-            ttype, spec, dur = TEST_CATALOG[t]
-            tm_rows.append((t, ttype, spec, dur, p, cat))
-    for i, tm in enumerate(tm_rows):
+    unique_tests = list(TEST_CATALOG.items())  # 15 unique tests
+    for i, (tname, (ttype, spec, dur)) in enumerate(unique_tests):
         row = r + 1 + i
-        for j, val in enumerate(tm):
+        for j, val in enumerate([tname, ttype, spec, dur]):
             c = ws.cell(row=row, column=1 + j, value=val)
             apply_style(c, font=FONT_BODY, fill=FILL_WHITE,
-                        alignment=ALIGN_LEFT if j in (0, 4) else ALIGN_CENTER, border=THIN_BORDER)
+                        alignment=ALIGN_LEFT if j == 0 else ALIGN_CENTER, border=THIN_BORDER)
 
-    add_openpyxl_table(ws, "TBL_TestMaster", f"A8:F{r + len(tm_rows)}", "TableStyleMedium6")
+    add_openpyxl_table(ws, "TBL_TestCatalog", f"A8:D{r + len(unique_tests)}", "TableStyleMedium6")
 
-    # ── TBL_VehicleParts (A32:B51) — 18 rows: VPKey→SupplierCode ──
-    r = 32
-    styled_cell(ws, r, 1, "TBL_VehicleParts (차종×부품→협력사)", FONT_REF_TITLE, FILL_LIGHT_BLUE, ALIGN_LEFT, THIN_BORDER)
-    r = 33
-    vph = ["VPKey", "SupplierCode"]
-    write_table_header(ws, r, 1, vph)
-    vp_rows = []
-    for v in VEHICLE_ORDER:
-        for p in PART_NAMES:
-            s = VEHICLE_PARTS[v][p]
-            vp_rows.append((f"{v}_{p}", s))
-    for i, vp in enumerate(vp_rows):
+    # ── TBL_PartMap (A25:B32) — 6 parts ──
+    r = 25
+    styled_cell(ws, r, 1, "TBL_PartMap (부품→구분)", FONT_REF_TITLE, FILL_LIGHT_BLUE, ALIGN_LEFT, THIN_BORDER)
+    r = 26
+    ph = ["PartName", "PartCategory"]
+    write_table_header(ws, r, 1, ph)
+    for i, pname in enumerate(PART_NAMES):
         row = r + 1 + i
-        for j, val in enumerate(vp):
-            c = ws.cell(row=row, column=1 + j, value=val)
-            apply_style(c, font=FONT_BODY, fill=FILL_WHITE, alignment=ALIGN_CENTER, border=THIN_BORDER)
-    add_openpyxl_table(ws, "TBL_VehicleParts", f"A33:B{r + len(vp_rows)}", "TableStyleMedium8")
+        cat = PART_CATEGORIES[pname]
+        c1 = ws.cell(row=row, column=1, value=pname)
+        apply_style(c1, font=FONT_BODY, fill=FILL_WHITE, alignment=ALIGN_LEFT, border=THIN_BORDER)
+        c2 = ws.cell(row=row, column=2, value=cat)
+        apply_style(c2, font=FONT_BODY, fill=FILL_WHITE, alignment=ALIGN_CENTER, border=THIN_BORDER)
 
-    # ── Dropdown Helper Lists ──
-    # Unique Part Names (A54:A59)
-    r = 53
-    styled_cell(ws, r, 1, "Dropdown: PartNames", FONT_REF_TITLE, FILL_LIGHT_BLUE, ALIGN_LEFT, THIN_BORDER)
-    for i, p in enumerate(PART_NAMES):
-        c = ws.cell(row=r + 1 + i, column=1, value=p)
-        apply_style(c, font=FONT_BODY, fill=FILL_WHITE, alignment=ALIGN_LEFT, border=THIN_BORDER)
-
-    # Unique Test Names (A61:A75)
-    r2 = 60
-    styled_cell(ws, r2, 1, "Dropdown: TestNames", FONT_REF_TITLE, FILL_LIGHT_BLUE, ALIGN_LEFT, THIN_BORDER)
-    unique_tests = list(TEST_CATALOG.keys())
-    for i, t in enumerate(unique_tests):
-        c = ws.cell(row=r2 + 1 + i, column=1, value=t)
-        apply_style(c, font=FONT_BODY, fill=FILL_WHITE, alignment=ALIGN_LEFT, border=THIN_BORDER)
+    add_openpyxl_table(ws, "TBL_PartMap", f"A26:B{r + len(PART_NAMES)}", "TableStyleMedium5")
 
     return ws
 
@@ -420,9 +383,9 @@ def build_reference_data(wb):
 # Sheet 3: Master Tracker (25 cols, A-Y)
 # ================================================================
 
-# V3 Column mapping (1-based): A=1 .. Y=25
+# V3.2 Column mapping (1-based): A=1 .. Y=25
 # A:No, B:VehicleCode, C:PartName, D:PartCategory(auto), E:TestNameKR,
-# F:TestType(auto), G:Supplier(auto), H:T0(auto),
+# F:TestType(auto), G:Supplier(MANUAL), H:T0(auto),
 # I:PlanDue(auto), J:PlanSubmitted(manual), K:ReviewResult(manual),
 # L:PartsReadyPlan(auto), M:PartsReadyActual(manual),
 # N:TestStartPlan(auto), O:TestStartActual(manual),
@@ -431,8 +394,8 @@ def build_reference_data(wb):
 # T:Override(manual), U:Status(auto), V:Progress%(auto),
 # W:DaysToDeadline(auto), X:RiskFlag(auto), Y:NextAction(auto)
 
-# Manual columns (1-based): B(2), C(3), E(5), J(10), K(11), M(13), O(15), Q(17), S(19), T(20)
-MANUAL_COLS = {2, 3, 5, 10, 11, 13, 15, 17, 19, 20}
+# Manual columns (1-based): B(2), C(3), E(5), G(7), J(10), K(11), M(13), O(15), Q(17), S(19), T(20)
+MANUAL_COLS = {2, 3, 5, 7, 10, 11, 13, 15, 17, 19, 20}
 
 def build_master_tracker(wb):
     ws = wb.create_sheet("Master Tracker 마스터추적표")
@@ -552,20 +515,19 @@ def build_master_tracker(wb):
         # C: Part Name (MANUAL)
         styled_cell(ws, r, 3, partname, FONT_BODY, FILL_MANUAL, ALIGN_LEFT, THIN_BORDER)
 
-        # D: Part Category (AUTO) = VLOOKUP(C, RNG_PARTS, 2, FALSE)
-        f_d = f'=IFERROR(VLOOKUP(C{r},{RNG_PARTS},2,FALSE),"")'
+        # D: Part Category (AUTO) = VLOOKUP(C, RNG_PARTMAP, 2, FALSE)
+        f_d = f'=IFERROR(VLOOKUP(C{r},{RNG_PARTMAP},2,FALSE),"")'
         styled_cell(ws, r, 4, f_d, FONT_BODY, FILL_VERY_LIGHT, ALIGN_CENTER, THIN_BORDER)
 
         # E: Test Name KR (MANUAL)
         styled_cell(ws, r, 5, testname, FONT_BODY, FILL_MANUAL, ALIGN_LEFT, THIN_BORDER)
 
-        # F: Test Type (AUTO) = VLOOKUP(E, RNG_TESTMASTER, 2, FALSE)
-        f_f = f'=IFERROR(VLOOKUP(E{r},{RNG_TESTMASTER},2,FALSE),"")'
+        # F: Test Type (AUTO) = VLOOKUP(E, RNG_TESTCATALOG, 2, FALSE)
+        f_f = f'=IFERROR(VLOOKUP(E{r},{RNG_TESTCATALOG},2,FALSE),"")'
         styled_cell(ws, r, 6, f_f, FONT_BODY, FILL_VERY_LIGHT, ALIGN_CENTER, THIN_BORDER)
 
-        # G: Supplier (AUTO) = VLOOKUP(B&"_"&C, RNG_VEHICLE_PARTS, 2, FALSE)
-        f_g = f'=IFERROR(VLOOKUP(B{r}&"_"&C{r},{RNG_VEHICLE_PARTS},2,FALSE),"")'
-        styled_cell(ws, r, 7, f_g, FONT_BODY, FILL_VERY_LIGHT, ALIGN_CENTER, THIN_BORDER)
+        # G: Supplier (MANUAL — no auto-lookup)
+        styled_cell(ws, r, 7, None, FONT_BODY, FILL_MANUAL, ALIGN_CENTER, THIN_BORDER)
 
         # H: T0 Drawing Release (AUTO) = VLOOKUP(B, RNG_VEHICLE, 3, FALSE)
         f_h = f'=IFERROR(VLOOKUP(B{r},{RNG_VEHICLE},3,FALSE),"")'
@@ -610,8 +572,8 @@ def build_master_tracker(wb):
         if isinstance(o_act, datetime.date):
             c_o.number_format = "YYYY-MM-DD"
 
-        # P: Test Complete Plan (AUTO) = N + VLOOKUP(E, TestMaster, DurationDays)
-        f_p = f'=IFERROR(N{r}+VLOOKUP(E{r},{RNG_TESTMASTER},4,FALSE),"")'
+        # P: Test Complete Plan (AUTO) = N + VLOOKUP(E, TestCatalog, DurationDays)
+        f_p = f'=IFERROR(N{r}+VLOOKUP(E{r},{RNG_TESTCATALOG},4,FALSE),"")'
         c_p = styled_cell(ws, r, 16, f_p, FONT_BODY, FILL_VERY_LIGHT, ALIGN_CENTER, THIN_BORDER)
         c_p.number_format = "YYYY-MM-DD"
 
@@ -707,19 +669,18 @@ def build_master_tracker(wb):
         styled_cell(ws, r, 3, None, FONT_BODY, FILL_MANUAL, ALIGN_LEFT, THIN_BORDER)
 
         # D: Part Category (AUTO, wrapped)
-        f_d = f'=IF(B{r}="","",IFERROR(VLOOKUP(C{r},{RNG_PARTS},2,FALSE),""))'
+        f_d = f'=IF(B{r}="","",IFERROR(VLOOKUP(C{r},{RNG_PARTMAP},2,FALSE),""))'
         styled_cell(ws, r, 4, f_d, FONT_BODY, FILL_VERY_LIGHT, ALIGN_CENTER, THIN_BORDER)
 
         # E: Test Name KR (MANUAL - blank)
         styled_cell(ws, r, 5, None, FONT_BODY, FILL_MANUAL, ALIGN_LEFT, THIN_BORDER)
 
         # F: Test Type (AUTO, wrapped)
-        f_f = f'=IF(B{r}="","",IFERROR(VLOOKUP(E{r},{RNG_TESTMASTER},2,FALSE),""))'
+        f_f = f'=IF(B{r}="","",IFERROR(VLOOKUP(E{r},{RNG_TESTCATALOG},2,FALSE),""))'
         styled_cell(ws, r, 6, f_f, FONT_BODY, FILL_VERY_LIGHT, ALIGN_CENTER, THIN_BORDER)
 
-        # G: Supplier (AUTO, wrapped)
-        f_g = f'=IF(B{r}="","",IFERROR(VLOOKUP(B{r}&"_"&C{r},{RNG_VEHICLE_PARTS},2,FALSE),""))'
-        styled_cell(ws, r, 7, f_g, FONT_BODY, FILL_VERY_LIGHT, ALIGN_CENTER, THIN_BORDER)
+        # G: Supplier (MANUAL - blank)
+        styled_cell(ws, r, 7, None, FONT_BODY, FILL_MANUAL, ALIGN_CENTER, THIN_BORDER)
 
         # H: T0 (AUTO, wrapped)
         f_h = f'=IF(B{r}="","",IFERROR(VLOOKUP(B{r},{RNG_VEHICLE},3,FALSE),""))'
@@ -762,7 +723,7 @@ def build_master_tracker(wb):
         c_o.number_format = "YYYY-MM-DD"
 
         # P: Test Complete Plan (AUTO, wrapped)
-        f_p = f'=IF(B{r}="","",IFERROR(N{r}+VLOOKUP(E{r},{RNG_TESTMASTER},4,FALSE),""))'
+        f_p = f'=IF(B{r}="","",IFERROR(N{r}+VLOOKUP(E{r},{RNG_TESTCATALOG},4,FALSE),""))'
         c_p = styled_cell(ws, r, 16, f_p, FONT_BODY, FILL_VERY_LIGHT, ALIGN_CENTER, THIN_BORDER)
         c_p.number_format = "YYYY-MM-DD"
 
@@ -852,14 +813,14 @@ def build_master_tracker(wb):
     ws.add_data_validation(dv_vehicle)
     dv_vehicle.add(f"B5:B{TRACKER_END}")
 
-    # C: Part Name dropdown (from dropdown helper list)
-    dv_part = DataValidation(type="list", formula1=f"'Reference Data 기준데이터'!$A$54:$A$59", allow_blank=True)
+    # C: Part Name dropdown (from TBL_PartMap)
+    dv_part = DataValidation(type="list", formula1=f"'Reference Data 기준데이터'!$A$27:$A$32", allow_blank=True)
     dv_part.prompt = "Select part"
     ws.add_data_validation(dv_part)
     dv_part.add(f"C5:C{TRACKER_END}")
 
-    # E: Test Name KR dropdown (from dropdown helper list)
-    dv_test = DataValidation(type="list", formula1=f"'Reference Data 기준데이터'!$A$61:$A$75", allow_blank=True)
+    # E: Test Name KR dropdown (from TBL_TestCatalog)
+    dv_test = DataValidation(type="list", formula1=f"'Reference Data 기준데이터'!$A$9:$A$23", allow_blank=True)
     dv_test.prompt = "Select test"
     ws.add_data_validation(dv_test)
     dv_test.add(f"E5:E{TRACKER_END}")
@@ -1380,7 +1341,7 @@ def main():
     build_supplier_checklist(wb, ws_tracker.title, data_start, TRACKER_END)
     wb.active = wb.sheetnames.index("Dashboard 대시보드")
     wb.save(OUTPUT)
-    print(f"V3.1 Generated: {OUTPUT}")
+    print(f"V3.2 Generated: {OUTPUT}")
     print(f"  - {num_items} tracker rows (data rows {data_start}-{data_start + num_items - 1})")
     print(f"  - Empty formula rows {data_start + num_items}-{TRACKER_END}")
     print(f"  - 25 columns (A-Y), 5 sheets")

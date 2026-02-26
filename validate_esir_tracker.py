@@ -1,8 +1,8 @@
 """
-ESIR Master Tracker V3.1 — Validation Script
+ESIR Master Tracker V3.2 — Validation Script
 Validates the generated Excel file for:
   1. Sheet structure (5 sheets, 25 columns, 3 reference tables)
-  2. Column headers match V3.1 spec
+  2. Column headers match V3.2 spec
   3. Status simulation: compute expected status from manual fields, verify formula logic
   4. Formula syntax (parentheses balance) for U, X, Y columns
   5. Conditional formatting rule count
@@ -50,7 +50,7 @@ EXPECTED_HEADERS_KR = [
 ]
 
 EXPECTED_TABLES = [
-    "TBL_Vehicle", "TBL_TestMaster", "TBL_VehicleParts",
+    "TBL_Vehicle", "TBL_TestCatalog", "TBL_PartMap",
 ]
 
 
@@ -144,7 +144,7 @@ def is_filled(val):
 
 def main():
     print(f"{'='*80}")
-    print("ESIR Master Tracker V3.1 — Validation Report")
+    print("ESIR Master Tracker V3.2 — Validation Report")
     print(f"File: {FILE}")
     print(f"{'='*80}\n")
 
