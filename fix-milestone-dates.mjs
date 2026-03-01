@@ -1,6 +1,8 @@
 // One-time script: Add start_date / end_date to every milestone in Supabase
-const URL = 'https://rcdflbygcjmrmcwrhpqm.supabase.co/rest/v1/kpi_nodes'
-const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZGZsYnlnY2ptcm1jd3JocHFtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTMzMDI4NSwiZXhwIjoyMDg2OTA2Mjg1fQ.***REMOVED***'
+import { readFileSync } from 'fs'
+const env = Object.fromEntries(readFileSync('.env', 'utf8').trim().split('\n').map(l => l.split('=')).map(([k, ...v]) => [k, v.join('=')]))
+const URL = `${env.VITE_SUPABASE_URL}/rest/v1/kpi_nodes`
+const KEY = env.SUPABASE_SERVICE_ROLE_KEY
 
 const updates = [
   // 1. NI1i 고정모델 스킨 기반 목업 (03-01 ~ 06-30)

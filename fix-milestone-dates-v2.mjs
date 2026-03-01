@@ -1,8 +1,10 @@
 // Fix milestone dates: strict Gantt-chart sequential (no gaps, no overlaps)
 // Each milestone starts the day after the previous one ends.
 // Total range = node.start_date ~ node.due_date, split evenly across milestones.
-const URL = 'https://rcdflbygcjmrmcwrhpqm.supabase.co/rest/v1/kpi_nodes'
-const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZGZsYnlnY2ptcm1jd3JocHFtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTMzMDI4NSwiZXhwIjoyMDg2OTA2Mjg1fQ.***REMOVED***'
+import { readFileSync } from 'fs'
+const env = Object.fromEntries(readFileSync('.env', 'utf8').trim().split('\n').map(l => l.split('=')).map(([k, ...v]) => [k, v.join('=')]))
+const URL = `${env.VITE_SUPABASE_URL}/rest/v1/kpi_nodes`
+const KEY = env.SUPABASE_SERVICE_ROLE_KEY
 
 function addDays(dateStr, days) {
   const d = new Date(dateStr + 'T00:00:00Z')
