@@ -64,8 +64,10 @@ interface TreeRow {
   label: string
   progress: string
   status: string
-  weight: string
+  startDate: string
+  endDate: string
   owner: string
+  overdue: boolean
 }
 
 function buildTree(
@@ -74,6 +76,7 @@ function buildTree(
 ): TreeRow[] {
   const mMap: Record<string, string> = {}
   for (const m of members) mMap[m.id] = m.display_name
+  const todayStr = today()
 
   const rows: TreeRow[] = []
   const roots = getRootNodes(nodes)
@@ -88,24 +91,25 @@ function buildTree(
       label: `${indent}${clean(n.title)}`,
       progress: fmt(progress),
       status: statusMap[n.status] || n.status,
-      weight: n.weight.toFixed(2),
+      startDate: n.start_date || '-',
+      endDate: n.due_date || '-',
       owner: n.owner_id ? (mMap[n.owner_id] || '-') : '-',
+      overdue: !!n.due_date && n.due_date < todayStr && progress < 100,
     })
 
     // Milestones as depth-3 rows under action plans
     if (n.depth === 2 && n.milestones && n.milestones.length > 0) {
       const msIndent = '    '.repeat(3)
       for (const ms of n.milestones) {
-        const datePart = (ms.start_date || ms.end_date)
-          ? ` (${ms.start_date || '?'}~${ms.end_date || '?'})`
-          : ''
         rows.push({
           depth: 3,
-          label: `${msIndent}${ms.done ? '[V]' : '[  ]'} ${ms.label}${datePart}`,
+          label: `${msIndent}${ms.done ? '[V]' : '[  ]'} ${ms.label}`,
           progress: ms.done ? '100%' : '0%',
           status: ms.done ? (statusMap['completed'] || 'Done') : '-',
-          weight: '-',
+          startDate: ms.start_date || '-',
+          endDate: ms.end_date || '-',
           owner: '-',
+          overdue: !!ms.end_date && ms.end_date < todayStr && !ms.done,
         })
       }
     }
@@ -117,6 +121,7 @@ function buildTree(
 }
 
 // ─── Single-language PDF builder ────────────────────────────
+// Accepts optional existing doc to append pages (for bilingual combined PDF)
 async function buildSinglePDF(
   nodes: KpiNode[],
   nodeMap: NodeMap,
@@ -125,9 +130,12 @@ async function buildSinglePDF(
   orgName: string,
   lang: 'ko' | 'en',
   b64: string,
+  existingDoc?: jsPDF,
 ): Promise<jsPDF> {
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
-  setupFont(doc, b64)
+  const doc = existingDoc || new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+  if (!existingDoc) setupFont(doc, b64)
+  // If appending to existing doc, add a new page for the next language section
+  if (existingDoc) doc.addPage()
 
   const W = doc.internal.pageSize.getWidth()
   const H = doc.internal.pageSize.getHeight()
@@ -163,21 +171,23 @@ async function buildSinglePDF(
 
   autoTable(doc, {
     startY: 56,
-    head: [[L('전략 목표', 'Strategic Goal'), L('진행률', 'Progress'), L('상태', 'Status'), L('가중치', 'Weight')]],
+    head: [[L('전략 목표', 'Strategic Goal'), L('진행률', 'Progress'), L('상태', 'Status'), L('시작일', 'Start'), L('마감일', 'Due')]],
     body: roots.map((r) => [
       clean(r.title),
       fmt(getEffectiveProgress(r, nodeMap, childrenMap)),
       sm[r.status] || r.status,
-      r.weight.toFixed(2),
+      r.start_date || '-',
+      r.due_date || '-',
     ]),
     theme: 'grid',
     styles: baseStyles,
     headStyles: { ...headBase, fillColor: [139, 92, 246] },
     columnStyles: {
-      0: { cellWidth: CW * 0.50 },
-      1: { cellWidth: CW * 0.16, halign: 'center' },
-      2: { cellWidth: CW * 0.17, halign: 'center' },
-      3: { cellWidth: CW * 0.17, halign: 'center' },
+      0: { cellWidth: CW * 0.40 },
+      1: { cellWidth: CW * 0.14, halign: 'center' },
+      2: { cellWidth: CW * 0.14, halign: 'center' },
+      3: { cellWidth: CW * 0.16, halign: 'center' },
+      4: { cellWidth: CW * 0.16, halign: 'center' },
     },
     margin: { left: M, right: M },
   })
@@ -222,22 +232,23 @@ async function buildSinglePDF(
   doc.text(L('전체 KPI 트리 + 마일스톤', 'Full KPI Tree + Milestones'), M, 14)
 
   const tree = buildTree(nodes, nodeMap, childrenMap, members, sm)
-  const treeBody = tree.map((r) => [String(r.depth), r.label, r.progress, r.status, r.weight, r.owner])
+  const treeBody = tree.map((r) => [String(r.depth), r.label, r.progress, r.status, r.startDate, r.endDate, r.owner])
 
   autoTable(doc, {
     startY: 18,
-    head: [['D', L('항목', 'Item'), L('진행률', '%'), L('상태', 'Status'), L('가중치', 'Wt'), L('담당', 'Owner')]],
+    head: [['D', L('항목', 'Item'), L('진행률', '%'), L('상태', 'Status'), L('시작', 'Start'), L('종료', 'End'), L('담당', 'Owner')]],
     body: treeBody,
     theme: 'grid',
     styles: { ...baseStyles, fontSize: 7.5, cellPadding: 2 },
     headStyles: { ...headBase, fontSize: 7.5, cellPadding: 2 },
     columnStyles: {
       0: { cellWidth: 8, halign: 'center' },
-      1: { cellWidth: CW * 0.46 },
+      1: { cellWidth: CW * 0.32 },
       2: { cellWidth: 14, halign: 'center' },
       3: { cellWidth: 14, halign: 'center' },
-      4: { cellWidth: 12, halign: 'center' },
+      4: { cellWidth: 20, halign: 'center' },
       5: { cellWidth: 20, halign: 'center' },
+      6: { cellWidth: 18, halign: 'center' },
     },
     margin: { left: M, right: M },
     willDrawCell: (data) => {
@@ -248,10 +259,17 @@ async function buildSinglePDF(
         data.cell.styles.fillColor = bg
         data.cell.styles.textColor = [255, 255, 255]
       }
-      // Milestone rows: subtle background
       if (data.section === 'body') {
         const d = Number(treeBody[data.row.index]?.[0])
-        if (d === 3 && data.column.index > 0) {
+        const row = tree[data.row.index]
+        // Overdue rows: red tint (takes priority)
+        if (row?.overdue && data.column.index > 0) {
+          data.cell.styles.fillColor = [254, 226, 226]
+          data.cell.styles.textColor = [153, 27, 27]
+          if (d === 3) data.cell.styles.fontSize = 7
+        }
+        // Milestone rows: subtle background (only if not overdue)
+        else if (d === 3 && data.column.index > 0) {
           data.cell.styles.fillColor = [250, 245, 230]
           data.cell.styles.textColor = [80, 70, 50]
           data.cell.styles.fontSize = 7
@@ -313,12 +331,18 @@ async function buildSinglePDF(
       if (a.milestones && a.milestones.length > 0) {
         for (const ms of a.milestones) {
           if (y > H - 10) { doc.addPage(); doc.setFont(F, 'normal'); y = 14 }
+          const msOverdue = ms.end_date && ms.end_date < today() && !ms.done
           doc.setFontSize(7.5)
-          doc.setTextColor(ms.done ? 16 : 140, ms.done ? 160 : 140, ms.done ? 110 : 140)
+          if (msOverdue) {
+            doc.setTextColor(220, 38, 38)
+          } else {
+            doc.setTextColor(ms.done ? 16 : 140, ms.done ? 160 : 140, ms.done ? 110 : 140)
+          }
           const msDate = (ms.start_date || ms.end_date)
             ? `  [${ms.start_date || '?'} ~ ${ms.end_date || '?'}]`
             : ''
-          doc.text(`    ${ms.done ? '[V]' : '[  ]'} ${ms.label}${msDate}`, M + 2, y)
+          const overdueTag = msOverdue ? ' [!]' : ''
+          doc.text(`    ${ms.done ? '[V]' : '[  ]'} ${ms.label}${msDate}${overdueTag}`, M + 2, y)
           y += 4
         }
       }
@@ -391,8 +415,26 @@ async function buildSinglePDF(
     })
   }
 
-  // ════════════ FOOTER ════════════════════════════════════
+  return doc
+}
 
+// ─── Main: generate combined KO+EN PDF (single file) ────────
+export async function generatePDF(
+  nodes: KpiNode[],
+  nodeMap: NodeMap,
+  childrenMap: ChildrenMap,
+  members: Profile[],
+  orgName: string,
+): Promise<void> {
+  const b64 = await loadFont()
+  // Build KO section first
+  const doc = await buildSinglePDF(nodes, nodeMap, childrenMap, members, orgName, 'ko', b64)
+  // Append EN section to the same doc
+  await buildSinglePDF(nodes, nodeMap, childrenMap, members, orgName, 'en', b64, doc)
+  // Add footer to all pages (once, after both sections are built)
+  const H = doc.internal.pageSize.getHeight()
+  const W = doc.internal.pageSize.getWidth()
+  const M = 14
   const pages = doc.getNumberOfPages()
   for (let i = 1; i <= pages; i++) {
     doc.setPage(i)
@@ -402,21 +444,6 @@ async function buildSinglePDF(
     doc.text(`KPI Cascade - ${orgName} - ${today()}`, M, H - 6)
     doc.text(`${i} / ${pages}`, W - M, H - 6, { align: 'right' })
   }
-
-  return doc
-}
-
-// ─── Main: generate BOTH KO and EN PDFs ─────────────────────
-export async function generatePDF(
-  nodes: KpiNode[],
-  nodeMap: NodeMap,
-  childrenMap: ChildrenMap,
-  members: Profile[],
-  orgName: string,
-): Promise<void> {
-  const b64 = await loadFont()
-  const koDoc = await buildSinglePDF(nodes, nodeMap, childrenMap, members, orgName, 'ko', b64)
-  koDoc.save(`KPI_Report_KO_${today()}.pdf`)
-  const enDoc = await buildSinglePDF(nodes, nodeMap, childrenMap, members, orgName, 'en', b64)
-  enDoc.save(`KPI_Report_EN_${today()}.pdf`)
+  // Single download — no popup blocker issue
+  doc.save(`KPI_Report_${today()}.pdf`)
 }

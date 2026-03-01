@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { supabase, isDemoMode } from '@/lib/supabase'
+import { useUIStore } from '@/stores/uiStore'
 import type { Profile } from '@/types'
 import type { User } from '@supabase/supabase-js'
 
@@ -125,6 +126,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       .from('profiles')
       .update(updates)
       .eq('id', profile.id)
-    if (!error) set({ profile: { ...profile, ...updates } })
+    if (error) {
+      useUIStore.getState().toast('프로필 업데이트에 실패했습니다. 잠시 후 다시 시도해주세요.', 'error')
+    } else {
+      set({ profile: { ...profile, ...updates } })
+    }
   },
 }))

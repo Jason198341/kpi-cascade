@@ -53,7 +53,7 @@ function MobileEditOverlay({
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-surface-border">
         <h2 className="text-sm font-semibold">{t('actions.updateAction')}</h2>
-        <button onClick={onClose} className="text-text-muted hover:text-text text-lg cursor-pointer">✕</button>
+        <button onClick={onClose} aria-label="닫기" className="text-text-muted hover:text-text text-lg cursor-pointer"><span aria-hidden="true">✕</span></button>
       </div>
 
       {/* Content */}

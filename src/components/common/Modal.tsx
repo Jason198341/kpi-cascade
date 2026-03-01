@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, useId, type ReactNode } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface Props {
@@ -9,6 +9,8 @@ interface Props {
 }
 
 export function Modal({ open, onClose, title, children }: Props) {
+  const titleId = useId()
+
   useEffect(() => {
     if (!open) return
     const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
@@ -26,17 +28,22 @@ export function Modal({ open, onClose, title, children }: Props) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
+            aria-hidden="true"
           />
           <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={titleId}
             className="relative w-full max-w-lg max-h-[85dvh] glass rounded-xl p-6 z-10 shadow-xl shadow-black/20 flex flex-col"
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
           >
             <div className="flex items-center justify-between pb-4 mb-4 border-b border-surface-border shrink-0">
-              <h2 className="text-lg font-semibold">{title}</h2>
+              <h2 id={titleId} className="text-lg font-semibold">{title}</h2>
               <button
                 onClick={onClose}
+                aria-label="닫기"
                 className="text-text-muted hover:text-text p-1 cursor-pointer rounded-md hover:bg-surface-light transition-colors"
               >
                 ✕

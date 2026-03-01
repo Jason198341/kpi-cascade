@@ -22,6 +22,10 @@ export function DepartmentBar() {
   return (
     <div className="glass rounded-xl p-6">
       <h3 className="text-sm font-medium text-text-muted mb-4">{t('dashboard.teamProgress')}</h3>
+      <div
+        role="img"
+        aria-label={`KPI별 팀 진행률 막대 차트. ${data.map((d) => `${d.name} ${d.progress}%`).join(', ')}`}
+      >
       <ResponsiveContainer width="100%" height={220}>
         <BarChart data={data} layout="vertical">
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-surface-border)" horizontal={false} />
@@ -45,6 +49,7 @@ export function DepartmentBar() {
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+      </div>
     </div>
   )
 }

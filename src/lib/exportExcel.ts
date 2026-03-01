@@ -1,5 +1,4 @@
 import ExcelJS from 'exceljs'
-import { saveAs } from 'file-saver'
 import {
   getEffectiveProgress,
   getRootNodes,
@@ -56,6 +55,8 @@ function buildActionPlanSheet(
   const sm: Record<string, string> = isKo
     ? { active: '진행중', at_risk: '위험', completed: '완료', paused: '중단' }
     : { active: 'Active', at_risk: 'At Risk', completed: 'Done', paused: 'Paused' }
+
+  const todayAP = new Date().toISOString().slice(0, 10)
 
   // Max milestones across all actions
   const maxMs = Math.max(
@@ -165,12 +166,27 @@ function buildActionPlanSheet(
             const datePart = (ms.start_date || ms.end_date)
               ? ` (${ms.start_date || '?'} ~ ${ms.end_date || '?'})`
               : ''
-            d2Row.getCell(11 + mi).value = `${ms.done ? '[V]' : '[  ]'} ${ms.label}${datePart}`
+            const cell = d2Row.getCell(11 + mi)
+            cell.value = `${ms.done ? '[V]' : '[  ]'} ${ms.label}${datePart}`
+            // Overdue milestone: red tint
+            if (ms.end_date && ms.end_date < todayAP && !ms.done) {
+              cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FEE2E2' } }
+              cell.font = { size: 10, color: { argb: '991B1B' } }
+            }
           })
         }
 
         styleDepthRow(d2Row, 2, 10 + maxMs)
         d2Row.alignment = { wrapText: true, vertical: 'top' }
+
+        // Overdue action row: red tint override
+        if (action.due_date && action.due_date < todayAP && action.status !== 'completed') {
+          for (let c = 1; c <= 10; c++) {
+            const cell = d2Row.getCell(c)
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FEE2E2' } }
+            cell.font = { size: 10, color: { argb: '991B1B' } }
+          }
+        }
       }
     }
   }
@@ -236,7 +252,7 @@ function buildGanttSheet(
     cursor.setDate(cursor.getDate() + 7)
   }
 
-  const DATA_COLS = 5 // Lv, Item, Owner, Progress, Status
+  const DATA_COLS = 7 // Lv, Item, Owner, Progress, Status, Start, End
   const WEEK_START = DATA_COLS + 1
 
   // Header row 1: month labels (merged across weeks of same month)
@@ -274,7 +290,7 @@ function buildGanttSheet(
 
   // Header row 2: week dates
   const weekRow = ws.getRow(2)
-  const dataHeaders = ['Lv', L('항목', 'Item'), L('담당', 'Owner'), '%', L('상태', 'Status')]
+  const dataHeaders = ['Lv', L('항목', 'Item'), L('담당', 'Owner'), '%', L('상태', 'Status'), L('시작', 'Start'), L('종료', 'End')]
   dataHeaders.forEach((h, i) => {
     const cell = weekRow.getCell(i + 1)
     cell.value = h
@@ -302,6 +318,10 @@ function buildGanttSheet(
   ws.getColumn(3).width = 12   // Owner
   ws.getColumn(4).width = 6    // %
   ws.getColumn(5).width = 8    // Status
+  ws.getColumn(6).width = 12   // Start
+  ws.getColumn(7).width = 12   // End
+
+  const todayStr = new Date().toISOString().slice(0, 10)
 
   const sm: Record<string, string> = isKo
     ? { active: '진행중', at_risk: '위험', completed: '완료', paused: '중단' }
@@ -363,9 +383,14 @@ function buildGanttSheet(
     xlRow.getCell(3).value = r.owner
     xlRow.getCell(4).value = r.progress
     xlRow.getCell(5).value = r.status
+    xlRow.getCell(6).value = r.start ? r.start.toISOString().slice(0, 10) : ''
+    xlRow.getCell(7).value = r.end ? r.end.toISOString().slice(0, 10) : ''
 
-    const fill = DEPTH_FILL[r.depth] || 'FFFFFF'
-    const fontColor = DEPTH_FONT[r.depth] || '000000'
+    const endStr = r.end ? r.end.toISOString().slice(0, 10) : null
+    const isOverdue = endStr !== null && endStr < todayStr && r.progress !== '100%'
+
+    const fill = isOverdue ? 'FEE2E2' : (DEPTH_FILL[r.depth] || 'FFFFFF')
+    const fontColor = isOverdue ? '991B1B' : (DEPTH_FONT[r.depth] || '000000')
 
     // Style data cells
     for (let c = 1; c <= DATA_COLS; c++) {
@@ -448,5 +473,13 @@ export async function generateExcel(
   const suffix = mode === 'actionplan'
     ? (isKo ? '액션플랜' : 'ActionPlan')
     : (isKo ? '간트차트' : 'Gantt')
-  saveAs(blob, `KPI_${suffix}_${today()}.xlsx`)
+  // Direct <a> element download — more reliable than file-saver across browsers
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `KPI_${suffix}_${today()}.xlsx`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
 }

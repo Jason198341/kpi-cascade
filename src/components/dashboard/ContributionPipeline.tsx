@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useCascadeStore } from '@/stores/cascadeStore'
 import { useOrgStore } from '@/stores/orgStore'
 import { useUIStore } from '@/stores/uiStore'
+import { isOverdue } from '@/lib/date'
 import type { KpiNode } from '@/types'
 
 /**
@@ -128,21 +129,25 @@ export function ContributionPipeline() {
                           actualContrib={actualContrib}
                           owner={owner}
                           isLast={isLast && isLastAction && (!ms || ms.length === 0)}
+                          overdue={isOverdue(action.due_date ?? null) && actionProgress < 100}
                         />
                         {/* Milestones under action */}
                         {ms && ms.length > 0 && (
                           <div className="ml-[84px] mb-1">
                             <div className="flex flex-wrap gap-x-3 gap-y-0.5">
-                              {ms.map((m) => (
-                                <span key={m.id} className={`text-[9px] ${m.done ? 'text-depth-2' : 'text-text-muted'}`}>
-                                  {m.done ? '✓' : '○'} {m.label}
-                                  {(m.start_date || m.end_date) && (
-                                    <span className="text-text-muted/50 ml-0.5">
-                                      ({m.start_date?.slice(5) || '?'}~{m.end_date?.slice(5) || '?'})
-                                    </span>
-                                  )}
-                                </span>
-                              ))}
+                              {ms.map((m) => {
+                                const msOverdue = !m.done && isOverdue(m.end_date ?? null)
+                                return (
+                                  <span key={m.id} className={`text-[9px] ${msOverdue ? 'text-danger font-semibold' : m.done ? 'text-depth-2' : 'text-text-muted'}`}>
+                                    {m.done ? '✓' : msOverdue ? '⚠' : '○'} {m.label}
+                                    {(m.start_date || m.end_date) && (
+                                      <span className={`ml-0.5 ${msOverdue ? 'text-danger/70' : 'text-text-muted/50'}`}>
+                                        ({m.start_date?.slice(5) || '?'}~{m.end_date?.slice(5) || '?'})
+                                      </span>
+                                    )}
+                                  </span>
+                                )
+                              })}
                             </div>
                           </div>
                         )}
@@ -190,6 +195,7 @@ function PipelineRow({
   actualContrib,
   owner,
   isLast,
+  overdue,
 }: {
   emoji: string
   title: string
@@ -202,9 +208,10 @@ function PipelineRow({
   actualContrib?: number
   owner?: { name: string; dept: string | null } | null
   isLast?: boolean
+  overdue?: boolean
 }) {
   const color = depthColors[depth] || depthColors[2]
-  const progressColor = progress >= 70 ? 'var(--color-success)' : progress >= 40 ? 'var(--color-warning)' : 'var(--color-danger)'
+  const progressColor = overdue ? 'var(--color-danger)' : progress >= 70 ? 'var(--color-success)' : progress >= 40 ? 'var(--color-warning)' : 'var(--color-danger)'
   const indent = depth * 28
 
   return (
@@ -231,7 +238,12 @@ function PipelineRow({
         {/* Info block */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
-            <span className="text-xs font-medium truncate">{title}</span>
+            <span className={`text-xs font-medium truncate ${overdue ? 'text-danger' : ''}`}>{title}</span>
+            {overdue && (
+              <span className="text-[9px] font-bold px-1 py-0.5 rounded shrink-0 bg-danger/15 text-danger">
+                지연
+              </span>
+            )}
             <span
               className="text-[9px] font-mono font-bold px-1 py-0.5 rounded shrink-0"
               style={{ background: `color-mix(in srgb, ${color} 15%, transparent)`, color }}

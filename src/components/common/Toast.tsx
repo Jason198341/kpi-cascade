@@ -13,11 +13,17 @@ export function ToastContainer() {
   const dismiss = useUIStore((s) => s.dismissToast)
 
   return (
-    <div className="fixed bottom-4 right-4 z-[60] flex flex-col gap-2">
+    <div
+      className="fixed bottom-4 right-4 z-[60] flex flex-col gap-2"
+      aria-live="polite"
+      aria-label="알림 메시지"
+    >
       <AnimatePresence>
         {toasts.map((t) => (
           <motion.div
             key={t.id}
+            role="alert"
+            aria-live={t.type === 'error' ? 'assertive' : 'polite'}
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
@@ -25,7 +31,7 @@ export function ToastContainer() {
               shadow-lg shadow-black/20 ${colors[t.type]}`}
             onClick={() => dismiss(t.id)}
           >
-            <span className="text-lg">{icons[t.type]}</span>
+            <span className="text-lg" aria-hidden="true">{icons[t.type]}</span>
             <span className="text-sm text-text">{t.message}</span>
           </motion.div>
         ))}

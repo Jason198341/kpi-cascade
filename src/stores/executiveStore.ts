@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { supabase, isDemoMode } from '@/lib/supabase'
+import { useUIStore } from '@/stores/uiStore'
 import type { ExecLogType, ExecutiveLog } from '@/types'
 
 const NOW = new Date().toISOString()
@@ -37,11 +38,18 @@ export const useExecutiveStore = create<ExecutiveState>((set, get) => ({
       return
     }
     set({ loading: true })
-    const { data } = await supabase
-      .from('executive_logs')
-      .select('*')
-      .eq('user_id', userId)
-    set({ logs: (data as ExecutiveLog[]) || [], loading: false })
+    try {
+      const { data, error } = await supabase
+        .from('executive_logs')
+        .select('*')
+        .eq('user_id', userId)
+      if (error) throw error
+      set({ logs: (data as ExecutiveLog[]) || [], loading: false })
+    } catch (err) {
+      set({ loading: false })
+      console.error('[executiveStore] fetchLogs failed:', err)
+      useUIStore.getState().toast('실행 로그를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.', 'error')
+    }
   },
 
   upsertLog: async (nodeId, logType, done, memo) => {
@@ -110,6 +118,10 @@ export const useExecutiveStore = create<ExecutiveState>((set, get) => ({
         }
         return { logs: [...s.logs, data as ExecutiveLog] }
       })
+    } else {
+      // upsert returned no data — likely an RLS or constraint error
+      console.error('[executiveStore] upsertLog returned no data for', nodeId, logType)
+      useUIStore.getState().toast('실행 로그 저장에 실패했습니다. 잠시 후 다시 시도해주세요.', 'error')
     }
   },
 

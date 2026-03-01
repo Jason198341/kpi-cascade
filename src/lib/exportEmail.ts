@@ -49,6 +49,7 @@ function buildSingleLangEmail(
   const memberMap: Record<string, string> = {}
   for (const m of members) memberMap[m.id] = m.display_name
 
+  const todayStr = new Date().toISOString().slice(0, 10)
   const lines: string[] = []
 
   // Header
@@ -86,13 +87,15 @@ function buildSingleLangEmail(
     const period = (a.start_date || a.due_date)
       ? ` (${a.start_date || '?'} ~ ${a.due_date || '?'})`
       : ''
-    lines.push(`${clean(a.title)} [${owner}] - ${fmt(progress)}${period}`)
+    const isOverdue = a.due_date && a.due_date < todayStr && progress < 100
+    lines.push(`${clean(a.title)} [${owner}] - ${fmt(progress)}${period}${isOverdue ? (isKo ? ' [!지연]' : ' [!OVERDUE]') : ''}`)
     if (a.milestones && a.milestones.length > 0) {
       for (const ms of a.milestones) {
         const msDate = (ms.start_date || ms.end_date)
           ? ` (${ms.start_date || '?'}~${ms.end_date || '?'})`
           : ''
-        lines.push(`   ${ms.done ? '[V]' : '[  ]'} ${ms.label}${msDate}`)
+        const msOverdue = ms.end_date && ms.end_date < todayStr && !ms.done
+        lines.push(`   ${ms.done ? '[V]' : '[  ]'} ${ms.label}${msDate}${msOverdue ? (isKo ? ' [!지연]' : ' [!OVERDUE]') : ''}`)
       }
     }
   }

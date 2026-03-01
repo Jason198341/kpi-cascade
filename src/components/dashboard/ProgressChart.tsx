@@ -30,6 +30,10 @@ export function ProgressChart() {
   return (
     <div className="glass rounded-xl p-6">
       <h3 className="text-sm font-medium text-text-muted mb-4">{t('dashboard.progress')}</h3>
+      <div
+        role="img"
+        aria-label={`전략 목표별 월간 진행률 추세 차트. ${roots.map((r) => r.title).join(', ')}`}
+      >
       <ResponsiveContainer width="100%" height={220}>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-surface-border)" />
@@ -55,6 +59,7 @@ export function ProgressChart() {
           ))}
         </LineChart>
       </ResponsiveContainer>
+      </div>
     </div>
   )
 }

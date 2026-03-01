@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { streamChat } from '@/lib/fireworks'
+import { checkDailyLimit, incrementDailyCount, RATE_LIMIT_ERROR_MESSAGE } from '@/lib/rate-limiter'
 import { useCascadeStore } from '@/stores/cascadeStore'
 import { useOrgStore } from '@/stores/orgStore'
 import { useExecutiveStore } from '@/stores/executiveStore'
@@ -7,6 +8,8 @@ import { useUIStore } from '@/stores/uiStore'
 import { buildMaps, getEffectiveProgress } from '@/lib/cascade'
 import { daysUntil, isOverdue } from '@/lib/date'
 import type { KpiNode, ExecutiveLog, Profile } from '@/types'
+
+const FEATURE_KEY = 'exec_insight'
 
 const EXEC_INSIGHT_SYSTEM = `You are an executive communication advisor for a fractal KPI management system.
 
@@ -133,6 +136,14 @@ export function ExecInsightPanel() {
       return
     }
 
+    // Rate limit check
+    const { allowed } = checkDailyLimit(FEATURE_KEY)
+    if (!allowed) {
+      setOpen(true)
+      setContent(RATE_LIMIT_ERROR_MESSAGE)
+      return
+    }
+
     setOpen(true)
     setContent('')
     setStreaming(true)
@@ -153,6 +164,8 @@ export function ExecInsightPanel() {
         accumulated += chunk
         setContent(accumulated)
       }
+      // Count this usage only on successful completion
+      incrementDailyCount(FEATURE_KEY)
     } catch (err) {
       if ((err as Error).name !== 'AbortError') {
         setContent((prev) => prev + `\n\n${err}`)

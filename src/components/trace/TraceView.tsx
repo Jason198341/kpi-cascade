@@ -22,8 +22,14 @@ export function TraceView({ nodeId }: Props) {
   // Reverse for display: root at top → leaf at bottom
   const displaySteps = [...trace].reverse()
 
+  const rootTitle = displaySteps[0]?.node.title ?? ''
+  const leafTitle = displaySteps[displaySteps.length - 1]?.node.title ?? ''
+
   return (
-    <div className="max-w-xl mx-auto py-8 px-4 relative">
+    <div
+      className="max-w-xl mx-auto py-8 px-4 relative"
+      aria-label={`기여도 추적: ${leafTitle}에서 ${rootTitle}까지의 연결 고리 (${displaySteps.length}단계, 최종 기여도 ${Math.round(finalImpact * 100)}%p)`}
+    >
       {/* Impact meter at top */}
       <ImpactMeter impact={finalImpact} />
 

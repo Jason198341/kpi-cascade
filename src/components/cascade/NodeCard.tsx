@@ -50,6 +50,10 @@ export function NodeCard({ node, onClick, showTrace }: Props) {
   return (
     <motion.div
       layout
+      role="button"
+      tabIndex={0}
+      aria-label={node.title}
+      aria-pressed={isSelected}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className={`
@@ -59,6 +63,7 @@ export function NodeCard({ node, onClick, showTrace }: Props) {
         ${isSelected ? depthGlows[node.depth] : ''}
       `}
       onClick={handleClick}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick() } }}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
     >
@@ -110,9 +115,10 @@ export function NodeCard({ node, onClick, showTrace }: Props) {
       {showTrace && node.depth === 2 && (
         <button
           onClick={(e) => { e.stopPropagation(); navigate(`/trace/${node.id}`) }}
+          aria-label={`${node.title} 기여도 추적 보기`}
           className="mt-3 w-full text-xs text-trace hover:underline flex items-center justify-center gap-1 cursor-pointer"
         >
-          ✦ {t('trace.viewTrace')}
+          <span aria-hidden="true">✦</span> {t('trace.viewTrace')}
         </button>
       )}
     </motion.div>

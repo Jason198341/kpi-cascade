@@ -1,35 +1,17 @@
 import { create } from 'zustand'
 import { streamChat } from '@/lib/fireworks'
 import { buildCoachMessages } from '@/data/prompts/coach-system'
-import { useAuthStore } from './authStore'
+import { checkDailyLimit, incrementDailyCount, RATE_LIMIT_ERROR_MESSAGE } from '@/lib/rate-limiter'
 import type { ChatMessage, CoachMode } from '@/types/ai'
 
-const UNLIMITED_EMAILS = ['kcmmer1@naver.com', 'skypeople41@gmail.com']
-const DAILY_AI_LIMIT = 1
-
-function getTodayKey() {
-  return `kc_ai_usage_${new Date().toISOString().slice(0, 10)}`
-}
-
-function getDailyUsage(): number {
-  return parseInt(localStorage.getItem(getTodayKey()) || '0', 10)
-}
-
-function incrementUsage() {
-  const key = getTodayKey()
-  localStorage.setItem(key, String(getDailyUsage() + 1))
-}
+const FEATURE_KEY = 'coach'
 
 function canUseAI(): boolean {
-  const email = useAuthStore.getState().profile?.email || useAuthStore.getState().user?.email || ''
-  if (UNLIMITED_EMAILS.includes(email)) return true
-  return getDailyUsage() < DAILY_AI_LIMIT
+  return checkDailyLimit(FEATURE_KEY).allowed
 }
 
 function getRemainingUses(): number {
-  const email = useAuthStore.getState().profile?.email || useAuthStore.getState().user?.email || ''
-  if (UNLIMITED_EMAILS.includes(email)) return Infinity
-  return Math.max(0, DAILY_AI_LIMIT - getDailyUsage())
+  return checkDailyLimit(FEATURE_KEY).remaining
 }
 
 interface CoachState {
@@ -63,7 +45,7 @@ export const useCoachStore = create<CoachState>((set, get) => ({
       const limitMsg: ChatMessage = {
         id: crypto.randomUUID(),
         role: 'assistant',
-        content: '오늘의 AI 사용 횟수(1회)를 모두 소진했습니다. 내일 다시 이용해 주세요.',
+        content: RATE_LIMIT_ERROR_MESSAGE,
         timestamp: Date.now(),
       }
       set((s) => ({ messages: [...s.messages, { id: crypto.randomUUID(), role: 'user', content, timestamp: Date.now() }, limitMsg] }))
@@ -105,7 +87,7 @@ export const useCoachStore = create<CoachState>((set, get) => ({
         }))
       }
       // Count this usage
-      incrementUsage()
+      incrementDailyCount(FEATURE_KEY)
     } catch (err) {
       set((s) => ({
         messages: s.messages.map((m) =>

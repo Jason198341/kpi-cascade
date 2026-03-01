@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { supabase, isDemoMode } from '@/lib/supabase'
 import { buildMaps, getEffectiveProgress, getContributionTrace } from '@/lib/cascade'
 import { SEED_NODES } from '@/data/seed'
+import { useUIStore } from '@/stores/uiStore'
 import type { KpiNode, Milestone, NodeMap, ChildrenMap, TraceStep, Depth } from '@/types'
 
 interface CascadeState {
@@ -54,17 +55,24 @@ export const useCascadeStore = create<CascadeState>((set, get) => ({
       set({ nodes: SEED_NODES, ...maps, loading: false })
       return
     }
-    const { data } = await supabase
-      .from('kpi_nodes')
-      .select('*')
-      .eq('org_id', orgId)
-      .order('sort_order')
-    // Normalize corrupted weights (>1 stored as percentages)
-    const nodes = ((data || []) as KpiNode[]).map((n) =>
-      n.weight > 1 ? { ...n, weight: n.weight / 100 } : n,
-    )
-    const maps = rebuildMaps(nodes)
-    set({ nodes, ...maps, loading: false })
+    try {
+      const { data, error } = await supabase
+        .from('kpi_nodes')
+        .select('*')
+        .eq('org_id', orgId)
+        .order('sort_order')
+      if (error) throw error
+      // Normalize corrupted weights (>1 stored as percentages)
+      const nodes = ((data || []) as KpiNode[]).map((n) =>
+        n.weight > 1 ? { ...n, weight: n.weight / 100 } : n,
+      )
+      const maps = rebuildMaps(nodes)
+      set({ nodes, ...maps, loading: false })
+    } catch (err) {
+      set({ loading: false })
+      console.error('[cascadeStore] fetchNodes failed:', err)
+      useUIStore.getState().toast('KPI 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.', 'error')
+    }
   },
 
   addNode: async (partial) => {
@@ -94,7 +102,11 @@ export const useCascadeStore = create<CascadeState>((set, get) => ({
 
     if (!isDemoMode) {
       const { error } = await supabase.from('kpi_nodes').insert(newNode)
-      if (error) throw error
+      if (error) {
+        console.error('[cascadeStore] addNode failed:', error)
+        useUIStore.getState().toast('항목 추가에 실패했습니다. 잠시 후 다시 시도해주세요.', 'error')
+        throw error
+      }
     }
 
     const nodes = [...get().nodes, newNode]
@@ -104,7 +116,11 @@ export const useCascadeStore = create<CascadeState>((set, get) => ({
   updateNode: async (id, updates) => {
     if (!isDemoMode) {
       const { error } = await supabase.from('kpi_nodes').update(updates).eq('id', id)
-      if (error) throw error
+      if (error) {
+        console.error('[cascadeStore] updateNode failed:', error)
+        useUIStore.getState().toast('항목 수정에 실패했습니다. 잠시 후 다시 시도해주세요.', 'error')
+        throw error
+      }
     }
     const nodes = get().nodes.map((n) => n.id === id ? { ...n, ...updates, updated_at: new Date().toISOString() } : n)
     set({ nodes, ...rebuildMaps(nodes) })
@@ -113,11 +129,16 @@ export const useCascadeStore = create<CascadeState>((set, get) => ({
   batchUpdateWeights: async (updates) => {
     const now = new Date().toISOString()
     if (!isDemoMode) {
-      await Promise.all(
+      const results = await Promise.all(
         Object.entries(updates).map(([id, weight]) =>
           supabase.from('kpi_nodes').update({ weight }).eq('id', id),
         ),
       )
+      const failed = results.filter((r) => r.error)
+      if (failed.length > 0) {
+        console.error('[cascadeStore] batchUpdateWeights partial failure:', failed.map((r) => r.error))
+        useUIStore.getState().toast('일부 가중치 저장에 실패했습니다. 잠시 후 다시 시도해주세요.', 'error')
+      }
     }
     const nodes = get().nodes.map((n) =>
       updates[n.id] !== undefined ? { ...n, weight: updates[n.id], updated_at: now } : n,
@@ -128,7 +149,11 @@ export const useCascadeStore = create<CascadeState>((set, get) => ({
   deleteNode: async (id) => {
     if (!isDemoMode) {
       const { error } = await supabase.from('kpi_nodes').delete().eq('id', id)
-      if (error) throw error
+      if (error) {
+        console.error('[cascadeStore] deleteNode failed:', error)
+        useUIStore.getState().toast('항목 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.', 'error')
+        throw error
+      }
     }
     // Remove node and all descendants
     const toRemove = new Set<string>()
@@ -139,7 +164,11 @@ export const useCascadeStore = create<CascadeState>((set, get) => ({
     }
     collect(id)
     const nodes = get().nodes.filter((n) => !toRemove.has(n.id))
-    set({ nodes, ...rebuildMaps(nodes), selectedNodeId: null })
+    // Clean up expandedIds for all removed nodes
+    const expandedIds = new Set(
+      [...get().expandedIds].filter((eid) => !toRemove.has(eid)),
+    )
+    set({ nodes, ...rebuildMaps(nodes), selectedNodeId: null, expandedIds })
   },
 
   updateProgress: async (id, newValue, note) => {
@@ -148,14 +177,23 @@ export const useCascadeStore = create<CascadeState>((set, get) => ({
     const prevValue = node.current_value
 
     if (!isDemoMode) {
-      await supabase.from('kpi_nodes').update({ current_value: newValue }).eq('id', id)
-      await supabase.from('progress_logs').insert({
+      const { error: updateError } = await supabase.from('kpi_nodes').update({ current_value: newValue }).eq('id', id)
+      if (updateError) {
+        console.error('[cascadeStore] updateProgress failed:', updateError)
+        useUIStore.getState().toast('진행률 업데이트에 실패했습니다. 잠시 후 다시 시도해주세요.', 'error')
+        throw updateError
+      }
+      const { error: logError } = await supabase.from('progress_logs').insert({
         node_id: id,
         user_id: (await supabase.auth.getUser()).data.user?.id,
         previous_value: prevValue,
         new_value: newValue,
         note: note || null,
       })
+      if (logError) {
+        // Log insertion failure is non-critical — warn but don't block
+        console.warn('[cascadeStore] progress_logs insert failed:', logError)
+      }
     }
 
     const nodes = get().nodes.map((n) =>
@@ -175,7 +213,11 @@ export const useCascadeStore = create<CascadeState>((set, get) => ({
 
     if (!isDemoMode) {
       const { error } = await supabase.from('kpi_nodes').update(updates).eq('id', nodeId)
-      if (error) throw error
+      if (error) {
+        console.error('[cascadeStore] toggleMilestone failed:', error)
+        useUIStore.getState().toast('마일스톤 업데이트에 실패했습니다. 잠시 후 다시 시도해주세요.', 'error')
+        throw error
+      }
     }
     const nodes = get().nodes.map((n) =>
       n.id === nodeId ? { ...n, ...updates, updated_at: new Date().toISOString() } : n,
@@ -193,7 +235,11 @@ export const useCascadeStore = create<CascadeState>((set, get) => ({
 
     if (!isDemoMode) {
       const { error } = await supabase.from('kpi_nodes').update(updates).eq('id', nodeId)
-      if (error) throw error
+      if (error) {
+        console.error('[cascadeStore] addMilestone failed:', error)
+        useUIStore.getState().toast('마일스톤 추가에 실패했습니다. 잠시 후 다시 시도해주세요.', 'error')
+        throw error
+      }
     }
     const nodes = get().nodes.map((n) =>
       n.id === nodeId ? { ...n, ...updates, updated_at: new Date().toISOString() } : n,
@@ -214,7 +260,11 @@ export const useCascadeStore = create<CascadeState>((set, get) => ({
 
     if (!isDemoMode) {
       const { error } = await supabase.from('kpi_nodes').update(updates).eq('id', nodeId)
-      if (error) throw error
+      if (error) {
+        console.error('[cascadeStore] removeMilestone failed:', error)
+        useUIStore.getState().toast('마일스톤 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.', 'error')
+        throw error
+      }
     }
     const nodes = get().nodes.map((n) =>
       n.id === nodeId ? { ...n, ...updates, updated_at: new Date().toISOString() } : n,

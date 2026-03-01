@@ -1,0 +1,2263 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+*{box-sizing:border-box}
+body{font-family:'Malgun Gothic','Segoe UI',sans-serif;background:#f0f2f5;margin:0;padding:20px;color:#2C3E50}
+.container{max-width:1800px;margin:0 auto}
+h1{color:#1B2A4A;font-size:22px;margin:0 0 4px}
+.subtitle{color:#666;font-size:12px;margin-bottom:20px}
+
+/* Dashboard Cards */
+.dash-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-bottom:20px}
+.card{background:#fff;border-radius:10px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.card-num{font-size:28px;font-weight:bold;color:#1B2A4A}
+.card-label{font-size:11px;color:#7f8c8d;margin-top:4px}
+.card-red .card-num{color:#E74C3C}
+.card-green .card-num{color:#27AE60}
+.card-orange .card-num{color:#F39C12}
+.card-gray .card-num{color:#7f8c8d}
+
+/* Vehicle comparison */
+.veh-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.veh-card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.veh-title{font-size:14px;font-weight:bold;color:#1B2A4A;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.veh-mc{font-size:11px;padding:3px 8px;border-radius:12px;font-weight:bold}
+.veh-mc.green{background:#D5F5E3;color:#27AE60}
+.veh-mc.yellow{background:#FEF9E7;color:#B7950B}
+.veh-mc.red{background:#FADBD8;color:#C0392B}
+.veh-bar-wrap{background:#ecf0f1;border-radius:6px;height:20px;margin:8px 0}
+.veh-bar{height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:bold;color:#fff;min-width:30px}
+.veh-stats{display:flex;gap:12px;font-size:11px;color:#7f8c8d}
+.veh-stats span{font-weight:bold;color:#2C3E50}
+
+/* Section headers */
+.section-hdr{background:#1B2A4A;color:#fff;padding:8px 14px;border-radius:8px 8px 0 0;font-size:14px;font-weight:bold;margin-top:20px}
+
+/* Tracker Table */
+.tracker-wrap{overflow-x:auto;margin-bottom:30px;border-radius:0 0 8px 8px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+table{border-collapse:collapse;font-size:10px;width:100%;background:#fff}
+th{background:#1B2A4A;color:#fff;padding:6px 4px;border:1px solid #2C3E6B;text-align:center;font-size:9px;white-space:nowrap}
+th.kr{background:#D6E4F0;color:#1B2A4A;font-size:8px;padding:3px}
+th.manual{background:#B7950B;color:#fff}
+th.manual-kr{background:#FFF9C4;color:#7D6608;font-size:8px;padding:3px}
+td{padding:4px 3px;border:1px solid #ddd;text-align:center;white-space:nowrap;font-size:10px}
+td.manual-cell{background:#FFF9C4 !important}
+td.left{text-align:left}
+tr:nth-child(even) td:not(.manual-cell){background:#F8FAFC}
+.progress-bar{width:60px;height:12px;background:#ecf0f1;border-radius:6px;display:inline-block;vertical-align:middle}
+.progress-fill{height:12px;border-radius:6px}
+
+/* Legend */
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0;font-size:11px}
+.legend-item{display:flex;align-items:center;gap:4px}
+.leg-dot{width:12px;height:12px;border-radius:3px;display:inline-block}
+.manual-legend{background:#FFF9C4;border:1px solid #B7950B;padding:4px 10px;border-radius:4px;font-size:11px;color:#7D6608;font-weight:bold;margin-bottom:10px}
+
+/* State dist */
+.state-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.state-chip{padding:6px 10px;border-radius:6px;font-size:10px;font-weight:bold;text-align:center}
+</style></head><body>
+<div class="container">
+
+<h1>ESIR Test Master Tracker V4</h1>
+<div class="subtitle">Generated: 2026-02-27 | 3 Vehicles | 69 Test Items | 28 Columns | 12-State Lifecycle + BLOCKED</div>
+<div class="dash-grid">
+<div class="card "><div class="card-num">69</div><div class="card-label">Total Items</div></div>
+<div class="card card-green"><div class="card-num">15</div><div class="card-label">Complete</div></div>
+<div class="card "><div class="card-num">54</div><div class="card-label">Remaining</div></div>
+<div class="card card-red"><div class="card-num">4</div><div class="card-label">Critical/Overdue</div></div>
+<div class="card card-gray"><div class="card-num">3</div><div class="card-label">Blocked</div></div>
+<div class="card card-orange"><div class="card-num">6</div><div class="card-label">Attention</div></div>
+<div class="card "><div class="card-num">49%</div><div class="card-label">Avg Progress</div></div>
+</div>
+<div class="veh-grid">
+<div class="veh-card">
+<div class="veh-title">AE_PE <span class="veh-mc green">MC D-108</span></div>
+<div class="veh-bar-wrap"><div class="veh-bar" style="width:48.69565217391305%;background:#3B5998">49%</div></div>
+<div class="veh-stats">Total <span>23</span> | Done <span>5</span> (22%) | Critical <span style="color:#E74C3C">2</span> | Blocked <span>1</span></div>
+</div>
+<div class="veh-card">
+<div class="veh-title">SU2i <span class="veh-mc green">MC D-169</span></div>
+<div class="veh-bar-wrap"><div class="veh-bar" style="width:48.69565217391305%;background:#3B5998">49%</div></div>
+<div class="veh-stats">Total <span>23</span> | Done <span>5</span> (22%) | Critical <span style="color:#E74C3C">0</span> | Blocked <span>1</span></div>
+</div>
+<div class="veh-card">
+<div class="veh-title">EN_SUV <span class="veh-mc green">MC D-138</span></div>
+<div class="veh-bar-wrap"><div class="veh-bar" style="width:48.69565217391305%;background:#3B5998">49%</div></div>
+<div class="veh-stats">Total <span>23</span> | Done <span>5</span> (22%) | Critical <span style="color:#E74C3C">2</span> | Blocked <span>1</span></div>
+</div>
+</div>
+<div class="manual-legend">🟨 노란색 셀 = 수동 입력 (Manual Input)</div>
+<div class="legend">
+<div class="legend-item"><span class="leg-dot" style="background:#D5F5E3;border:1px solid #27AE60"></span>✓ DONE</div>
+<div class="legend-item"><span class="leg-dot" style="background:#D5D8DC;border:1px solid #2C3E50"></span>⬛ BLOCKED</div>
+<div class="legend-item"><span class="leg-dot" style="background:#E74C3C;border:1px solid #FFF"></span>🔴 CRITICAL</div>
+<div class="legend-item"><span class="leg-dot" style="background:#FADBD8;border:1px solid #C0392B"></span>🔴 OVERDUE</div>
+<div class="legend-item"><span class="leg-dot" style="background:#FDEBD0;border:1px solid #E67E22"></span>🟠 ACTION</div>
+<div class="legend-item"><span class="leg-dot" style="background:#FEF9E7;border:1px solid #B7950B"></span>🟡 WARNING</div>
+<div class="legend-item"><span class="leg-dot" style="background:#EBF1F8;border:1px solid #2C3E50"></span>🟢 ON TRACK</div>
+</div>
+<div class="section-hdr">Master Tracker 마스터추적표 (V4)</div>
+<div class="tracker-wrap"><table>
+<tr>
+<th>No</th>
+<th class="manual">Vehicle</th>
+<th>Part<br>Category</th>
+<th class="manual">Item Name</th>
+<th>Supplier</th>
+<th class="manual">Test Name</th>
+<th>Test<br>Type</th>
+<th>Scope</th>
+<th>T₀</th>
+<th>Plan<br>Due</th>
+<th class="manual">Plan<br>Submit</th>
+<th class="manual">Review<br>Result</th>
+<th>Parts<br>(Plan)</th>
+<th class="manual">Parts<br>(Actual)</th>
+<th>Test Start<br>(Plan)</th>
+<th class="manual">Test Start<br>(Actual)</th>
+<th>Test End<br>(Plan)</th>
+<th class="manual">Test End<br>(Actual)</th>
+<th>Report<br>Due</th>
+<th class="manual">Report<br>Submit</th>
+<th class="manual">Override</th>
+<th>Status</th>
+<th>Progress</th>
+<th>D-Day</th>
+<th>Risk</th>
+<th>Stagnant</th>
+<th>Next Action</th>
+<th class="manual">Note</th>
+</tr>
+<tr>
+<th class="kr">번호</th>
+<th class="manual-kr">차종</th>
+<th class="kr">파트구분</th>
+<th class="manual-kr">아이템명</th>
+<th class="kr">협력사</th>
+<th class="manual-kr">시험명</th>
+<th class="kr">시험유형</th>
+<th class="kr">범위</th>
+<th class="kr">도면배포</th>
+<th class="kr">계획기한</th>
+<th class="manual-kr">계획제출</th>
+<th class="manual-kr">검토결과</th>
+<th class="kr">부품(계획)</th>
+<th class="manual-kr">부품(실적)</th>
+<th class="kr">시험시작(계획)</th>
+<th class="manual-kr">시험시작(실적)</th>
+<th class="kr">시험완료(계획)</th>
+<th class="manual-kr">시험완료(실적)</th>
+<th class="kr">성적서기한</th>
+<th class="manual-kr">성적서제출</th>
+<th class="manual-kr">오버라이드</th>
+<th class="kr">상태</th>
+<th class="kr">진행률</th>
+<th class="kr">잔여일</th>
+<th class="kr">리스크</th>
+<th class="kr">정체일수</th>
+<th class="kr">다음조치</th>
+<th class="manual-kr">비고</th>
+</tr>
+<tr>
+<td>1</td>
+<td class="manual-cell">AE_PE</td>
+<td>Console</td>
+<td class="manual-cell">센터콘솔</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">EMC 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>01/15</td>
+<td>01/29</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td>03/05</td>
+<td class="manual-cell"></td>
+<td>03/19</td>
+<td class="manual-cell"></td>
+<td>04/02</td>
+<td class="manual-cell"></td>
+<td>04/23</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#F2F3F4;color:#2C3E50;font-weight:bold;font-size:9px">01-미제출</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:0%;background:#BDC3C7"></div></div> 0%</td>
+<td style="">55</td>
+<td style="background:#E74C3C;color:#FFF;font-weight:bold;font-size:9px">🔴 CRITICAL</td>
+<td style="">—</td>
+<td class="left" style="font-size:9px">계획서 제출 독촉 (OVERDUE)</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>2</td>
+<td class="manual-cell">AE_PE</td>
+<td>Console</td>
+<td class="manual-cell">센터콘솔</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">VOC 방출 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>01/15</td>
+<td>01/29</td>
+<td class="manual-cell">01/27</td>
+<td class="manual-cell">Approved</td>
+<td>03/05</td>
+<td class="manual-cell"></td>
+<td>03/19</td>
+<td class="manual-cell"></td>
+<td>04/02</td>
+<td class="manual-cell"></td>
+<td>04/23</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#FEF9E7;color:#2C3E50;font-weight:bold;font-size:9px">05-계획서승인</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:20%;background:#F39C12"></div></div> 20%</td>
+<td style="">55</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="color:#E74C3C;font-weight:bold">31</td>
+<td class="left" style="font-size:9px">시험편 준비 현황 확인</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>3</td>
+<td class="manual-cell">AE_PE</td>
+<td>Console</td>
+<td class="manual-cell">센터콘솔</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">연소성 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>01/15</td>
+<td>01/29</td>
+<td class="manual-cell">01/28</td>
+<td class="manual-cell">Approved</td>
+<td>03/05</td>
+<td class="manual-cell">03/04</td>
+<td>03/19</td>
+<td class="manual-cell">03/21</td>
+<td>03/22</td>
+<td class="manual-cell"></td>
+<td>04/23</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#FEF9E7;color:#2C3E50;font-weight:bold;font-size:9px">09-시험준비중</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#3B5998"></div></div> 55%</td>
+<td style="">55</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-22</td>
+<td class="left" style="font-size:9px">시험 진행 모니터링</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>4</td>
+<td class="manual-cell">AE_PE</td>
+<td>Console</td>
+<td class="manual-cell">센터콘솔</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">BSR 시험</td>
+<td>차량장착</td>
+<td>ITEM_SPECIFIC</td>
+<td>01/15</td>
+<td>01/29</td>
+<td class="manual-cell">01/29</td>
+<td class="manual-cell">Approved</td>
+<td>03/05</td>
+<td class="manual-cell">03/05</td>
+<td>04/15</td>
+<td class="manual-cell">03/22</td>
+<td>04/29</td>
+<td class="manual-cell">04/14</td>
+<td>04/23</td>
+<td class="manual-cell">04/18</td>
+<td class="manual-cell"></td>
+<td style="background:#27AE60;color:#FFF;font-weight:bold;font-size:9px">11-결과등록완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:100%;background:#27AE60"></div></div> 100%</td>
+<td style="">—</td>
+<td style="background:#D5F5E3;color:#27AE60;font-weight:bold;font-size:9px">✓ DONE</td>
+<td style="">-50</td>
+<td class="left" style="font-size:9px">— 완료</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>5</td>
+<td class="manual-cell">AE_PE</td>
+<td>Console</td>
+<td class="manual-cell">센터콘솔</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">치수 검사</td>
+<td>단품</td>
+<td>ITEM_SPECIFIC</td>
+<td>01/15</td>
+<td>01/29</td>
+<td class="manual-cell">01/25</td>
+<td class="manual-cell">Under Review</td>
+<td>03/05</td>
+<td class="manual-cell"></td>
+<td>03/19</td>
+<td class="manual-cell"></td>
+<td>03/22</td>
+<td class="manual-cell"></td>
+<td>04/23</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#F2F3F4;color:#2C3E50;font-weight:bold;font-size:9px">03-검토중</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:10%;background:#F39C12"></div></div> 10%</td>
+<td style="">55</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="color:#E74C3C;font-weight:bold">33</td>
+<td class="left" style="font-size:9px">설계자: 승인 처리</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>6</td>
+<td class="manual-cell">AE_PE</td>
+<td>Console</td>
+<td class="manual-cell">콘솔리드</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">EMC 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>01/15</td>
+<td>01/29</td>
+<td class="manual-cell">01/26</td>
+<td class="manual-cell"></td>
+<td>03/05</td>
+<td class="manual-cell"></td>
+<td>03/19</td>
+<td class="manual-cell"></td>
+<td>04/02</td>
+<td class="manual-cell"></td>
+<td>04/23</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#F2F3F4;color:#2C3E50;font-weight:bold;font-size:9px">02-제출_미검토</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:5%;background:#F39C12"></div></div> 5%</td>
+<td style="">55</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="color:#E74C3C;font-weight:bold">32</td>
+<td class="left" style="font-size:9px">설계자: 계획서 검토 착수</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>7</td>
+<td class="manual-cell">AE_PE</td>
+<td>Console</td>
+<td class="manual-cell">콘솔리드</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">VOC 방출 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>01/15</td>
+<td>01/29</td>
+<td class="manual-cell">01/27</td>
+<td class="manual-cell">Approved</td>
+<td>03/05</td>
+<td class="manual-cell">03/08</td>
+<td>03/19</td>
+<td class="manual-cell"></td>
+<td>04/02</td>
+<td class="manual-cell"></td>
+<td>04/23</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#FEF9E7;color:#2C3E50;font-weight:bold;font-size:9px">08-단품준비완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:40%;background:#3B5998"></div></div> 40%</td>
+<td style="">55</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-9</td>
+<td class="left" style="font-size:9px">시험 일정 확인</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>8</td>
+<td class="manual-cell">AE_PE</td>
+<td>Console</td>
+<td class="manual-cell">콘솔리드</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">연소성 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>01/15</td>
+<td>01/29</td>
+<td class="manual-cell">01/28</td>
+<td class="manual-cell">Approved</td>
+<td>03/05</td>
+<td class="manual-cell">03/01</td>
+<td>03/19</td>
+<td class="manual-cell">03/20</td>
+<td>03/22</td>
+<td class="manual-cell">04/11</td>
+<td>04/23</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#ABEBC6;color:#2C3E50;font-weight:bold;font-size:9px">10-시험완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:85%;background:#27AE60"></div></div> 85%</td>
+<td style="">55</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-43</td>
+<td class="left" style="font-size:9px">결과 보고서 전산 등록 독촉</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>9</td>
+<td class="manual-cell">AE_PE</td>
+<td>Console</td>
+<td class="manual-cell">콘솔리드</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">힌지 내구 시험</td>
+<td>단품</td>
+<td>ITEM_SPECIFIC</td>
+<td>01/15</td>
+<td>01/29</td>
+<td class="manual-cell">01/29</td>
+<td class="manual-cell">Approved</td>
+<td>03/05</td>
+<td class="manual-cell"></td>
+<td>03/19</td>
+<td class="manual-cell"></td>
+<td>03/29</td>
+<td class="manual-cell"></td>
+<td>04/23</td>
+<td class="manual-cell"></td>
+<td class="manual-cell">06-BIW중단</td>
+<td style="background:#E74C3C;color:#FFF;font-weight:bold;font-size:9px">06-BIW중단</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:15%;background:#F39C12"></div></div> 15%</td>
+<td style="">55</td>
+<td style="background:#D5D8DC;color:#2C3E50;font-weight:bold;font-size:9px">⬛ BLOCKED</td>
+<td style="color:#E74C3C;font-weight:bold">29</td>
+<td class="left" style="font-size:9px">BIW 생산팀 확인 → 일정 재수립</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>10</td>
+<td class="manual-cell">AE_PE</td>
+<td>Console</td>
+<td class="manual-cell">콘솔리드</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">조작력 시험</td>
+<td>단품</td>
+<td>ITEM_SPECIFIC</td>
+<td>01/15</td>
+<td>01/29</td>
+<td class="manual-cell">01/25</td>
+<td class="manual-cell">Approved</td>
+<td>03/05</td>
+<td class="manual-cell">03/03</td>
+<td>03/19</td>
+<td class="manual-cell">03/22</td>
+<td>03/24</td>
+<td class="manual-cell">04/13</td>
+<td>04/23</td>
+<td class="manual-cell">04/20</td>
+<td class="manual-cell"></td>
+<td style="background:#27AE60;color:#FFF;font-weight:bold;font-size:9px">11-결과등록완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:100%;background:#27AE60"></div></div> 100%</td>
+<td style="">—</td>
+<td style="background:#D5F5E3;color:#27AE60;font-weight:bold;font-size:9px">✓ DONE</td>
+<td style="">-52</td>
+<td class="left" style="font-size:9px">— 완료</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>11</td>
+<td class="manual-cell">AE_PE</td>
+<td>Seat</td>
+<td class="manual-cell">시트(앞)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">EMC 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>01/15</td>
+<td>01/29</td>
+<td class="manual-cell">01/26</td>
+<td class="manual-cell">Revision Needed</td>
+<td>03/05</td>
+<td class="manual-cell"></td>
+<td>03/19</td>
+<td class="manual-cell"></td>
+<td>04/02</td>
+<td class="manual-cell"></td>
+<td>04/23</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#FADBD8;color:#2C3E50;font-weight:bold;font-size:9px">04-검토중_보완</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:5%;background:#F39C12"></div></div> 5%</td>
+<td style="">55</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="color:#E74C3C;font-weight:bold">32</td>
+<td class="left" style="font-size:9px">보완 요청 → 협력사 재제출 독촉</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>12</td>
+<td class="manual-cell">AE_PE</td>
+<td>Seat</td>
+<td class="manual-cell">시트(앞)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">VOC 방출 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>01/15</td>
+<td>01/29</td>
+<td class="manual-cell">01/27</td>
+<td class="manual-cell">Approved</td>
+<td>03/05</td>
+<td class="manual-cell">03/05</td>
+<td>03/19</td>
+<td class="manual-cell">03/18</td>
+<td>04/02</td>
+<td class="manual-cell"></td>
+<td>04/23</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#FEF9E7;color:#2C3E50;font-weight:bold;font-size:9px">09-시험준비중</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#3B5998"></div></div> 55%</td>
+<td style="">55</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-19</td>
+<td class="left" style="font-size:9px">시험 진행 모니터링</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>13</td>
+<td class="manual-cell">AE_PE</td>
+<td>Seat</td>
+<td class="manual-cell">시트(앞)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">연소성 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>01/15</td>
+<td>01/29</td>
+<td class="manual-cell">01/28</td>
+<td class="manual-cell">Approved</td>
+<td>03/05</td>
+<td class="manual-cell">03/06</td>
+<td>03/19</td>
+<td class="manual-cell">03/19</td>
+<td>03/22</td>
+<td class="manual-cell">04/16</td>
+<td>04/23</td>
+<td class="manual-cell">04/19</td>
+<td class="manual-cell"></td>
+<td style="background:#27AE60;color:#FFF;font-weight:bold;font-size:9px">11-결과등록완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:100%;background:#27AE60"></div></div> 100%</td>
+<td style="">—</td>
+<td style="background:#D5F5E3;color:#27AE60;font-weight:bold;font-size:9px">✓ DONE</td>
+<td style="">-51</td>
+<td class="left" style="font-size:9px">— 완료</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>14</td>
+<td class="manual-cell">AE_PE</td>
+<td>Seat</td>
+<td class="manual-cell">시트(앞)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">시트 내구 시험</td>
+<td>단품</td>
+<td>ITEM_SPECIFIC</td>
+<td>01/15</td>
+<td>01/29</td>
+<td class="manual-cell">01/29</td>
+<td class="manual-cell">Approved</td>
+<td>03/05</td>
+<td class="manual-cell"></td>
+<td>03/19</td>
+<td class="manual-cell"></td>
+<td>04/09</td>
+<td class="manual-cell"></td>
+<td>04/23</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#FEF9E7;color:#2C3E50;font-weight:bold;font-size:9px">05-계획서승인</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:20%;background:#F39C12"></div></div> 20%</td>
+<td style="">55</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="color:#E74C3C;font-weight:bold">29</td>
+<td class="left" style="font-size:9px">시험편 준비 현황 확인</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>15</td>
+<td class="manual-cell">AE_PE</td>
+<td>Seat</td>
+<td class="manual-cell">시트(앞)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">H-Point 검증</td>
+<td>차량장착</td>
+<td>ITEM_SPECIFIC</td>
+<td>01/15</td>
+<td>01/29</td>
+<td class="manual-cell">01/25</td>
+<td class="manual-cell">Approved</td>
+<td>03/05</td>
+<td class="manual-cell">03/08</td>
+<td>04/15</td>
+<td class="manual-cell"></td>
+<td>04/29</td>
+<td class="manual-cell"></td>
+<td>04/23</td>
+<td class="manual-cell"></td>
+<td class="manual-cell">07-미인수</td>
+<td style="background:#FDEBD0;color:#2C3E50;font-weight:bold;font-size:9px">07-미인수</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:30%;background:#F39C12"></div></div> 30%</td>
+<td style="">55</td>
+<td style="background:#FDEBD0;color:#E67E22;font-weight:bold;font-size:9px">🟠 ACTION</td>
+<td style="">-9</td>
+<td class="left" style="font-size:9px">협력사 인수 독촉</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>16</td>
+<td class="manual-cell">AE_PE</td>
+<td>Seat</td>
+<td class="manual-cell">시트(앞)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">안전벨트 앵커리지</td>
+<td>차량장착</td>
+<td>ITEM_SPECIFIC</td>
+<td>01/15</td>
+<td>01/29</td>
+<td class="manual-cell">01/26</td>
+<td class="manual-cell">Under Review</td>
+<td>03/05</td>
+<td class="manual-cell"></td>
+<td>04/15</td>
+<td class="manual-cell"></td>
+<td>04/29</td>
+<td class="manual-cell"></td>
+<td>04/23</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#F2F3F4;color:#2C3E50;font-weight:bold;font-size:9px">03-검토중</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:10%;background:#F39C12"></div></div> 10%</td>
+<td style="">55</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="color:#E74C3C;font-weight:bold">32</td>
+<td class="left" style="font-size:9px">설계자: 승인 처리</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>17</td>
+<td class="manual-cell">AE_PE</td>
+<td>Seat</td>
+<td class="manual-cell">시트(뒤)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">EMC 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>01/15</td>
+<td>01/29</td>
+<td class="manual-cell">01/27</td>
+<td class="manual-cell">Approved</td>
+<td>03/05</td>
+<td class="manual-cell">03/02</td>
+<td>03/19</td>
+<td class="manual-cell"></td>
+<td>04/02</td>
+<td class="manual-cell"></td>
+<td>04/23</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#FEF9E7;color:#2C3E50;font-weight:bold;font-size:9px">08-단품준비완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:40%;background:#3B5998"></div></div> 40%</td>
+<td style="">55</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-3</td>
+<td class="left" style="font-size:9px">시험 일정 확인</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>18</td>
+<td class="manual-cell">AE_PE</td>
+<td>Seat</td>
+<td class="manual-cell">시트(뒤)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">VOC 방출 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>01/15</td>
+<td>01/29</td>
+<td class="manual-cell">01/28</td>
+<td class="manual-cell">Approved</td>
+<td>03/05</td>
+<td class="manual-cell">03/03</td>
+<td>03/19</td>
+<td class="manual-cell">03/18</td>
+<td>04/02</td>
+<td class="manual-cell">04/14</td>
+<td>04/23</td>
+<td class="manual-cell">04/20</td>
+<td class="manual-cell">12-조건부승인</td>
+<td style="background:#FDEBD0;color:#2C3E50;font-weight:bold;font-size:9px">12-조건부승인</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:90%;background:#27AE60"></div></div> 90%</td>
+<td style="">—</td>
+<td style="background:#FDEBD0;color:#E67E22;font-weight:bold;font-size:9px">🟠 ACTION</td>
+<td style="">-52</td>
+<td class="left" style="font-size:9px">조건부 승인 여부 판단 → 관련부서 협의</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>19</td>
+<td class="manual-cell">AE_PE</td>
+<td>Seat</td>
+<td class="manual-cell">시트(뒤)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">연소성 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>01/15</td>
+<td>01/29</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td>03/05</td>
+<td class="manual-cell"></td>
+<td>03/19</td>
+<td class="manual-cell"></td>
+<td>03/22</td>
+<td class="manual-cell"></td>
+<td>04/23</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#F2F3F4;color:#2C3E50;font-weight:bold;font-size:9px">01-미제출</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:0%;background:#BDC3C7"></div></div> 0%</td>
+<td style="">55</td>
+<td style="background:#E74C3C;color:#FFF;font-weight:bold;font-size:9px">🔴 CRITICAL</td>
+<td style="">—</td>
+<td class="left" style="font-size:9px">계획서 제출 독촉 (OVERDUE)</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>20</td>
+<td class="manual-cell">AE_PE</td>
+<td>Seat</td>
+<td class="manual-cell">시트(뒤)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">시트 내구 시험</td>
+<td>단품</td>
+<td>ITEM_SPECIFIC</td>
+<td>01/15</td>
+<td>01/29</td>
+<td class="manual-cell">01/25</td>
+<td class="manual-cell">Approved</td>
+<td>03/05</td>
+<td class="manual-cell">03/05</td>
+<td>03/19</td>
+<td class="manual-cell">03/20</td>
+<td>04/09</td>
+<td class="manual-cell">04/16</td>
+<td>04/23</td>
+<td class="manual-cell">04/18</td>
+<td class="manual-cell"></td>
+<td style="background:#27AE60;color:#FFF;font-weight:bold;font-size:9px">11-결과등록완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:100%;background:#27AE60"></div></div> 100%</td>
+<td style="">—</td>
+<td style="background:#D5F5E3;color:#27AE60;font-weight:bold;font-size:9px">✓ DONE</td>
+<td style="">-50</td>
+<td class="left" style="font-size:9px">— 완료</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>21</td>
+<td class="manual-cell">AE_PE</td>
+<td>Seat</td>
+<td class="manual-cell">시트(뒤)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">안전벨트 앵커리지</td>
+<td>차량장착</td>
+<td>ITEM_SPECIFIC</td>
+<td>01/15</td>
+<td>01/29</td>
+<td class="manual-cell">01/26</td>
+<td class="manual-cell">Approved</td>
+<td>03/05</td>
+<td class="manual-cell">03/06</td>
+<td>04/15</td>
+<td class="manual-cell">03/21</td>
+<td>04/29</td>
+<td class="manual-cell">04/10</td>
+<td>04/23</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#ABEBC6;color:#2C3E50;font-weight:bold;font-size:9px">10-시험완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:85%;background:#27AE60"></div></div> 85%</td>
+<td style="">55</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-42</td>
+<td class="left" style="font-size:9px">결과 보고서 전산 등록 독촉</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>22</td>
+<td class="manual-cell">AE_PE</td>
+<td>Seat</td>
+<td class="manual-cell">시트(뒤)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">ISOFIX 강도 시험</td>
+<td>차량장착</td>
+<td>ITEM_SPECIFIC</td>
+<td>01/15</td>
+<td>01/29</td>
+<td class="manual-cell">01/27</td>
+<td class="manual-cell">Approved</td>
+<td>03/05</td>
+<td class="manual-cell">03/07</td>
+<td>04/15</td>
+<td class="manual-cell">03/22</td>
+<td>04/25</td>
+<td class="manual-cell"></td>
+<td>04/23</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#FEF9E7;color:#2C3E50;font-weight:bold;font-size:9px">09-시험준비중</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#3B5998"></div></div> 55%</td>
+<td style="">55</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-23</td>
+<td class="left" style="font-size:9px">시험 진행 모니터링</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>23</td>
+<td class="manual-cell">AE_PE</td>
+<td>Seat</td>
+<td class="manual-cell">시트(뒤)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">수하물 충격 시험</td>
+<td>차량장착</td>
+<td>ITEM_SPECIFIC</td>
+<td>01/15</td>
+<td>01/29</td>
+<td class="manual-cell">01/28</td>
+<td class="manual-cell">Approved</td>
+<td>03/05</td>
+<td class="manual-cell">03/08</td>
+<td>04/15</td>
+<td class="manual-cell">03/23</td>
+<td>04/22</td>
+<td class="manual-cell">04/12</td>
+<td>04/23</td>
+<td class="manual-cell">04/21</td>
+<td class="manual-cell"></td>
+<td style="background:#27AE60;color:#FFF;font-weight:bold;font-size:9px">11-결과등록완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:100%;background:#27AE60"></div></div> 100%</td>
+<td style="">—</td>
+<td style="background:#D5F5E3;color:#27AE60;font-weight:bold;font-size:9px">✓ DONE</td>
+<td style="">-53</td>
+<td class="left" style="font-size:9px">— 완료</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>24</td>
+<td class="manual-cell">SU2i</td>
+<td>Console</td>
+<td class="manual-cell">센터콘솔</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">EMC 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>03/01</td>
+<td>03/15</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td>04/19</td>
+<td class="manual-cell"></td>
+<td>05/03</td>
+<td class="manual-cell"></td>
+<td>05/17</td>
+<td class="manual-cell"></td>
+<td>06/07</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#F2F3F4;color:#2C3E50;font-weight:bold;font-size:9px">01-미제출</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:0%;background:#BDC3C7"></div></div> 0%</td>
+<td style="">100</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">—</td>
+<td class="left" style="font-size:9px">—</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>25</td>
+<td class="manual-cell">SU2i</td>
+<td>Console</td>
+<td class="manual-cell">센터콘솔</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">VOC 방출 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>03/01</td>
+<td>03/15</td>
+<td class="manual-cell">03/11</td>
+<td class="manual-cell">Approved</td>
+<td>04/19</td>
+<td class="manual-cell"></td>
+<td>05/03</td>
+<td class="manual-cell"></td>
+<td>05/17</td>
+<td class="manual-cell"></td>
+<td>06/07</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#FEF9E7;color:#2C3E50;font-weight:bold;font-size:9px">05-계획서승인</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:20%;background:#F39C12"></div></div> 20%</td>
+<td style="">100</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-12</td>
+<td class="left" style="font-size:9px">시험편 준비 현황 확인</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>26</td>
+<td class="manual-cell">SU2i</td>
+<td>Console</td>
+<td class="manual-cell">센터콘솔</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">연소성 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>03/01</td>
+<td>03/15</td>
+<td class="manual-cell">03/12</td>
+<td class="manual-cell">Approved</td>
+<td>04/19</td>
+<td class="manual-cell">04/17</td>
+<td>05/03</td>
+<td class="manual-cell">05/04</td>
+<td>05/06</td>
+<td class="manual-cell"></td>
+<td>06/07</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#FEF9E7;color:#2C3E50;font-weight:bold;font-size:9px">09-시험준비중</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#3B5998"></div></div> 55%</td>
+<td style="">100</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-66</td>
+<td class="left" style="font-size:9px">시험 진행 모니터링</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>27</td>
+<td class="manual-cell">SU2i</td>
+<td>Console</td>
+<td class="manual-cell">센터콘솔</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">BSR 시험</td>
+<td>차량장착</td>
+<td>ITEM_SPECIFIC</td>
+<td>03/01</td>
+<td>03/15</td>
+<td class="manual-cell">03/13</td>
+<td class="manual-cell">Approved</td>
+<td>04/19</td>
+<td class="manual-cell">04/18</td>
+<td>06/01</td>
+<td class="manual-cell">05/05</td>
+<td>06/15</td>
+<td class="manual-cell">05/31</td>
+<td>06/07</td>
+<td class="manual-cell">06/05</td>
+<td class="manual-cell"></td>
+<td style="background:#27AE60;color:#FFF;font-weight:bold;font-size:9px">11-결과등록완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:100%;background:#27AE60"></div></div> 100%</td>
+<td style="">—</td>
+<td style="background:#D5F5E3;color:#27AE60;font-weight:bold;font-size:9px">✓ DONE</td>
+<td style="">-98</td>
+<td class="left" style="font-size:9px">— 완료</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>28</td>
+<td class="manual-cell">SU2i</td>
+<td>Console</td>
+<td class="manual-cell">센터콘솔</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">치수 검사</td>
+<td>단품</td>
+<td>ITEM_SPECIFIC</td>
+<td>03/01</td>
+<td>03/15</td>
+<td class="manual-cell">03/14</td>
+<td class="manual-cell">Under Review</td>
+<td>04/19</td>
+<td class="manual-cell"></td>
+<td>05/03</td>
+<td class="manual-cell"></td>
+<td>05/06</td>
+<td class="manual-cell"></td>
+<td>06/07</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#F2F3F4;color:#2C3E50;font-weight:bold;font-size:9px">03-검토중</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:10%;background:#F39C12"></div></div> 10%</td>
+<td style="">100</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-15</td>
+<td class="left" style="font-size:9px">설계자: 승인 처리</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>29</td>
+<td class="manual-cell">SU2i</td>
+<td>Console</td>
+<td class="manual-cell">콘솔리드</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">EMC 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>03/01</td>
+<td>03/15</td>
+<td class="manual-cell">03/15</td>
+<td class="manual-cell"></td>
+<td>04/19</td>
+<td class="manual-cell"></td>
+<td>05/03</td>
+<td class="manual-cell"></td>
+<td>05/17</td>
+<td class="manual-cell"></td>
+<td>06/07</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#F2F3F4;color:#2C3E50;font-weight:bold;font-size:9px">02-제출_미검토</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:5%;background:#F39C12"></div></div> 5%</td>
+<td style="">100</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-16</td>
+<td class="left" style="font-size:9px">설계자: 계획서 검토 착수</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>30</td>
+<td class="manual-cell">SU2i</td>
+<td>Console</td>
+<td class="manual-cell">콘솔리드</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">VOC 방출 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>03/01</td>
+<td>03/15</td>
+<td class="manual-cell">03/11</td>
+<td class="manual-cell">Approved</td>
+<td>04/19</td>
+<td class="manual-cell">04/21</td>
+<td>05/03</td>
+<td class="manual-cell"></td>
+<td>05/17</td>
+<td class="manual-cell"></td>
+<td>06/07</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#FEF9E7;color:#2C3E50;font-weight:bold;font-size:9px">08-단품준비완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:40%;background:#3B5998"></div></div> 40%</td>
+<td style="">100</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-53</td>
+<td class="left" style="font-size:9px">시험 일정 확인</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>31</td>
+<td class="manual-cell">SU2i</td>
+<td>Console</td>
+<td class="manual-cell">콘솔리드</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">연소성 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>03/01</td>
+<td>03/15</td>
+<td class="manual-cell">03/12</td>
+<td class="manual-cell">Approved</td>
+<td>04/19</td>
+<td class="manual-cell">04/22</td>
+<td>05/03</td>
+<td class="manual-cell">05/03</td>
+<td>05/06</td>
+<td class="manual-cell">05/28</td>
+<td>06/07</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#ABEBC6;color:#2C3E50;font-weight:bold;font-size:9px">10-시험완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:85%;background:#27AE60"></div></div> 85%</td>
+<td style="">100</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-90</td>
+<td class="left" style="font-size:9px">결과 보고서 전산 등록 독촉</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>32</td>
+<td class="manual-cell">SU2i</td>
+<td>Console</td>
+<td class="manual-cell">콘솔리드</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">힌지 내구 시험</td>
+<td>단품</td>
+<td>ITEM_SPECIFIC</td>
+<td>03/01</td>
+<td>03/15</td>
+<td class="manual-cell">03/13</td>
+<td class="manual-cell">Approved</td>
+<td>04/19</td>
+<td class="manual-cell"></td>
+<td>05/03</td>
+<td class="manual-cell"></td>
+<td>05/13</td>
+<td class="manual-cell"></td>
+<td>06/07</td>
+<td class="manual-cell"></td>
+<td class="manual-cell">06-BIW중단</td>
+<td style="background:#E74C3C;color:#FFF;font-weight:bold;font-size:9px">06-BIW중단</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:15%;background:#F39C12"></div></div> 15%</td>
+<td style="">100</td>
+<td style="background:#D5D8DC;color:#2C3E50;font-weight:bold;font-size:9px">⬛ BLOCKED</td>
+<td style="">-14</td>
+<td class="left" style="font-size:9px">BIW 생산팀 확인 → 일정 재수립</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>33</td>
+<td class="manual-cell">SU2i</td>
+<td>Console</td>
+<td class="manual-cell">콘솔리드</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">조작력 시험</td>
+<td>단품</td>
+<td>ITEM_SPECIFIC</td>
+<td>03/01</td>
+<td>03/15</td>
+<td class="manual-cell">03/14</td>
+<td class="manual-cell">Approved</td>
+<td>04/19</td>
+<td class="manual-cell">04/16</td>
+<td>05/03</td>
+<td class="manual-cell">05/05</td>
+<td>05/08</td>
+<td class="manual-cell">05/30</td>
+<td>06/07</td>
+<td class="manual-cell">06/03</td>
+<td class="manual-cell"></td>
+<td style="background:#27AE60;color:#FFF;font-weight:bold;font-size:9px">11-결과등록완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:100%;background:#27AE60"></div></div> 100%</td>
+<td style="">—</td>
+<td style="background:#D5F5E3;color:#27AE60;font-weight:bold;font-size:9px">✓ DONE</td>
+<td style="">-96</td>
+<td class="left" style="font-size:9px">— 완료</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>34</td>
+<td class="manual-cell">SU2i</td>
+<td>Seat</td>
+<td class="manual-cell">시트(앞)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">EMC 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>03/01</td>
+<td>03/15</td>
+<td class="manual-cell">03/15</td>
+<td class="manual-cell">Revision Needed</td>
+<td>04/19</td>
+<td class="manual-cell"></td>
+<td>05/03</td>
+<td class="manual-cell"></td>
+<td>05/17</td>
+<td class="manual-cell"></td>
+<td>06/07</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#FADBD8;color:#2C3E50;font-weight:bold;font-size:9px">04-검토중_보완</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:5%;background:#F39C12"></div></div> 5%</td>
+<td style="">100</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-16</td>
+<td class="left" style="font-size:9px">보완 요청 → 협력사 재제출 독촉</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>35</td>
+<td class="manual-cell">SU2i</td>
+<td>Seat</td>
+<td class="manual-cell">시트(앞)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">VOC 방출 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>03/01</td>
+<td>03/15</td>
+<td class="manual-cell">03/11</td>
+<td class="manual-cell">Approved</td>
+<td>04/19</td>
+<td class="manual-cell">04/18</td>
+<td>05/03</td>
+<td class="manual-cell">05/07</td>
+<td>05/17</td>
+<td class="manual-cell"></td>
+<td>06/07</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#FEF9E7;color:#2C3E50;font-weight:bold;font-size:9px">09-시험준비중</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#3B5998"></div></div> 55%</td>
+<td style="">100</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-69</td>
+<td class="left" style="font-size:9px">시험 진행 모니터링</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>36</td>
+<td class="manual-cell">SU2i</td>
+<td>Seat</td>
+<td class="manual-cell">시트(앞)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">연소성 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>03/01</td>
+<td>03/15</td>
+<td class="manual-cell">03/12</td>
+<td class="manual-cell">Approved</td>
+<td>04/19</td>
+<td class="manual-cell">04/19</td>
+<td>05/03</td>
+<td class="manual-cell">05/02</td>
+<td>05/06</td>
+<td class="manual-cell">05/26</td>
+<td>06/07</td>
+<td class="manual-cell">06/02</td>
+<td class="manual-cell"></td>
+<td style="background:#27AE60;color:#FFF;font-weight:bold;font-size:9px">11-결과등록완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:100%;background:#27AE60"></div></div> 100%</td>
+<td style="">—</td>
+<td style="background:#D5F5E3;color:#27AE60;font-weight:bold;font-size:9px">✓ DONE</td>
+<td style="">-95</td>
+<td class="left" style="font-size:9px">— 완료</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>37</td>
+<td class="manual-cell">SU2i</td>
+<td>Seat</td>
+<td class="manual-cell">시트(앞)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">시트 내구 시험</td>
+<td>단품</td>
+<td>ITEM_SPECIFIC</td>
+<td>03/01</td>
+<td>03/15</td>
+<td class="manual-cell">03/13</td>
+<td class="manual-cell">Approved</td>
+<td>04/19</td>
+<td class="manual-cell"></td>
+<td>05/03</td>
+<td class="manual-cell"></td>
+<td>05/24</td>
+<td class="manual-cell"></td>
+<td>06/07</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#FEF9E7;color:#2C3E50;font-weight:bold;font-size:9px">05-계획서승인</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:20%;background:#F39C12"></div></div> 20%</td>
+<td style="">100</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-14</td>
+<td class="left" style="font-size:9px">시험편 준비 현황 확인</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>38</td>
+<td class="manual-cell">SU2i</td>
+<td>Seat</td>
+<td class="manual-cell">시트(앞)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">H-Point 검증</td>
+<td>차량장착</td>
+<td>ITEM_SPECIFIC</td>
+<td>03/01</td>
+<td>03/15</td>
+<td class="manual-cell">03/14</td>
+<td class="manual-cell">Approved</td>
+<td>04/19</td>
+<td class="manual-cell">04/21</td>
+<td>06/01</td>
+<td class="manual-cell"></td>
+<td>06/15</td>
+<td class="manual-cell"></td>
+<td>06/07</td>
+<td class="manual-cell"></td>
+<td class="manual-cell">07-미인수</td>
+<td style="background:#FDEBD0;color:#2C3E50;font-weight:bold;font-size:9px">07-미인수</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:30%;background:#F39C12"></div></div> 30%</td>
+<td style="">100</td>
+<td style="background:#FDEBD0;color:#E67E22;font-weight:bold;font-size:9px">🟠 ACTION</td>
+<td style="">-53</td>
+<td class="left" style="font-size:9px">협력사 인수 독촉</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>39</td>
+<td class="manual-cell">SU2i</td>
+<td>Seat</td>
+<td class="manual-cell">시트(앞)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">안전벨트 앵커리지</td>
+<td>차량장착</td>
+<td>ITEM_SPECIFIC</td>
+<td>03/01</td>
+<td>03/15</td>
+<td class="manual-cell">03/15</td>
+<td class="manual-cell">Under Review</td>
+<td>04/19</td>
+<td class="manual-cell"></td>
+<td>06/01</td>
+<td class="manual-cell"></td>
+<td>06/15</td>
+<td class="manual-cell"></td>
+<td>06/07</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#F2F3F4;color:#2C3E50;font-weight:bold;font-size:9px">03-검토중</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:10%;background:#F39C12"></div></div> 10%</td>
+<td style="">100</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-16</td>
+<td class="left" style="font-size:9px">설계자: 승인 처리</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>40</td>
+<td class="manual-cell">SU2i</td>
+<td>Seat</td>
+<td class="manual-cell">시트(뒤)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">EMC 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>03/01</td>
+<td>03/15</td>
+<td class="manual-cell">03/11</td>
+<td class="manual-cell">Approved</td>
+<td>04/19</td>
+<td class="manual-cell">04/15</td>
+<td>05/03</td>
+<td class="manual-cell"></td>
+<td>05/17</td>
+<td class="manual-cell"></td>
+<td>06/07</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#FEF9E7;color:#2C3E50;font-weight:bold;font-size:9px">08-단품준비완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:40%;background:#3B5998"></div></div> 40%</td>
+<td style="">100</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-47</td>
+<td class="left" style="font-size:9px">시험 일정 확인</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>41</td>
+<td class="manual-cell">SU2i</td>
+<td>Seat</td>
+<td class="manual-cell">시트(뒤)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">VOC 방출 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>03/01</td>
+<td>03/15</td>
+<td class="manual-cell">03/12</td>
+<td class="manual-cell">Approved</td>
+<td>04/19</td>
+<td class="manual-cell">04/16</td>
+<td>05/03</td>
+<td class="manual-cell">05/07</td>
+<td>05/17</td>
+<td class="manual-cell">05/31</td>
+<td>06/07</td>
+<td class="manual-cell">06/03</td>
+<td class="manual-cell">12-조건부승인</td>
+<td style="background:#FDEBD0;color:#2C3E50;font-weight:bold;font-size:9px">12-조건부승인</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:90%;background:#27AE60"></div></div> 90%</td>
+<td style="">—</td>
+<td style="background:#FDEBD0;color:#E67E22;font-weight:bold;font-size:9px">🟠 ACTION</td>
+<td style="">-96</td>
+<td class="left" style="font-size:9px">조건부 승인 여부 판단 → 관련부서 협의</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>42</td>
+<td class="manual-cell">SU2i</td>
+<td>Seat</td>
+<td class="manual-cell">시트(뒤)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">연소성 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>03/01</td>
+<td>03/15</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td>04/19</td>
+<td class="manual-cell"></td>
+<td>05/03</td>
+<td class="manual-cell"></td>
+<td>05/06</td>
+<td class="manual-cell"></td>
+<td>06/07</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#F2F3F4;color:#2C3E50;font-weight:bold;font-size:9px">01-미제출</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:0%;background:#BDC3C7"></div></div> 0%</td>
+<td style="">100</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">—</td>
+<td class="left" style="font-size:9px">—</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>43</td>
+<td class="manual-cell">SU2i</td>
+<td>Seat</td>
+<td class="manual-cell">시트(뒤)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">시트 내구 시험</td>
+<td>단품</td>
+<td>ITEM_SPECIFIC</td>
+<td>03/01</td>
+<td>03/15</td>
+<td class="manual-cell">03/14</td>
+<td class="manual-cell">Approved</td>
+<td>04/19</td>
+<td class="manual-cell">04/18</td>
+<td>05/03</td>
+<td class="manual-cell">05/03</td>
+<td>05/24</td>
+<td class="manual-cell">05/26</td>
+<td>06/07</td>
+<td class="manual-cell">06/05</td>
+<td class="manual-cell"></td>
+<td style="background:#27AE60;color:#FFF;font-weight:bold;font-size:9px">11-결과등록완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:100%;background:#27AE60"></div></div> 100%</td>
+<td style="">—</td>
+<td style="background:#D5F5E3;color:#27AE60;font-weight:bold;font-size:9px">✓ DONE</td>
+<td style="">-98</td>
+<td class="left" style="font-size:9px">— 완료</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>44</td>
+<td class="manual-cell">SU2i</td>
+<td>Seat</td>
+<td class="manual-cell">시트(뒤)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">안전벨트 앵커리지</td>
+<td>차량장착</td>
+<td>ITEM_SPECIFIC</td>
+<td>03/01</td>
+<td>03/15</td>
+<td class="manual-cell">03/15</td>
+<td class="manual-cell">Approved</td>
+<td>04/19</td>
+<td class="manual-cell">04/19</td>
+<td>06/01</td>
+<td class="manual-cell">05/04</td>
+<td>06/15</td>
+<td class="manual-cell">05/27</td>
+<td>06/07</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#ABEBC6;color:#2C3E50;font-weight:bold;font-size:9px">10-시험완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:85%;background:#27AE60"></div></div> 85%</td>
+<td style="">100</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-89</td>
+<td class="left" style="font-size:9px">결과 보고서 전산 등록 독촉</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>45</td>
+<td class="manual-cell">SU2i</td>
+<td>Seat</td>
+<td class="manual-cell">시트(뒤)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">ISOFIX 강도 시험</td>
+<td>차량장착</td>
+<td>ITEM_SPECIFIC</td>
+<td>03/01</td>
+<td>03/15</td>
+<td class="manual-cell">03/11</td>
+<td class="manual-cell">Approved</td>
+<td>04/19</td>
+<td class="manual-cell">04/20</td>
+<td>06/01</td>
+<td class="manual-cell">05/05</td>
+<td>06/11</td>
+<td class="manual-cell"></td>
+<td>06/07</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#FEF9E7;color:#2C3E50;font-weight:bold;font-size:9px">09-시험준비중</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#3B5998"></div></div> 55%</td>
+<td style="">100</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-67</td>
+<td class="left" style="font-size:9px">시험 진행 모니터링</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>46</td>
+<td class="manual-cell">SU2i</td>
+<td>Seat</td>
+<td class="manual-cell">시트(뒤)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">수하물 충격 시험</td>
+<td>차량장착</td>
+<td>ITEM_SPECIFIC</td>
+<td>03/01</td>
+<td>03/15</td>
+<td class="manual-cell">03/12</td>
+<td class="manual-cell">Approved</td>
+<td>04/19</td>
+<td class="manual-cell">04/21</td>
+<td>06/01</td>
+<td class="manual-cell">05/06</td>
+<td>06/08</td>
+<td class="manual-cell">05/29</td>
+<td>06/07</td>
+<td class="manual-cell">06/04</td>
+<td class="manual-cell"></td>
+<td style="background:#27AE60;color:#FFF;font-weight:bold;font-size:9px">11-결과등록완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:100%;background:#27AE60"></div></div> 100%</td>
+<td style="">—</td>
+<td style="background:#D5F5E3;color:#27AE60;font-weight:bold;font-size:9px">✓ DONE</td>
+<td style="">-97</td>
+<td class="left" style="font-size:9px">— 완료</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>47</td>
+<td class="manual-cell">EN_SUV</td>
+<td>Console</td>
+<td class="manual-cell">센터콘솔</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">EMC 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>02/01</td>
+<td>02/15</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td>03/22</td>
+<td class="manual-cell"></td>
+<td>04/05</td>
+<td class="manual-cell"></td>
+<td>04/19</td>
+<td class="manual-cell"></td>
+<td>05/10</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#F2F3F4;color:#2C3E50;font-weight:bold;font-size:9px">01-미제출</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:0%;background:#BDC3C7"></div></div> 0%</td>
+<td style="">72</td>
+<td style="background:#E74C3C;color:#FFF;font-weight:bold;font-size:9px">🔴 CRITICAL</td>
+<td style="">—</td>
+<td class="left" style="font-size:9px">계획서 제출 독촉 (OVERDUE)</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>48</td>
+<td class="manual-cell">EN_SUV</td>
+<td>Console</td>
+<td class="manual-cell">센터콘솔</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">VOC 방출 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>02/01</td>
+<td>02/15</td>
+<td class="manual-cell">02/14</td>
+<td class="manual-cell">Approved</td>
+<td>03/22</td>
+<td class="manual-cell"></td>
+<td>04/05</td>
+<td class="manual-cell"></td>
+<td>04/19</td>
+<td class="manual-cell"></td>
+<td>05/10</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#FEF9E7;color:#2C3E50;font-weight:bold;font-size:9px">05-계획서승인</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:20%;background:#F39C12"></div></div> 20%</td>
+<td style="">72</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="color:#E74C3C;font-weight:bold">13</td>
+<td class="left" style="font-size:9px">시험편 준비 현황 확인</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>49</td>
+<td class="manual-cell">EN_SUV</td>
+<td>Console</td>
+<td class="manual-cell">센터콘솔</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">연소성 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>02/01</td>
+<td>02/15</td>
+<td class="manual-cell">02/15</td>
+<td class="manual-cell">Approved</td>
+<td>03/22</td>
+<td class="manual-cell">03/19</td>
+<td>04/05</td>
+<td class="manual-cell">04/05</td>
+<td>04/08</td>
+<td class="manual-cell"></td>
+<td>05/10</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#FEF9E7;color:#2C3E50;font-weight:bold;font-size:9px">09-시험준비중</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#3B5998"></div></div> 55%</td>
+<td style="">72</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-37</td>
+<td class="left" style="font-size:9px">시험 진행 모니터링</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>50</td>
+<td class="manual-cell">EN_SUV</td>
+<td>Console</td>
+<td class="manual-cell">센터콘솔</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">BSR 시험</td>
+<td>차량장착</td>
+<td>ITEM_SPECIFIC</td>
+<td>02/01</td>
+<td>02/15</td>
+<td class="manual-cell">02/11</td>
+<td class="manual-cell">Approved</td>
+<td>03/22</td>
+<td class="manual-cell">03/20</td>
+<td>05/01</td>
+<td class="manual-cell">04/06</td>
+<td>05/15</td>
+<td class="manual-cell">04/28</td>
+<td>05/10</td>
+<td class="manual-cell">05/07</td>
+<td class="manual-cell"></td>
+<td style="background:#27AE60;color:#FFF;font-weight:bold;font-size:9px">11-결과등록완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:100%;background:#27AE60"></div></div> 100%</td>
+<td style="">—</td>
+<td style="background:#D5F5E3;color:#27AE60;font-weight:bold;font-size:9px">✓ DONE</td>
+<td style="">-69</td>
+<td class="left" style="font-size:9px">— 완료</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>51</td>
+<td class="manual-cell">EN_SUV</td>
+<td>Console</td>
+<td class="manual-cell">센터콘솔</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">치수 검사</td>
+<td>단품</td>
+<td>ITEM_SPECIFIC</td>
+<td>02/01</td>
+<td>02/15</td>
+<td class="manual-cell">02/12</td>
+<td class="manual-cell">Under Review</td>
+<td>03/22</td>
+<td class="manual-cell"></td>
+<td>04/05</td>
+<td class="manual-cell"></td>
+<td>04/08</td>
+<td class="manual-cell"></td>
+<td>05/10</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#F2F3F4;color:#2C3E50;font-weight:bold;font-size:9px">03-검토중</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:10%;background:#F39C12"></div></div> 10%</td>
+<td style="">72</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="color:#E74C3C;font-weight:bold">15</td>
+<td class="left" style="font-size:9px">설계자: 승인 처리</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>52</td>
+<td class="manual-cell">EN_SUV</td>
+<td>Console</td>
+<td class="manual-cell">콘솔리드</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">EMC 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>02/01</td>
+<td>02/15</td>
+<td class="manual-cell">02/13</td>
+<td class="manual-cell"></td>
+<td>03/22</td>
+<td class="manual-cell"></td>
+<td>04/05</td>
+<td class="manual-cell"></td>
+<td>04/19</td>
+<td class="manual-cell"></td>
+<td>05/10</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#F2F3F4;color:#2C3E50;font-weight:bold;font-size:9px">02-제출_미검토</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:5%;background:#F39C12"></div></div> 5%</td>
+<td style="">72</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="color:#E74C3C;font-weight:bold">14</td>
+<td class="left" style="font-size:9px">설계자: 계획서 검토 착수</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>53</td>
+<td class="manual-cell">EN_SUV</td>
+<td>Console</td>
+<td class="manual-cell">콘솔리드</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">VOC 방출 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>02/01</td>
+<td>02/15</td>
+<td class="manual-cell">02/14</td>
+<td class="manual-cell">Approved</td>
+<td>03/22</td>
+<td class="manual-cell">03/23</td>
+<td>04/05</td>
+<td class="manual-cell"></td>
+<td>04/19</td>
+<td class="manual-cell"></td>
+<td>05/10</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#FEF9E7;color:#2C3E50;font-weight:bold;font-size:9px">08-단품준비완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:40%;background:#3B5998"></div></div> 40%</td>
+<td style="">72</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-24</td>
+<td class="left" style="font-size:9px">시험 일정 확인</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>54</td>
+<td class="manual-cell">EN_SUV</td>
+<td>Console</td>
+<td class="manual-cell">콘솔리드</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">연소성 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>02/01</td>
+<td>02/15</td>
+<td class="manual-cell">02/15</td>
+<td class="manual-cell">Approved</td>
+<td>03/22</td>
+<td class="manual-cell">03/24</td>
+<td>04/05</td>
+<td class="manual-cell">04/04</td>
+<td>04/08</td>
+<td class="manual-cell">05/02</td>
+<td>05/10</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#ABEBC6;color:#2C3E50;font-weight:bold;font-size:9px">10-시험완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:85%;background:#27AE60"></div></div> 85%</td>
+<td style="">72</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-64</td>
+<td class="left" style="font-size:9px">결과 보고서 전산 등록 독촉</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>55</td>
+<td class="manual-cell">EN_SUV</td>
+<td>Console</td>
+<td class="manual-cell">콘솔리드</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">힌지 내구 시험</td>
+<td>단품</td>
+<td>ITEM_SPECIFIC</td>
+<td>02/01</td>
+<td>02/15</td>
+<td class="manual-cell">02/11</td>
+<td class="manual-cell">Approved</td>
+<td>03/22</td>
+<td class="manual-cell"></td>
+<td>04/05</td>
+<td class="manual-cell"></td>
+<td>04/15</td>
+<td class="manual-cell"></td>
+<td>05/10</td>
+<td class="manual-cell"></td>
+<td class="manual-cell">06-BIW중단</td>
+<td style="background:#E74C3C;color:#FFF;font-weight:bold;font-size:9px">06-BIW중단</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:15%;background:#F39C12"></div></div> 15%</td>
+<td style="">72</td>
+<td style="background:#D5D8DC;color:#2C3E50;font-weight:bold;font-size:9px">⬛ BLOCKED</td>
+<td style="color:#E74C3C;font-weight:bold">16</td>
+<td class="left" style="font-size:9px">BIW 생산팀 확인 → 일정 재수립</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>56</td>
+<td class="manual-cell">EN_SUV</td>
+<td>Console</td>
+<td class="manual-cell">콘솔리드</td>
+<td>HS R&amp;A</td>
+<td class="manual-cell">조작력 시험</td>
+<td>단품</td>
+<td>ITEM_SPECIFIC</td>
+<td>02/01</td>
+<td>02/15</td>
+<td class="manual-cell">02/12</td>
+<td class="manual-cell">Approved</td>
+<td>03/22</td>
+<td class="manual-cell">03/18</td>
+<td>04/05</td>
+<td class="manual-cell">04/06</td>
+<td>04/10</td>
+<td class="manual-cell">04/27</td>
+<td>05/10</td>
+<td class="manual-cell">05/05</td>
+<td class="manual-cell"></td>
+<td style="background:#27AE60;color:#FFF;font-weight:bold;font-size:9px">11-결과등록완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:100%;background:#27AE60"></div></div> 100%</td>
+<td style="">—</td>
+<td style="background:#D5F5E3;color:#27AE60;font-weight:bold;font-size:9px">✓ DONE</td>
+<td style="">-67</td>
+<td class="left" style="font-size:9px">— 완료</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>57</td>
+<td class="manual-cell">EN_SUV</td>
+<td>Seat</td>
+<td class="manual-cell">시트(앞)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">EMC 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>02/01</td>
+<td>02/15</td>
+<td class="manual-cell">02/13</td>
+<td class="manual-cell">Revision Needed</td>
+<td>03/22</td>
+<td class="manual-cell"></td>
+<td>04/05</td>
+<td class="manual-cell"></td>
+<td>04/19</td>
+<td class="manual-cell"></td>
+<td>05/10</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#FADBD8;color:#2C3E50;font-weight:bold;font-size:9px">04-검토중_보완</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:5%;background:#F39C12"></div></div> 5%</td>
+<td style="">72</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="color:#E74C3C;font-weight:bold">14</td>
+<td class="left" style="font-size:9px">보완 요청 → 협력사 재제출 독촉</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>58</td>
+<td class="manual-cell">EN_SUV</td>
+<td>Seat</td>
+<td class="manual-cell">시트(앞)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">VOC 방출 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>02/01</td>
+<td>02/15</td>
+<td class="manual-cell">02/14</td>
+<td class="manual-cell">Approved</td>
+<td>03/22</td>
+<td class="manual-cell">03/20</td>
+<td>04/05</td>
+<td class="manual-cell">04/08</td>
+<td>04/19</td>
+<td class="manual-cell"></td>
+<td>05/10</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#FEF9E7;color:#2C3E50;font-weight:bold;font-size:9px">09-시험준비중</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#3B5998"></div></div> 55%</td>
+<td style="">72</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-40</td>
+<td class="left" style="font-size:9px">시험 진행 모니터링</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>59</td>
+<td class="manual-cell">EN_SUV</td>
+<td>Seat</td>
+<td class="manual-cell">시트(앞)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">연소성 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>02/01</td>
+<td>02/15</td>
+<td class="manual-cell">02/15</td>
+<td class="manual-cell">Approved</td>
+<td>03/22</td>
+<td class="manual-cell">03/21</td>
+<td>04/05</td>
+<td class="manual-cell">04/09</td>
+<td>04/08</td>
+<td class="manual-cell">04/30</td>
+<td>05/10</td>
+<td class="manual-cell">05/08</td>
+<td class="manual-cell"></td>
+<td style="background:#27AE60;color:#FFF;font-weight:bold;font-size:9px">11-결과등록완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:100%;background:#27AE60"></div></div> 100%</td>
+<td style="">—</td>
+<td style="background:#D5F5E3;color:#27AE60;font-weight:bold;font-size:9px">✓ DONE</td>
+<td style="">-70</td>
+<td class="left" style="font-size:9px">— 완료</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>60</td>
+<td class="manual-cell">EN_SUV</td>
+<td>Seat</td>
+<td class="manual-cell">시트(앞)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">시트 내구 시험</td>
+<td>단품</td>
+<td>ITEM_SPECIFIC</td>
+<td>02/01</td>
+<td>02/15</td>
+<td class="manual-cell">02/11</td>
+<td class="manual-cell">Approved</td>
+<td>03/22</td>
+<td class="manual-cell"></td>
+<td>04/05</td>
+<td class="manual-cell"></td>
+<td>04/26</td>
+<td class="manual-cell"></td>
+<td>05/10</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#FEF9E7;color:#2C3E50;font-weight:bold;font-size:9px">05-계획서승인</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:20%;background:#F39C12"></div></div> 20%</td>
+<td style="">72</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="color:#E74C3C;font-weight:bold">16</td>
+<td class="left" style="font-size:9px">시험편 준비 현황 확인</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>61</td>
+<td class="manual-cell">EN_SUV</td>
+<td>Seat</td>
+<td class="manual-cell">시트(앞)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">H-Point 검증</td>
+<td>차량장착</td>
+<td>ITEM_SPECIFIC</td>
+<td>02/01</td>
+<td>02/15</td>
+<td class="manual-cell">02/12</td>
+<td class="manual-cell">Approved</td>
+<td>03/22</td>
+<td class="manual-cell">03/23</td>
+<td>05/01</td>
+<td class="manual-cell"></td>
+<td>05/15</td>
+<td class="manual-cell"></td>
+<td>05/10</td>
+<td class="manual-cell"></td>
+<td class="manual-cell">07-미인수</td>
+<td style="background:#FDEBD0;color:#2C3E50;font-weight:bold;font-size:9px">07-미인수</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:30%;background:#F39C12"></div></div> 30%</td>
+<td style="">72</td>
+<td style="background:#FDEBD0;color:#E67E22;font-weight:bold;font-size:9px">🟠 ACTION</td>
+<td style="">-24</td>
+<td class="left" style="font-size:9px">협력사 인수 독촉</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>62</td>
+<td class="manual-cell">EN_SUV</td>
+<td>Seat</td>
+<td class="manual-cell">시트(앞)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">안전벨트 앵커리지</td>
+<td>차량장착</td>
+<td>ITEM_SPECIFIC</td>
+<td>02/01</td>
+<td>02/15</td>
+<td class="manual-cell">02/13</td>
+<td class="manual-cell">Under Review</td>
+<td>03/22</td>
+<td class="manual-cell"></td>
+<td>05/01</td>
+<td class="manual-cell"></td>
+<td>05/15</td>
+<td class="manual-cell"></td>
+<td>05/10</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#F2F3F4;color:#2C3E50;font-weight:bold;font-size:9px">03-검토중</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:10%;background:#F39C12"></div></div> 10%</td>
+<td style="">72</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="color:#E74C3C;font-weight:bold">14</td>
+<td class="left" style="font-size:9px">설계자: 승인 처리</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>63</td>
+<td class="manual-cell">EN_SUV</td>
+<td>Seat</td>
+<td class="manual-cell">시트(뒤)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">EMC 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>02/01</td>
+<td>02/15</td>
+<td class="manual-cell">02/14</td>
+<td class="manual-cell">Approved</td>
+<td>03/22</td>
+<td class="manual-cell">03/25</td>
+<td>04/05</td>
+<td class="manual-cell"></td>
+<td>04/19</td>
+<td class="manual-cell"></td>
+<td>05/10</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#FEF9E7;color:#2C3E50;font-weight:bold;font-size:9px">08-단품준비완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:40%;background:#3B5998"></div></div> 40%</td>
+<td style="">72</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-26</td>
+<td class="left" style="font-size:9px">시험 일정 확인</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>64</td>
+<td class="manual-cell">EN_SUV</td>
+<td>Seat</td>
+<td class="manual-cell">시트(뒤)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">VOC 방출 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>02/01</td>
+<td>02/15</td>
+<td class="manual-cell">02/15</td>
+<td class="manual-cell">Approved</td>
+<td>03/22</td>
+<td class="manual-cell">03/18</td>
+<td>04/05</td>
+<td class="manual-cell">04/08</td>
+<td>04/19</td>
+<td class="manual-cell">04/28</td>
+<td>05/10</td>
+<td class="manual-cell">05/05</td>
+<td class="manual-cell">12-조건부승인</td>
+<td style="background:#FDEBD0;color:#2C3E50;font-weight:bold;font-size:9px">12-조건부승인</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:90%;background:#27AE60"></div></div> 90%</td>
+<td style="">—</td>
+<td style="background:#FDEBD0;color:#E67E22;font-weight:bold;font-size:9px">🟠 ACTION</td>
+<td style="">-67</td>
+<td class="left" style="font-size:9px">조건부 승인 여부 판단 → 관련부서 협의</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>65</td>
+<td class="manual-cell">EN_SUV</td>
+<td>Seat</td>
+<td class="manual-cell">시트(뒤)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">연소성 시험</td>
+<td>단품</td>
+<td>COMMON</td>
+<td>02/01</td>
+<td>02/15</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td>03/22</td>
+<td class="manual-cell"></td>
+<td>04/05</td>
+<td class="manual-cell"></td>
+<td>04/08</td>
+<td class="manual-cell"></td>
+<td>05/10</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#F2F3F4;color:#2C3E50;font-weight:bold;font-size:9px">01-미제출</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:0%;background:#BDC3C7"></div></div> 0%</td>
+<td style="">72</td>
+<td style="background:#E74C3C;color:#FFF;font-weight:bold;font-size:9px">🔴 CRITICAL</td>
+<td style="">—</td>
+<td class="left" style="font-size:9px">계획서 제출 독촉 (OVERDUE)</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>66</td>
+<td class="manual-cell">EN_SUV</td>
+<td>Seat</td>
+<td class="manual-cell">시트(뒤)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">시트 내구 시험</td>
+<td>단품</td>
+<td>ITEM_SPECIFIC</td>
+<td>02/01</td>
+<td>02/15</td>
+<td class="manual-cell">02/12</td>
+<td class="manual-cell">Approved</td>
+<td>03/22</td>
+<td class="manual-cell">03/20</td>
+<td>04/05</td>
+<td class="manual-cell">04/04</td>
+<td>04/26</td>
+<td class="manual-cell">04/30</td>
+<td>05/10</td>
+<td class="manual-cell">05/07</td>
+<td class="manual-cell"></td>
+<td style="background:#27AE60;color:#FFF;font-weight:bold;font-size:9px">11-결과등록완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:100%;background:#27AE60"></div></div> 100%</td>
+<td style="">—</td>
+<td style="background:#D5F5E3;color:#27AE60;font-weight:bold;font-size:9px">✓ DONE</td>
+<td style="">-69</td>
+<td class="left" style="font-size:9px">— 완료</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>67</td>
+<td class="manual-cell">EN_SUV</td>
+<td>Seat</td>
+<td class="manual-cell">시트(뒤)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">안전벨트 앵커리지</td>
+<td>차량장착</td>
+<td>ITEM_SPECIFIC</td>
+<td>02/01</td>
+<td>02/15</td>
+<td class="manual-cell">02/13</td>
+<td class="manual-cell">Approved</td>
+<td>03/22</td>
+<td class="manual-cell">03/21</td>
+<td>05/01</td>
+<td class="manual-cell">04/05</td>
+<td>05/15</td>
+<td class="manual-cell">05/01</td>
+<td>05/10</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#ABEBC6;color:#2C3E50;font-weight:bold;font-size:9px">10-시험완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:85%;background:#27AE60"></div></div> 85%</td>
+<td style="">72</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-63</td>
+<td class="left" style="font-size:9px">결과 보고서 전산 등록 독촉</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>68</td>
+<td class="manual-cell">EN_SUV</td>
+<td>Seat</td>
+<td class="manual-cell">시트(뒤)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">ISOFIX 강도 시험</td>
+<td>차량장착</td>
+<td>ITEM_SPECIFIC</td>
+<td>02/01</td>
+<td>02/15</td>
+<td class="manual-cell">02/14</td>
+<td class="manual-cell">Approved</td>
+<td>03/22</td>
+<td class="manual-cell">03/22</td>
+<td>05/01</td>
+<td class="manual-cell">04/06</td>
+<td>05/11</td>
+<td class="manual-cell"></td>
+<td>05/10</td>
+<td class="manual-cell"></td>
+<td class="manual-cell"></td>
+<td style="background:#FEF9E7;color:#2C3E50;font-weight:bold;font-size:9px">09-시험준비중</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:55%;background:#3B5998"></div></div> 55%</td>
+<td style="">72</td>
+<td style="background:#EBF1F8;color:#2C3E50;font-weight:bold;font-size:9px">🟢 ON TRACK</td>
+<td style="">-38</td>
+<td class="left" style="font-size:9px">시험 진행 모니터링</td>
+<td class="manual-cell"></td>
+</tr>
+<tr>
+<td>69</td>
+<td class="manual-cell">EN_SUV</td>
+<td>Seat</td>
+<td class="manual-cell">시트(뒤)</td>
+<td>Hyundai Transys</td>
+<td class="manual-cell">수하물 충격 시험</td>
+<td>차량장착</td>
+<td>ITEM_SPECIFIC</td>
+<td>02/01</td>
+<td>02/15</td>
+<td class="manual-cell">02/15</td>
+<td class="manual-cell">Approved</td>
+<td>03/22</td>
+<td class="manual-cell">03/23</td>
+<td>05/01</td>
+<td class="manual-cell">04/07</td>
+<td>05/08</td>
+<td class="manual-cell">05/03</td>
+<td>05/10</td>
+<td class="manual-cell">05/06</td>
+<td class="manual-cell"></td>
+<td style="background:#27AE60;color:#FFF;font-weight:bold;font-size:9px">11-결과등록완료</td>
+<td><div class="progress-bar"><div class="progress-fill" style="width:100%;background:#27AE60"></div></div> 100%</td>
+<td style="">—</td>
+<td style="background:#D5F5E3;color:#27AE60;font-weight:bold;font-size:9px">✓ DONE</td>
+<td style="">-68</td>
+<td class="left" style="font-size:9px">— 완료</td>
+<td class="manual-cell"></td>
+</tr>
+</table></div>
+<div class="section-hdr">State Distribution 상태별 분포</div>
+<div class="state-grid">
+<div class="state-chip" style="background:#F2F3F4;color:#2C3E50">01-미제출: 6</div>
+<div class="state-chip" style="background:#F2F3F4;color:#2C3E50">02-제출_미검토: 3</div>
+<div class="state-chip" style="background:#F2F3F4;color:#2C3E50">03-검토중: 6</div>
+<div class="state-chip" style="background:#FADBD8;color:#2C3E50">04-검토중_보완: 3</div>
+<div class="state-chip" style="background:#FEF9E7;color:#2C3E50">05-계획서승인: 6</div>
+<div class="state-chip" style="background:#E74C3C;color:#FFF">06-BIW중단: 3</div>
+<div class="state-chip" style="background:#FDEBD0;color:#2C3E50">07-미인수: 3</div>
+<div class="state-chip" style="background:#FEF9E7;color:#2C3E50">08-단품준비완료: 6</div>
+<div class="state-chip" style="background:#FEF9E7;color:#2C3E50">09-시험준비중: 9</div>
+<div class="state-chip" style="background:#ABEBC6;color:#2C3E50">10-시험완료: 6</div>
+<div class="state-chip" style="background:#27AE60;color:#FFF">11-결과등록완료: 15</div>
+<div class="state-chip" style="background:#FDEBD0;color:#2C3E50">12-조건부승인: 3</div>
+</div>
+<div class="section-hdr">Item Progress 아이템별 현황</div>
+<div style="background:#fff;padding:14px;border-radius:0 0 8px 8px;box-shadow:0 2px 8px rgba(0,0,0,.08)">
+<table style="width:auto"><tr><th>Vehicle</th><th>Item</th><th>Tests</th><th>Done</th><th>Avg Progress</th></tr>
+<tr><td style="font-weight:bold">AE_PE</td><td>센터콘솔</td><td style="text-align:center">5</td><td style="text-align:center">1</td><td style="background:#FEF9E7;text-align:center;font-weight:bold">37%</td></tr>
+<tr><td style="font-weight:bold">AE_PE</td><td>시트(뒤)</td><td style="text-align:center">7</td><td style="text-align:center">2</td><td style="background:#FEF9E7;text-align:center;font-weight:bold">67%</td></tr>
+<tr><td style="font-weight:bold">AE_PE</td><td>시트(앞)</td><td style="text-align:center">6</td><td style="text-align:center">1</td><td style="background:#FEF9E7;text-align:center;font-weight:bold">37%</td></tr>
+<tr><td style="font-weight:bold">AE_PE</td><td>콘솔리드</td><td style="text-align:center">5</td><td style="text-align:center">1</td><td style="background:#FEF9E7;text-align:center;font-weight:bold">49%</td></tr>
+<tr><td style="font-weight:bold">EN_SUV</td><td>센터콘솔</td><td style="text-align:center">5</td><td style="text-align:center">1</td><td style="background:#FEF9E7;text-align:center;font-weight:bold">37%</td></tr>
+<tr><td style="font-weight:bold">EN_SUV</td><td>시트(뒤)</td><td style="text-align:center">7</td><td style="text-align:center">2</td><td style="background:#FEF9E7;text-align:center;font-weight:bold">67%</td></tr>
+<tr><td style="font-weight:bold">EN_SUV</td><td>시트(앞)</td><td style="text-align:center">6</td><td style="text-align:center">1</td><td style="background:#FEF9E7;text-align:center;font-weight:bold">37%</td></tr>
+<tr><td style="font-weight:bold">EN_SUV</td><td>콘솔리드</td><td style="text-align:center">5</td><td style="text-align:center">1</td><td style="background:#FEF9E7;text-align:center;font-weight:bold">49%</td></tr>
+<tr><td style="font-weight:bold">SU2i</td><td>센터콘솔</td><td style="text-align:center">5</td><td style="text-align:center">1</td><td style="background:#FEF9E7;text-align:center;font-weight:bold">37%</td></tr>
+<tr><td style="font-weight:bold">SU2i</td><td>시트(뒤)</td><td style="text-align:center">7</td><td style="text-align:center">2</td><td style="background:#FEF9E7;text-align:center;font-weight:bold">67%</td></tr>
+<tr><td style="font-weight:bold">SU2i</td><td>시트(앞)</td><td style="text-align:center">6</td><td style="text-align:center">1</td><td style="background:#FEF9E7;text-align:center;font-weight:bold">37%</td></tr>
+<tr><td style="font-weight:bold">SU2i</td><td>콘솔리드</td><td style="text-align:center">5</td><td style="text-align:center">1</td><td style="background:#FEF9E7;text-align:center;font-weight:bold">49%</td></tr>
+</table></div>
+</div></body></html>

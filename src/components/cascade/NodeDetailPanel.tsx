@@ -49,6 +49,8 @@ export function NodeDetailPanel() {
     <AnimatePresence mode="wait">
       <motion.div
         key={node.id}
+        role="complementary"
+        aria-label="상세 패널"
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: 20 }}
@@ -57,7 +59,13 @@ export function NodeDetailPanel() {
         {/* Close */}
         <div className="flex items-center justify-between mb-4">
           <DepthTag depth={node.depth} />
-          <button onClick={() => selectNode(null)} className="text-text-muted hover:text-text cursor-pointer">✕</button>
+          <button
+            onClick={() => selectNode(null)}
+            aria-label="상세 패널 닫기"
+            className="text-text-muted hover:text-text cursor-pointer"
+          >
+            <span aria-hidden="true">✕</span>
+          </button>
         </div>
 
         {/* Title */}
